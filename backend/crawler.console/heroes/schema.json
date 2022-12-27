@@ -1,0 +1,21 @@
+[
+    {
+        "name": "name",
+        "xpath":  "/html/body/div[1]/blz-media-gallery/blz-hero-card[1]/div/span"
+    },
+    {
+        "name": "url",
+        "xpath": "/html/head/meta[6]",
+        "attribute": "content"
+    },
+    {
+        "name": "detailsUrl",
+        "xpath":  "/html/body/div[1]/blz-media-gallery/blz-hero-card[1]",
+        "attribute": "url"
+    },
+    {
+        "name": "imageUrl",
+        "xpath":  "/html/body/div[1]/blz-media-gallery/blz-hero-card[1]/blz-image",
+        "attribute": "src"
+    }
+]
