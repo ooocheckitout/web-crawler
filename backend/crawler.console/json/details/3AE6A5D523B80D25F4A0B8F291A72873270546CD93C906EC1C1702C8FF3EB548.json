@@ -1,7 +1,5 @@
-﻿[
-  {
-    "name": "Ana",
-    "role": "Support",
-    "abilities": "[ Biotic Rifle, Sleep Dart, Biotic Grenade, Nano Boost ]"
-  }
-]
+﻿{
+  "name": "Ana",
+  "role": "Support",
+  "abilities": "[ Biotic Rifle, Sleep Dart, Biotic Grenade, Nano Boost ]"
+}
