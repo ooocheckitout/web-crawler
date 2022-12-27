@@ -1,5 +1,11 @@
 ﻿{
   "name": "Baptiste",
   "role": "Support",
-  "abilities": "[ Biotic Launcher, Regenerative Burst, Immortality Field, Amplification Matrix, Exo Boots ]"
+  "abilities": [
+    "Biotic Launcher",
+    "Regenerative Burst",
+    "Immortality Field",
+    "Amplification Matrix",
+    "Exo Boots"
+  ]
 }

@@ -1,5 +1,10 @@
 ﻿{
   "name": "Ashe",
   "role": "Damage",
-  "abilities": "[ The Viper, Coach Gun, Dynamite, B.O.B. ]"
+  "abilities": [
+    "The Viper",
+    "Coach Gun",
+    "Dynamite",
+    "B.O.B."
+  ]
 }

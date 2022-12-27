@@ -39,16 +39,20 @@ class Parser
         }
     }
 
-    public IDictionary<string, string> ParseSingleObject(string content, IEnumerable<Field> fields)
+    public IDictionary<string, object> ParseSingleObject(string content, IEnumerable<Field> fields)
     {
         var document = new HtmlDocument();
         document.LoadHtml(content);
 
-        var dict = new Dictionary<string, string>();
+        var dict = new Dictionary<string, object>();
         foreach (var field in fields)
         {
             var values = GetFieldValues(document, field);
-            dict.Add(field.Name, values.Single());
+
+            if (!field.IsArray)
+                dict.Add(field.Name, values.Single());
+            else
+                dict.Add(field.Name, values);
         }
 
         return dict;
@@ -65,7 +69,7 @@ class Parser
 
         var values = results.Select(x => GetNodeValue(x, field));
         if (field.IsArray)
-            return new[] { $"[ {string.Join(", ", values)} ]" };
+            return values;
 
         return values;
     }
