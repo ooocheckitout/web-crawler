@@ -12,8 +12,6 @@ execute:
 
  */
 
-using HtmlAgilityPack;
-
 const string urlFileLocation = "heroes/urls.json";
 const string schemaFileLocation = "heroes/schema.json";
 const string root = "../../..";
@@ -22,49 +20,30 @@ var fileReader = new FileReader();
 var fileWriter = new FileWriter();
 var downloader = new WebDownloader(new HttpClient(), fileWriter);
 var hasher = new Hasher();
+var parser = new Parser();
 
 var urls = await fileReader.FromJsonFileAsync<IEnumerable<string>>(urlFileLocation);
-var fields = await fileReader.FromJsonFileAsync<ICollection<Schema>>(schemaFileLocation);
+var schema = await fileReader.FromJsonFileAsync<Schema>(schemaFileLocation);
 
 foreach (var url in urls)
 {
     var hash = hasher.GetSha256HashAsHex(url);
-    Console.WriteLine($"Writing {url} as {hash}.html file");
+    Console.WriteLine($"Calculated hash {hash} from url {url}");
     var htmlFileLocation = $"{root}/html/{hash}.html";
 
     if (!File.Exists(htmlFileLocation))
         await downloader.DownloadTextToFileAsync(url, htmlFileLocation);
 
-
-    var content = await fileReader.FromTextFileAsync(htmlFileLocation);
-
-    var doc = new HtmlDocument();
-    doc.LoadHtml(content);
-
-    var dict = new Dictionary<string, string>();
-    foreach (var field in fields)
-    {
-        var results = doc.DocumentNode.SelectNodes(field.XPath);
-
-        if (results is null || !results.Any())
-        {
-            Console.WriteLine($"No results for field {field.Name}");
-            continue;
-        }
-
-        if (results.Count == 1)
-        {
-            var node = results.Single();
-            var value = field.Attribute is not null
-                ? node.Attributes[field.Attribute].Value
-                : node.InnerText;
-
-            dict.Add(field.Name, value);
-        }
-    }
-
-    dict.Dump();
-
     var jsonFileLocation = $"{root}/json/{hash}.json";
-    await fileWriter.ToJsonFileAsync(jsonFileLocation, dict);
+    var content = await fileReader.FromTextFileAsync(htmlFileLocation);
+    if (schema.HasMultipleResultsPerPage)
+    {
+        var multipleObject = parser.ParseMultipleObject(content, schema.Fields);
+        await fileWriter.ToJsonFileAsync(jsonFileLocation, multipleObject);
+    }
+    else
+    {
+        var singleObject = parser.ParseSingleObject(content, schema.Fields);
+        await fileWriter.ToJsonFileAsync(jsonFileLocation, singleObject);
+    }
 }
