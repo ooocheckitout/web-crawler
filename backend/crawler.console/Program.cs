@@ -12,9 +12,10 @@ execute:
 
  */
 
-const string urlFileLocation = "heroes/urls.json";
-const string schemaFileLocation = "heroes/schema.json";
-const string root = "../../..";
+const string urlFileLocation = "details/urls.json";
+const string schemaFileLocation = "details/schema.json";
+const string htmlRoot = "../../../html/details";
+const string jsonRoot = "../../../json/details";
 
 var fileReader = new FileReader();
 var fileWriter = new FileWriter();
@@ -28,13 +29,18 @@ var schema = await fileReader.FromJsonFileAsync<Schema>(schemaFileLocation);
 foreach (var url in urls)
 {
     var hash = hasher.GetSha256HashAsHex(url);
-    Console.WriteLine($"Calculated hash {hash} from url {url}");
-    var htmlFileLocation = $"{root}/html/{hash}.html";
+    var htmlFileLocation = $"{htmlRoot}/{hash}.html";
 
     if (!File.Exists(htmlFileLocation))
         await downloader.DownloadTextToFileAsync(url, htmlFileLocation);
+    
+    var jsonFileLocation = $"{jsonRoot}/{hash}.json";
 
-    var jsonFileLocation = $"{root}/json/{hash}.json";
+#if !DEBUG
+    if (File.Exists(jsonFileLocation))
+        continue;
+#endif
+
     var content = await fileReader.FromTextFileAsync(htmlFileLocation);
     if (schema.HasMultipleResultsPerPage)
     {

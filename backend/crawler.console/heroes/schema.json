@@ -6,14 +6,26 @@
       "xpath": "/html/body/div[1]/blz-media-gallery/blz-hero-card/div/span"
     },
     {
-      "name": "detailsUrl",
+      "name": "imageUrl",
+      "xpath": "/html/body/div[1]/blz-media-gallery/blz-hero-card/blz-image",
+      "attribute": "src"
+    },
+    {
+      "name": "relativeDetailsUrl",
       "xpath": "/html/body/div[1]/blz-media-gallery/blz-hero-card",
       "attribute": "url"
     },
     {
-      "name": "imageUrl",
-      "xpath": "/html/body/div[1]/blz-media-gallery/blz-hero-card/blz-image",
-      "attribute": "src"
+      "name": "host",
+      "value": "https://overwatch.blizzard.com/en-us",
+      "isMetadata": true,
+      "isStatic": true
+    },
+    {
+      "name": "crawlUrl",
+      "xpath": "/html/head/meta[6]",
+      "attribute": "content",
+      "isMetadata": true
     }
   ]
 }

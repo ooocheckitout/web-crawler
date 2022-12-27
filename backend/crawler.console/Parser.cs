@@ -6,25 +6,15 @@ class Parser
     {
         var document = new HtmlDocument();
         document.LoadHtml(content);
-        
-        // collect values for every field
-        var fieldValues = new Dictionary<string, IList<string>>(); 
-        foreach (var field in fields)
-        {
-            var results = document.DocumentNode.SelectNodes(field.XPath);
-            if (results is null || !results.Any())
-            {
-                Console.WriteLine($"No results for field {field.Name}");
-                continue;
-            }
 
-            var values = results.Select(x => GetNodeValue(x, field)).ToList();
-            fieldValues.Add(field.Name, values);
-        }
+        // collect values for every field
+        var fieldValues = fields.ToDictionary<Field?, Field, IList<string>>(
+            field => field,
+            field => GetFieldValues(document, field).ToList());
 
         // ensure number of values is equal between fields
         var numberOfElements = fieldValues.Values.First().Count;
-        if (fieldValues.Values.Any(x => x.Count != numberOfElements))
+        if (fieldValues.Where(x => !x.Key.IsMetadata).Any(x => x.Value.Count != numberOfElements))
             throw new Exception("Invalid number of parsed values!");
 
         // construct object
@@ -33,8 +23,16 @@ class Parser
             var dict = new Dictionary<string, string>();
             foreach (var field in fieldValues.Keys)
             {
+                if (field.IsMetadata)
+                {
+                    var staticValue = fieldValues[field].Single();
+
+                    dict.Add(field.Name, staticValue);
+                    continue;
+                }
+
                 var value = fieldValues[field][i];
-                dict.Add(field, value);
+                dict.Add(field.Name, value);
             }
 
             yield return dict;
@@ -45,31 +43,45 @@ class Parser
     {
         var document = new HtmlDocument();
         document.LoadHtml(content);
-        
+
         var dict = new Dictionary<string, string>();
         foreach (var field in fields)
         {
-            var results = document.DocumentNode.SelectNodes(field.XPath);
-            if (results is null || !results.Any())
-            {
-                Console.WriteLine($"No results for field {field.Name}");
-                continue;
-            }
-
-            var node = results.SingleOrDefault();
-            if (node is null)
-                throw new Exception("Only one node is expected!");
-            
-            dict.Add(field.Name, GetNodeValue(node, field));
+            var values = GetFieldValues(document, field);
+            dict.Add(field.Name, values.Single());
         }
 
         return dict;
     }
 
+    IEnumerable<string> GetFieldValues(HtmlDocument document, Field field)
+    {
+        if (field.IsMetadata && field.IsStatic)
+            return new[] { field.Value! };
+
+        var results = document.DocumentNode.SelectNodes(field.XPath);
+        if (results is null)
+            return Array.Empty<string>();
+
+        var values = results.Select(x => GetNodeValue(x, field));
+        if (field.IsArray)
+            return new[] { $"[ {string.Join(", ", values)} ]" };
+
+        return values;
+    }
+
     string GetNodeValue(HtmlNode node, Field field)
     {
-        return field.Attribute is not null
-            ? node.Attributes[field.Attribute].Value
-            : node.InnerText;
+        if (field.Attribute is not null)
+        {
+            return node.Attributes[field.Attribute].Value;
+        }
+
+        if (field.IsStatic && field.Value is not null)
+        {
+            return field.Value;
+        }
+
+        return node.InnerText;
     }
 }

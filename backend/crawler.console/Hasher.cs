@@ -3,11 +3,15 @@ using System.Text;
 
 class Hasher
 {
-    public string GetSha256HashAsHex(string secret)
+    public string GetSha256HashAsHex(string original)
     {
         using var sha256 = SHA256.Create();
-        var secretBytes = Encoding.UTF8.GetBytes(secret);
+        var secretBytes = Encoding.UTF8.GetBytes(original);
         var secretHash = sha256.ComputeHash(secretBytes);
-        return Convert.ToHexString(secretHash);
+        var hash = Convert.ToHexString(secretHash);
+        
+        Console.WriteLine($"Calculated {hash} hash from {original} string");
+        return hash;
+
     }
 }

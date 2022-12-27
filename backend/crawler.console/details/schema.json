@@ -1,0 +1,18 @@
+{
+  "HasMultipleResultsPerPage": true,
+  "fields": [
+    {
+      "name": "name",
+      "xpath": "/html/body/div[1]/blz-page-header/blz-header/h2"
+    },
+    {
+      "name": "role",
+      "xpath": "/html/body/div[1]/blz-page-header/blz-list/blz-list-item[1]/p"
+    },
+    {
+      "name": "abilities",
+      "xpath": "/html/body/div[1]/div[1]/blz-carousel-section/blz-carousel/blz-tab-controls/blz-tab-control/text()",
+      "isArray": true
+    }
+  ]
+}
