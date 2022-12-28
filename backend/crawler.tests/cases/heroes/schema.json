@@ -1,0 +1,25 @@
+﻿{
+  "Fields": [
+    {
+      "name": "Title",
+      "xpath": "html/body/div/h1"
+    },
+    {
+      "name": "RelativeDetailsUrl",
+      "xpath": "html/body/div/a",
+      "attribute": "href"
+    },
+    {
+      "name": "ImageUrl",
+      "xpath": "html/body/div/img",
+      "attribute": "src"
+    }
+  ],
+
+  "StaticFields": [
+    {
+      "name": "Host",
+      "value": "https://overwatch.blizzard.com/en-us"
+    }
+  ]
+}

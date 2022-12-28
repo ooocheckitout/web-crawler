@@ -12,7 +12,6 @@ execute:
 
  */
 
-
 const string urlFileLocation = "../../../players/urls.json";
 const string schemaFileLocation = "../../../players/schema.json";
 const string htmlRoot = "../../../html/players";
@@ -24,8 +23,8 @@ var downloader = new WebDownloader(new HttpClient(), fileWriter);
 var hasher = new Hasher();
 var parser = new Parser();
 
-var urls = await fileReader.FromJsonFileAsync<IEnumerable<string>>(urlFileLocation);
-var schema = await fileReader.FromJsonFileAsync<Schema>(schemaFileLocation);
+var urls = await fileReader.ReadJsonFileAsync<IEnumerable<string>>(urlFileLocation);
+var schema = await fileReader.ReadJsonFileAsync<Schema>(schemaFileLocation);
 
 foreach (var url in urls)
 {
@@ -42,15 +41,7 @@ foreach (var url in urls)
         continue;
 #endif
 
-    var content = await fileReader.FromTextFileAsync(htmlFileLocation);
-    if (schema.HasMultipleResultsPerPage)
-    {
-        var multipleObject = parser.ParseMultipleObject(content, schema.Fields);
-        await fileWriter.ToJsonFileAsync(jsonFileLocation, multipleObject);
-    }
-    else
-    {
-        var singleObject = parser.ParseSingleObject(content, schema.Fields);
-        await fileWriter.ToJsonFileAsync(jsonFileLocation, singleObject);
-    }
+    var content = await fileReader.ReadTextFileAsync(htmlFileLocation);
+    var dataObject = parser.Parse(content, schema);
+    await fileWriter.ToJsonFileAsync(jsonFileLocation, dataObject);
 }

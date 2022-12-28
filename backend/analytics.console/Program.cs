@@ -7,7 +7,7 @@ var fileReader = new FileReader();
 
 var playerFiles = Directory.EnumerateFiles("../../../../crawler.console/json/players");
 var playerStatisticTasks = playerFiles
-    .Select(x => fileReader.FromJsonFileAsync<IEnumerable<PlayerHeroStatistics>>(x));
+    .Select(x => fileReader.ReadJsonFileAsync<IEnumerable<PlayerHeroStatistics>>(x));
 var playerStatisticArray = await Task.WhenAll(playerStatisticTasks);
 var playerStatistics = playerStatisticArray.SelectMany(x => x).ToList();
 

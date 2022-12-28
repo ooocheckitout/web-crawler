@@ -1,0 +1,15 @@
+﻿{
+  "Fields": [
+    {
+      "name": "Title",
+      "xpath": "html/body/h1"
+    }
+  ],
+
+  "MetadataFields": [
+    {
+      "name": "Abilities",
+      "xpath": "html/body/ul/li"
+    }
+  ]
+}

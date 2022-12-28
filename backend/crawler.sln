@@ -9,6 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "analytics.console", "analyt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "common", "common\common.csproj", "{9C710939-0F68-4058-BC06-1B1DA414F22C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crawler.tests", "crawler.tests\crawler.tests.csproj", "{FBCBE0A4-66AC-405C-90FB-B38538DFD18F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C4B06F90-BDC4-457A-8CBA-B95156118E11}"
+	ProjectSection(SolutionItems) = preProject
+		README.MD = README.MD
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +37,9 @@ Global
 		{9C710939-0F68-4058-BC06-1B1DA414F22C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C710939-0F68-4058-BC06-1B1DA414F22C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C710939-0F68-4058-BC06-1B1DA414F22C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBCBE0A4-66AC-405C-90FB-B38538DFD18F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBCBE0A4-66AC-405C-90FB-B38538DFD18F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBCBE0A4-66AC-405C-90FB-B38538DFD18F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBCBE0A4-66AC-405C-90FB-B38538DFD18F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

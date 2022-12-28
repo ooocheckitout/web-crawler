@@ -1,98 +1,76 @@
-﻿using HtmlAgilityPack;
+﻿using System.Collections.Concurrent;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Xml.XPath;
+using HtmlAgilityPack;
+
 
 class Parser
 {
-    public IEnumerable<IDictionary<string, string>> ParseMultipleObject(string content, IEnumerable<Field> fields)
+    public IEnumerable<IDictionary<string, object>> Parse(string htmlContent, Schema schema)
     {
         var document = new HtmlDocument();
-        document.LoadHtml(content);
-
-        // collect values for every field
-        var fieldValues = fields.ToDictionary<Field?, Field, IList<string>>(
-            field => field,
-            field => GetFieldValues(document, field).ToList());
-
-        // ensure number of values is equal between fields
-        foreach (var fieldValue in fieldValues)
+        document.LoadHtml(htmlContent);
+        
+        var objects = new List<IDictionary<string, object>>();
+        foreach (var field in schema.Fields)
         {
-            System.Console.WriteLine($"{fieldValue.Key.Name} - {fieldValue.Value.Count}");
+            var xpathResults = document.DocumentNode.SelectNodes(field.XPath);
+            if (xpathResults is null)
+                throw new InvalidOperationException($"No elements found for {field.Name} field!");
+
+            var values = GetDocumentValues(document, field).ToList();
+            
+            for (var i = 0; i < values.Count; i++)
+            {
+                if (objects.ElementAtOrDefault(i) is null)
+                    objects.Add(new Dictionary<string, object>());
+
+                objects[i].Add(field.Name, values[i]);
+            }
         }
 
-        var notMetadata = fieldValues.Where(x => !x.Key.IsMetadata);
-
-        var numberOfElements = notMetadata.First().Value.Count;
-        if (notMetadata.Any(x => x.Value.Count != numberOfElements))
-            throw new Exception("Invalid number of parsed values!");
-
-        // construct object
-        for (var i = 0; i < numberOfElements; i++)
+        foreach (var obj in objects)
         {
-            var dict = new Dictionary<string, string>();
-            foreach (var field in fieldValues.Keys)
+            foreach (var field in schema.MetadataFields)
             {
-                if (field.IsMetadata)
+                var values = GetDocumentValues(document, field).ToList();
+                if (values.Count == 1)
                 {
-                    var staticValue = fieldValues[field].Single();
-
-                    dict.Add(field.Name, staticValue);
+                    obj.Add(field.Name, values.First());
                     continue;
                 }
 
-                var value = fieldValues[field][i];
-                dict.Add(field.Name, value);
+                obj.Add(field.Name, values);
             }
-
-            yield return dict;
         }
+
+        foreach (var obj in objects)
+        {
+            foreach (var field in schema.StaticFields)
+            {
+                obj.Add(field.Name, field.Value);
+            }
+        }
+
+        return objects;
     }
 
-    public IDictionary<string, object> ParseSingleObject(string content, IEnumerable<Field> fields)
+    IEnumerable<string> GetDocumentValues(HtmlDocument document, QueryField field)
     {
-        var document = new HtmlDocument();
-        document.LoadHtml(content);
+        var xpathResults = document.DocumentNode.SelectNodes(field.XPath);
+        if (xpathResults is null)
+            throw new InvalidOperationException($"No elements found for {field.Name} field!");
 
-        var dict = new Dictionary<string, object>();
-        foreach (var field in fields)
-        {
-            var values = GetFieldValues(document, field);
-
-            if (!field.IsArray)
-                dict.Add(field.Name, values.Single());
-            else
-                dict.Add(field.Name, values);
-        }
-
-        return dict;
+        return xpathResults.Select(x => GetNodeValue(x, field)).ToList();
     }
 
-    IEnumerable<string> GetFieldValues(HtmlDocument document, Field field)
+    string GetNodeValue(HtmlNode node, QueryField field)
     {
-        if (field.IsMetadata && field.IsStatic)
-            return new[] {field.Value!};
+        if (field.Attribute is null)
+            return node.InnerText;
 
-        var results = document.DocumentNode.SelectNodes(field.XPath);
-        if (results is null)
-            return Array.Empty<string>();
-
-        var values = results.Select(x => GetNodeValue(x, field));
-        if (field.IsArray)
-            return values;
-
-        return values;
-    }
-
-    string GetNodeValue(HtmlNode node, Field field)
-    {
-        if (field.Attribute is not null)
-        {
-            return node.Attributes[field.Attribute].Value;
-        }
-
-        if (field.IsStatic && field.Value is not null)
-        {
-            return field.Value;
-        }
-
-        return node.InnerText;
+        return node.Attributes[field.Attribute].Value;
     }
 }
