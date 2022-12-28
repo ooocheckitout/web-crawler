@@ -17,10 +17,10 @@ var fileReader = new FileReader();
 var fileWriter = new FileWriter();
 var downloader = new WebDownloader(new HttpClient(), fileWriter);
 var hasher = new Hasher();
-var parser = new Parser();
 var collectionManager = new CollectionManager(fileReader, downloader, hasher, fileWriter);
+var parser = new Parser();
 
-var collections = new[] { "heroes", "details" };
+var collections = new[] { "heroes", "details", "players" };
 foreach (var collection in collections)
 {
     foreach (var url in await collectionManager.GetUrlsAsync(collection))

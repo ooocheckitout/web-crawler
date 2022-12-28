@@ -1,7 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <ProjectReference Include="..\common\common.csproj"/>
+        <ProjectReference Include="..\common\common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="collections\details\data\1F621C9D3A9AC051121334F287D3DC6960CE3D1C6D50D258AD63FA2CA407B6F5.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="collections\details\data\3AE6A5D523B80D25F4A0B8F291A72873270546CD93C906EC1C1702C8FF3EB548.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="collections\details\data\FE7DA7FFE3DD4B3EC55F8771ABB0E05C2A1812C207FDBD48A1A5FC82857D8ADC.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="collections\heroes\data\81804C878A7E9E9E4A71580A08BBBC8CF72B9F5E6337952D05EBC45E1450BE77.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="collections\players\data\1899698B2D7648EADEA59A15E4B5E1C262E9B8FC990923F11366CD634B52423E.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <PropertyGroup>

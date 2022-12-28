@@ -1,4 +1,6 @@
-﻿class CollectionManager
+﻿using System.Text.Json;
+
+public class CollectionManager
 {
     readonly FileReader _fileReader;
     readonly WebDownloader _downloader;
@@ -44,5 +46,29 @@
 #endif
 
         return _fileWriter.ToJsonFileAsync(fileLocation, objects);
+    }
+
+    public async IAsyncEnumerable<JsonElement> GetJsonDataAsync(string collection)
+    {
+        var files = Directory.GetFiles($"collections/{collection}/data", "*.json", SearchOption.TopDirectoryOnly);
+
+        foreach (var fileLocation in files)
+        {
+            var jsonString = await _fileReader.ReadTextFileAsync(fileLocation);
+            yield return JsonDocument.Parse(jsonString).RootElement;
+        }
+    }
+    
+    public async Task<IEnumerable<T>> GetDataAsync<T>(string collection)
+    {
+        var files = Directory.GetFiles($"collections/{collection}/data", "*.json", SearchOption.TopDirectoryOnly);
+
+        var objects = new List<T>();
+        foreach (var fileLocation in files)
+        {
+            objects.AddRange(await _fileReader.ReadJsonFileAsync<IEnumerable<T>>(fileLocation));
+        }
+
+        return objects;
     }
 }

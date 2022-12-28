@@ -1,4 +1,4 @@
-﻿class WebDownloader
+﻿public class WebDownloader
 {
     readonly HttpClient _client;
     readonly FileWriter _fileWriter;

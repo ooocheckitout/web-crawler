@@ -1,29 +1,29 @@
-﻿using System.Reflection;
-using System.Text.Json.Serialization;
+﻿var fileReader = new FileReader();
+var fileWriter = new FileWriter();
+var webDownloader = new WebDownloader(new HttpClient(), fileWriter);
+var hasher = new Hasher();
+var collectionManager = new CollectionManager(fileReader, webDownloader, hasher, fileWriter);
 
-var fileReader = new FileReader();
-
-var playerFiles = Directory.EnumerateFiles("../../../../crawler.console/json/players");
-var playerStatisticTasks = playerFiles
-    .Select(x => fileReader.ReadJsonFileAsync<IEnumerable<PlayerHeroStatistics>>(x));
-var playerStatisticArray = await Task.WhenAll(playerStatisticTasks);
-var playerStatistics = playerStatisticArray.SelectMany(x => x).ToList();
-
-var totalTimePlayed = TimeSpan.FromMilliseconds(playerStatistics.Sum(x => x.TimePlayedHours.TotalMilliseconds)).Dump();
-
-class PlayerHeroStatistics
+await foreach (var playersArray in collectionManager.GetJsonDataAsync(Constants.Collections.Players))
 {
-    public string Name { get; set; }
-    public string AvatarUrl { get; set; }
-    public string TimePlayedHeroNames { get; set; }
-
-    [JsonConverter(typeof(CustomTimeSpanConverter))]
-    public TimeSpan TimePlayedHours { get; set; }
-
-    public override string ToString()
+    foreach (var player in playersArray.EnumerateArray())
     {
-        var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
-        var keyValueStrings = properties.Select(x => $"{x.Name}: {x.GetValue(this)}");
-        return string.Join(", ", keyValueStrings);
+       var totalMillisecondsPlayed = player
+            .GetProperty("TimePlayed_Hours")
+            .EnumerateArray()
+            .Select(x => x.GetString())
+            .Select(x =>
+            {
+                if (TimeSpan.TryParseExact(x, @"hh\:mm\:ss", null, out var asTimeSpan))
+                    return asTimeSpan;
+
+                return TimeSpan.ParseExact(x, @"mm\:ss", null);
+            })
+            .Sum(x => x.TotalMilliseconds);
+
+       var name = player.GetProperty("Title").GetString();
+       var timePlayed = TimeSpan.FromMilliseconds(totalMillisecondsPlayed);
+       Console.WriteLine($"{name} played {timePlayed} in total");
     }
 }
+

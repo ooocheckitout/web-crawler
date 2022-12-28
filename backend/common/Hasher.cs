@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-class Hasher
+public class Hasher
 {
     public string GetSha256HashAsHex(string original)
     {
