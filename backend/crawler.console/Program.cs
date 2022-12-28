@@ -1,6 +1,7 @@
 ﻿/*
 # list heroes
 # list hero details
+# list player details
 
 prepare:
     collect urls
@@ -12,36 +13,23 @@ execute:
 
  */
 
-const string urlFileLocation = "../../../players/urls.json";
-const string schemaFileLocation = "../../../players/schema.json";
-const string htmlRoot = "../../../html/players";
-const string jsonRoot = "../../../json/players";
-
 var fileReader = new FileReader();
 var fileWriter = new FileWriter();
 var downloader = new WebDownloader(new HttpClient(), fileWriter);
 var hasher = new Hasher();
 var parser = new Parser();
+var collectionManager = new CollectionManager(fileReader, downloader, hasher, fileWriter);
 
-var urls = await fileReader.ReadJsonFileAsync<IEnumerable<string>>(urlFileLocation);
-var schema = await fileReader.ReadJsonFileAsync<Schema>(schemaFileLocation);
-
-foreach (var url in urls)
+var collections = new[] { "heroes" };
+foreach (var collection in collections)
 {
-    var hash = hasher.GetSha256HashAsHex(url);
-    var htmlFileLocation = $"{htmlRoot}/{hash}.html";
+    foreach (var url in await collectionManager.GetUrlsAsync(collection))
+    {
+        var htmlContent = await collectionManager.GetOrCreateHtmlContentAsync(collection, url);
 
-    if (!File.Exists(htmlFileLocation))
-        await downloader.DownloadTextToFileAsync(url, htmlFileLocation);
-    
-    var jsonFileLocation = $"{jsonRoot}/{hash}.json";
+        var schema = await collectionManager.GetSchemaAsync(collection);
+        var dataObjects = parser.Parse(htmlContent, schema);
 
-#if !DEBUG
-    if (File.Exists(jsonFileLocation))
-        continue;
-#endif
-
-    var content = await fileReader.ReadTextFileAsync(htmlFileLocation);
-    var dataObject = parser.Parse(content, schema);
-    await fileWriter.ToJsonFileAsync(jsonFileLocation, dataObject);
+        await collectionManager.CreateDataAsync(collection, url, dataObjects);
+    }
 }

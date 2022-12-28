@@ -1,0 +1,24 @@
+{
+  "Fields": [
+    {
+      "name": "Title",
+      "xpath": "/html/body/div[1]/blz-media-gallery/blz-hero-card/div/span"
+    },
+    {
+      "name": "ImageUrl",
+      "xpath": "/html/body/div[1]/blz-media-gallery/blz-hero-card/blz-image",
+      "attribute": "src"
+    },
+    {
+      "name": "RelativeDetailsUrl",
+      "xpath": "/html/body/div[1]/blz-media-gallery/blz-hero-card",
+      "attribute": "url"
+    }
+  ],
+  "StaticFields": [
+    {
+      "name": "Host",
+      "value": "https://overwatch.blizzard.com/en-us"
+    }
+  ]
+}
