@@ -12,10 +12,11 @@ execute:
 
  */
 
-const string urlFileLocation = "details/urls.json";
-const string schemaFileLocation = "details/schema.json";
-const string htmlRoot = "../../../html/details";
-const string jsonRoot = "../../../json/details";
+
+const string urlFileLocation = "../../../players/urls.json";
+const string schemaFileLocation = "../../../players/schema.json";
+const string htmlRoot = "../../../html/players";
+const string jsonRoot = "../../../json/players";
 
 var fileReader = new FileReader();
 var fileWriter = new FileWriter();

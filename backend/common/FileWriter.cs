@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-class FileWriter
+public class FileWriter
 {
     public Task ToJsonFileAsync(string fileLocation, object obj)
     {

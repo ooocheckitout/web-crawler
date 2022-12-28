@@ -1,8 +1,9 @@
 ﻿using System.Collections;
+using System.Reflection;
 
-static class Extensions
+public static class Extensions
 {
-    public static void Dump(this object obj)
+    public static T Dump<T>(this T obj)
     {
         if (obj is IEnumerable asEnumerable and not string)
         {
@@ -15,5 +16,7 @@ static class Extensions
         {
             Console.WriteLine(obj);
         }
+
+        return obj;
     }
 }

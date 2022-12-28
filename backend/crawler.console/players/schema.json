@@ -1,0 +1,24 @@
+{
+    "hasMultipleResultsPerPage": true,
+    "fields": [
+      {
+        "name": "name",
+        "xpath": "/html/body/div[1]/blz-section/div/div[1]/div/h1",
+        "isMetadata": true
+      },
+      {
+        "name": "avatarUrl",
+        "xpath": "/html/body/div[1]/blz-section/div/div[1]/img",
+        "attribute": "src",
+        "isMetadata": true
+      },
+      {
+        "name": "timePlayedHeroNames",
+        "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[1]"
+      },
+      {
+        "name": "timePlayedHours",
+        "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[2]"
+      }
+    ]
+  }

@@ -13,8 +13,15 @@ class Parser
             field => GetFieldValues(document, field).ToList());
 
         // ensure number of values is equal between fields
-        var numberOfElements = fieldValues.Values.First().Count;
-        if (fieldValues.Where(x => !x.Key.IsMetadata).Any(x => x.Value.Count != numberOfElements))
+        foreach (var fieldValue in fieldValues)
+        {
+            System.Console.WriteLine($"{fieldValue.Key.Name} - {fieldValue.Value.Count}");
+        }
+
+        var notMetadata = fieldValues.Where(x => !x.Key.IsMetadata);
+
+        var numberOfElements = notMetadata.First().Value.Count;
+        if (notMetadata.Any(x => x.Value.Count != numberOfElements))
             throw new Exception("Invalid number of parsed values!");
 
         // construct object
@@ -61,7 +68,7 @@ class Parser
     IEnumerable<string> GetFieldValues(HtmlDocument document, Field field)
     {
         if (field.IsMetadata && field.IsStatic)
-            return new[] { field.Value! };
+            return new[] {field.Value!};
 
         var results = document.DocumentNode.SelectNodes(field.XPath);
         if (results is null)

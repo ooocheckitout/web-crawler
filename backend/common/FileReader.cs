@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-class FileReader
+public class FileReader
 {
     public async Task<T> FromJsonFileAsync<T>(string fileLocation)
     {
