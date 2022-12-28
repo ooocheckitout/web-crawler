@@ -1,0 +1,23 @@
+{
+  "Fields": [
+    {
+      "name": "Title",
+      "xpath": "/html/body/div[1]/blz-section/div/div[1]/div/h1"
+    },
+    {
+      "name": "AvatarUrl",
+      "xpath": "/html/body/div[1]/blz-section/div/div[1]/img",
+      "attribute": "src"
+    }
+  ],
+  "MetadataFields": [
+    {
+      "name": "TimePlayed_Heroes",
+      "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[1]"
+    },
+    {
+      "name": "TimePlayed_Hours",
+      "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[2]"
+    }
+  ]
+}

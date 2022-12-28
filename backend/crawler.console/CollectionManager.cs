@@ -17,7 +17,7 @@
     {
         return _fileReader.ReadJsonFileAsync<Schema>($"collections/{collection}/schema.json");
     }
-    
+
     public Task<IEnumerable<string>> GetUrlsAsync(string collection)
     {
         return _fileReader.ReadJsonFileAsync<IEnumerable<string>>($"collections/{collection}/urls.json");
@@ -37,6 +37,11 @@
     {
         var hash = _hasher.GetSha256HashAsHex(url);
         var fileLocation = $"collections/{collection}/data/{hash}.json";
+
+#if !DEBUG
+        if (File.Exists(fileLocation))
+            return Task.CompletedTask;
+#endif
 
         return _fileWriter.ToJsonFileAsync(fileLocation, objects);
     }

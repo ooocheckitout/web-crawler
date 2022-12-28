@@ -20,7 +20,7 @@ var hasher = new Hasher();
 var parser = new Parser();
 var collectionManager = new CollectionManager(fileReader, downloader, hasher, fileWriter);
 
-var collections = new[] { "heroes" };
+var collections = new[] { "heroes", "details" };
 foreach (var collection in collections)
 {
     foreach (var url in await collectionManager.GetUrlsAsync(collection))
