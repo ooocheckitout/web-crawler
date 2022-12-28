@@ -98,12 +98,12 @@ public class ParserTests
                 new QueryField
                 {
                     Name = "Title",
-                    XPath = "html/body/a/h1",
+                    XPath = "html/body/a/h1"
                 },
                 new QueryField
                 {
                     Name = "Description",
-                    XPath = "html/body/a/p",
+                    XPath = "html/body/a/p"
                 },
                 new QueryField
                 {
@@ -145,7 +145,7 @@ public class ParserTests
                 new QueryField
                 {
                     Name = "Title",
-                    XPath = "html/body/h1",
+                    XPath = "html/body/h1"
                 }
             }
         };
@@ -154,15 +154,15 @@ public class ParserTests
         {
             new Dictionary<string, object>
             {
-                { "Title", "Voluptatibus" },
+                { "Title", "Voluptatibus" }
             },
             new Dictionary<string, object>
             {
-                { "Title", "Repudiandae" },
+                { "Title", "Repudiandae" }
             },
             new Dictionary<string, object>
             {
-                { "Title", "Delectus" },
+                { "Title", "Delectus" }
             }
         });
     }
@@ -188,15 +188,15 @@ public class ParserTests
                 new QueryField
                 {
                     Name = "Title",
-                    XPath = "html/body/h1",
+                    XPath = "html/body/h1"
                 }
             },
-            MetadataFields = new []
+            MetadataFields = new[]
             {
                 new QueryField
                 {
                     Name = "Descriptions",
-                    XPath = "html/body/p",
+                    XPath = "html/body/p"
                 }
             }
         };
@@ -213,7 +213,7 @@ public class ParserTests
                         "Aut reiciendis voluptatibus maiores alias consequatur.",
                         "Temporibus autem quibusdam et aut officiis debitis."
                     }
-                },
+                }
             }
         });
     }
@@ -259,7 +259,7 @@ public class ParserTests
                 {
                     Name = "Host",
                     Value = @"https:\\heroes.com"
-                },
+                }
             }
         };
 
@@ -269,19 +269,19 @@ public class ParserTests
             {
                 { "Title", "Voluptatibus" },
                 { "Host", @"https:\\heroes.com" },
-                { "Locale", "en_US" },
+                { "Locale", "en_US" }
             },
             new Dictionary<string, object>
             {
                 { "Title", "Temporibus" },
                 { "Host", @"https:\\heroes.com" },
-                { "Locale", "en_US" },
+                { "Locale", "en_US" }
             },
             new Dictionary<string, object>
             {
                 { "Title", "Debitis" },
                 { "Host", @"https:\\heroes.com" },
-                { "Locale", "en_US" },
+                { "Locale", "en_US" }
             }
         });
     }

@@ -9,9 +9,8 @@ class Hasher
         var secretBytes = Encoding.UTF8.GetBytes(original);
         var secretHash = sha256.ComputeHash(secretBytes);
         var hash = Convert.ToHexString(secretHash);
-        
+
         Console.WriteLine($"Calculated {hash} hash from {original} string");
         return hash;
-
     }
 }

@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("crawler.tests")]
+[assembly: InternalsVisibleTo("crawler.tests")]

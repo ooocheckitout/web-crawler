@@ -12,7 +12,7 @@ public class FileReader
     public async Task<string> ReadTextFileAsync(string fileLocation)
     {
         Console.WriteLine($"Reading content from file {fileLocation}");
-        
+
         return await File.ReadAllTextAsync(fileLocation);
     }
 }

@@ -34,6 +34,7 @@ public class IntegrationTests
         var parser = new Parser();
         parser.Parse(content, schema).Should().BeEquivalentTo(dataAsDictionary);
     }
+
     [Fact]
     public async Task Heroes()
     {
@@ -47,7 +48,7 @@ public class IntegrationTests
             { nameof(x.Title), x.Title },
             { nameof(x.RelativeDetailsUrl), x.RelativeDetailsUrl },
             { nameof(x.ImageUrl), x.ImageUrl },
-            { nameof(x.Host), x.Host },
+            { nameof(x.Host), x.Host }
         });
 
         var parser = new Parser();
