@@ -30,14 +30,20 @@ var collections = new[]
 foreach (string collection in collections)
 foreach (string url in await collectionManager.GetUrlsAsync(collection))
 {
-    string htmlContent = await collectionManager.GetOrCreateHtmlContentAsync(collection, url);
-
-    var schemas = await collectionManager.GetSchemaAsync(collection);
-    foreach (var schema in schemas)
+    try
     {
-        var dataObjects = parser.Parse(htmlContent, schema);
-        await collectionManager.CreateDataAsync(collection, schema.Name, url, dataObjects);
+        string htmlContent = await collectionManager.GetOrCreateHtmlContentAsync(collection, url);
+
+        var schemas = await collectionManager.GetSchemaAsync(collection);
+        foreach (var schema in schemas)
+        {
+            var dataObjects = parser.Parse(htmlContent, schema);
+            await collectionManager.CreateDataAsync(collection, schema.Name, url, dataObjects);
+        }
     }
-
-
+    catch (Exception e)
+    {
+        Console.WriteLine($"Failed to parse {url}");
+        Console.WriteLine(e);
+    }
 }
