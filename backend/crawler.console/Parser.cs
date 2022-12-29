@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using System.Net;
+using HtmlAgilityPack;
 
 class Parser
 {
@@ -7,7 +8,7 @@ class Parser
         var document = new HtmlDocument();
         document.LoadHtml(htmlContent);
 
-        var objects = new List<IDictionary<string, object>>();
+        var objects = new List<IDictionary<string, object>> {new Dictionary<string, object>()};
         foreach (var field in schema.Fields)
         {
             var xpathResults = document.DocumentNode.SelectNodes(field.XPath);
@@ -25,8 +26,8 @@ class Parser
             }
         }
 
-        foreach (var obj in objects)
         foreach (var field in schema.MetadataFields)
+        foreach (var obj in objects)
         {
             var values = GetDocumentValues(document, field).ToList();
             if (values.Count == 1)
@@ -38,8 +39,8 @@ class Parser
             obj.Add(field.Name, values);
         }
 
-        foreach (var obj in objects)
         foreach (var field in schema.StaticFields)
+        foreach (var obj in objects)
             obj.Add(field.Name, field.Value);
 
         return objects;
@@ -48,7 +49,7 @@ class Parser
     IEnumerable<string> GetDocumentValues(HtmlDocument document, QueryField field)
     {
         Console.WriteLine($"Retrieving value for {field.Name} field");
-        
+
         var xpathResults = document.DocumentNode.SelectNodes(field.XPath);
         if (xpathResults is null)
             throw new InvalidOperationException($"No elements found for {field.Name} field!");
