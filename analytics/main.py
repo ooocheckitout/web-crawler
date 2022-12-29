@@ -5,9 +5,11 @@ spark = SparkSession.builder.getOrCreate()
 players_df = (spark
                 .read
                 .option("multiline","true")
-                .json("collections/statistics/data"))
+                .json("collections/statistics/data/TopHeroes_TimePlayed"))
 players_df.show()
 
 
-from pyspark.sql.functions import arrays_zip, col
-players_df.select(arrays_zip(col("Heroes"), col("HeroIndexes").alias("zipped"))).show()
+players_df.groupBy("HeroName").count().show()
+
+
+
