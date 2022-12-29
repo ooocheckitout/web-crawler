@@ -22,7 +22,9 @@ var parser = new Parser();
 
 var collections = new[]
 {
-    /* "heroes", "details", */ "statistics"
+    "heroes",
+    "details",
+    "statistics"
 };
 
 foreach (string collection in collections)
@@ -30,8 +32,12 @@ foreach (string url in await collectionManager.GetUrlsAsync(collection))
 {
     string htmlContent = await collectionManager.GetOrCreateHtmlContentAsync(collection, url);
 
-    var schema = await collectionManager.GetSchemaAsync(collection);
-    var dataObjects = parser.Parse(htmlContent, schema);
+    var schemas = await collectionManager.GetSchemaAsync(collection);
+    foreach (var schema in schemas)
+    {
+        var dataObjects = parser.Parse(htmlContent, schema);
+        await collectionManager.CreateDataAsync(collection, schema.Name, url, dataObjects);
+    }
 
-    await collectionManager.CreateDataAsync(collection, url, dataObjects);
+
 }

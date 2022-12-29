@@ -61,6 +61,9 @@ class Parser
         if (field.Attribute is null)
             return node.InnerText;
 
+        if (!node.Attributes.Contains(field.Attribute))
+            throw new Exception($"Field {field.Name} attribute {field.Attribute} does not exist on the element!");
+
         return node.Attributes[field.Attribute].Value;
     }
 }

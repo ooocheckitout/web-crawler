@@ -1,18 +1,19 @@
-{
-  "Fields": [
+[
     {
-      "name": "Title",
-      "xpath": "/html/body/div[1]/blz-page-header/blz-header/h2"
-    },
-    {
-      "name": "Role",
-      "xpath": "/html/body/div[1]/blz-page-header/blz-list/blz-list-item[1]/p"
+        "IdentifierField": {
+            "name": "Title",
+            "xpath": "/html/body/div[1]/blz-page-header/blz-header/h2"
+        },
+        "PropertyFields": [
+            {
+                "name": "Role",
+                "xpath": "/html/body/div[1]/blz-page-header/blz-list/blz-list-item[1]/p"
+            },
+            {
+                "name": "Abilities",
+                "xpath": "/html/body/div[1]/div[1]/blz-carousel-section/blz-carousel/blz-tab-controls/blz-tab-control/text()"
+            }
+        ]
     }
-  ],
-  "MetadataFields": [
-    {
-      "name": "Abilities",
-      "xpath": "/html/body/div[1]/div[1]/blz-carousel-section/blz-carousel/blz-tab-controls/blz-tab-control/text()"
-    }
-  ]
-}
+
+]
