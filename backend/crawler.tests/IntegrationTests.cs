@@ -1,6 +1,20 @@
 ﻿using FluentAssertions;
 using Xunit;
 
+class HeroDetails
+{
+    public string Title { get; set; }
+    public IEnumerable<string> Abilities { get; set; }
+}
+
+class Hero
+{
+    public string Title { get; set; }
+    public string RelativeDetailsUrl { get; set; }
+    public string ImageUrl { get; set; }
+    public string Host { get; set; }
+}
+
 public class IntegrationTests
 {
     [Fact]
