@@ -20,16 +20,18 @@ var hasher = new Hasher();
 var collectionManager = new CollectionManager(fileReader, downloader, hasher, fileWriter);
 var parser = new Parser();
 
-var collections = new[] { /* "heroes", "details", */ "statistics" };
-foreach (var collection in collections)
+var collections = new[]
 {
-    foreach (var url in await collectionManager.GetUrlsAsync(collection))
-    {
-        var htmlContent = await collectionManager.GetOrCreateHtmlContentAsync(collection, url);
+    /* "heroes", "details", */ "statistics"
+};
 
-        var schema = await collectionManager.GetSchemaAsync(collection);
-        var dataObjects = parser.Parse(htmlContent, schema);
+foreach (string collection in collections)
+foreach (string url in await collectionManager.GetUrlsAsync(collection))
+{
+    string htmlContent = await collectionManager.GetOrCreateHtmlContentAsync(collection, url);
 
-        await collectionManager.CreateDataAsync(collection, url, dataObjects);
-    }
+    var schema = await collectionManager.GetSchemaAsync(collection);
+    var dataObjects = parser.Parse(htmlContent, schema);
+
+    await collectionManager.CreateDataAsync(collection, url, dataObjects);
 }

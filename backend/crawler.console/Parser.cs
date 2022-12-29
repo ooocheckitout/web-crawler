@@ -1,60 +1,59 @@
-﻿using System.Net;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 
 class Parser
 {
-    public IEnumerable<IDictionary<string, object>> Parse(string htmlContent, Schema schema)
+    public IEnumerable<Dictionary<string, object>> Parse(string htmlContent, Schema schema)
     {
         var document = new HtmlDocument();
         document.LoadHtml(htmlContent);
 
-        var objects = new List<IDictionary<string, object>> {new Dictionary<string, object>()};
-        foreach (var field in schema.Fields)
+        var objects = new List<Dictionary<string, object>>();
+
+        var identifiers = GetFieldValue(schema.IdentifierField, document);
+        foreach (string identifier in identifiers)
         {
-            var xpathResults = document.DocumentNode.SelectNodes(field.XPath);
-            if (xpathResults is null)
-                throw new InvalidOperationException($"No elements found for {field.Name} field!");
-
-            var values = GetDocumentValues(document, field).ToList();
-
-            for (var i = 0; i < values.Count; i++)
+            objects.Add(new Dictionary<string, object>
             {
-                if (objects.ElementAtOrDefault(i) is null)
-                    objects.Add(new Dictionary<string, object>());
-
-                objects[i].Add(field.Name, values[i]);
-            }
+                {schema.IdentifierField.Name, identifier}
+            });
         }
 
-        foreach (var field in schema.MetadataFields)
-        foreach (var obj in objects)
+        for (var index = 0; index < objects.Count; index++)
         {
-            var values = GetDocumentValues(document, field).ToList();
-            if (values.Count == 1)
+            var obj = objects[index];
+            foreach (var propertyField in schema.PropertyFields)
             {
-                obj.Add(field.Name, values.First());
-                continue;
+                var values = GetFieldValue(propertyField, document, new Variables {Index = index + 1});
+
+                if (values.Count == 1)
+                {
+                    obj.Add(propertyField.Name, values.First());
+                    continue;
+                }
+
+                obj.Add(propertyField.Name, values);
             }
 
-            obj.Add(field.Name, values);
+            foreach (var staticField in schema.StaticFields)
+            {
+                obj.Add(staticField.Name, staticField.Value);
+            }
         }
-
-        foreach (var field in schema.StaticFields)
-        foreach (var obj in objects)
-            obj.Add(field.Name, field.Value);
 
         return objects;
     }
 
-    IEnumerable<string> GetDocumentValues(HtmlDocument document, QueryField field)
+    private ICollection<string> GetFieldValue(QueryField field, HtmlDocument document, Variables? specials = default)
     {
         Console.WriteLine($"Retrieving value for {field.Name} field");
 
-        var xpathResults = document.DocumentNode.SelectNodes(field.XPath);
-        if (xpathResults is null)
+        string calculatedXpath = field.XPath.Replace("_index_", specials?.Index.ToString());
+
+        var results = document.DocumentNode.SelectNodes(calculatedXpath);
+        if (results is null)
             throw new InvalidOperationException($"No elements found for {field.Name} field!");
 
-        return xpathResults.Select(x => GetNodeValue(x, field)).ToList();
+        return results.Select(x => GetNodeValue(x, field)).ToList();
     }
 
     string GetNodeValue(HtmlNode node, QueryField field)

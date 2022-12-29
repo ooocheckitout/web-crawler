@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crawler.console", "crawler.console\crawler.console.csproj", "{12AD0CFD-3ED6-45C6-BC91-01BCB1EEF0DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "analytics.console", "analytics.console\analytics.console.csproj", "{38750A73-2099-458B-893D-BE3087C64C4E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "common", "common\common.csproj", "{9C710939-0F68-4058-BC06-1B1DA414F22C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crawler.tests", "crawler.tests\crawler.tests.csproj", "{FBCBE0A4-66AC-405C-90FB-B38538DFD18F}"
@@ -30,10 +28,6 @@ Global
 		{12AD0CFD-3ED6-45C6-BC91-01BCB1EEF0DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12AD0CFD-3ED6-45C6-BC91-01BCB1EEF0DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12AD0CFD-3ED6-45C6-BC91-01BCB1EEF0DB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{38750A73-2099-458B-893D-BE3087C64C4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{38750A73-2099-458B-893D-BE3087C64C4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{38750A73-2099-458B-893D-BE3087C64C4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{38750A73-2099-458B-893D-BE3087C64C4E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C710939-0F68-4058-BC06-1B1DA414F22C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9C710939-0F68-4058-BC06-1B1DA414F22C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C710939-0F68-4058-BC06-1B1DA414F22C}.Release|Any CPU.ActiveCfg = Release|Any CPU

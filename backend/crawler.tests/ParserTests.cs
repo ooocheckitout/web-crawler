@@ -25,21 +25,18 @@ public class ParserTests
 
         var schema = new Schema
         {
-            Fields = new[]
+            IdentifierField = new QueryField
             {
-                new QueryField
-                {
-                    Name = "Title",
-                    XPath = "html/body/h1"
-                }
-            }
+                Name = "Title",
+                XPath = "html/body/h1"
+            },
         };
 
         _sut.Parse(htmlContent, schema).Should().BeEquivalentTo(new[]
         {
             new Dictionary<string, object>
             {
-                { "Title", "Excepteur" }
+                {"Title", "Excepteur"}
             }
         });
     }
@@ -57,14 +54,11 @@ public class ParserTests
 
         var schema = new Schema
         {
-            Fields = new[]
+            IdentifierField = new QueryField
             {
-                new QueryField
-                {
-                    Name = "Image",
-                    XPath = "html/body/img",
-                    Attribute = "src"
-                }
+                Name = "Image",
+                XPath = "html/body/img",
+                Attribute = "src"
             }
         };
 
@@ -72,13 +66,13 @@ public class ParserTests
         {
             new Dictionary<string, object>
             {
-                { "Image", @"https:\\images.com\Excepteur.png" }
+                {"Image", @"https:\\images.com\Excepteur.png"}
             }
         });
     }
 
     [Fact]
-    public void Parse_ShouldHandleMultipleFields()
+    public void Parse_ShouldHandleCompositeObject()
     {
         const string htmlContent = @"
 <html>
@@ -93,13 +87,13 @@ public class ParserTests
 
         var schema = new Schema
         {
-            Fields = new[]
+            IdentifierField = new QueryField
             {
-                new QueryField
-                {
-                    Name = "Title",
-                    XPath = "html/body/a/h1"
-                },
+                Name = "Title",
+                XPath = "html/body/a/h1"
+            },
+            PropertyFields = new[]
+            {
                 new QueryField
                 {
                     Name = "Description",
@@ -118,9 +112,9 @@ public class ParserTests
         {
             new Dictionary<string, object>
             {
-                { "Title", "Consequatur" },
-                { "Description", "Et harum quidem rerum facilis est et expedita distinctio." },
-                { "Link", @"https:\\heroes.com\Consequatur" }
+                {"Title", "Consequatur"},
+                {"Description", "Et harum quidem rerum facilis est et expedita distinctio."},
+                {"Link", @"https:\\heroes.com\Consequatur"}
             }
         });
     }
@@ -140,13 +134,10 @@ public class ParserTests
 
         var schema = new Schema
         {
-            Fields = new[]
+            IdentifierField = new QueryField
             {
-                new QueryField
-                {
-                    Name = "Title",
-                    XPath = "html/body/h1"
-                }
+                Name = "Title",
+                XPath = "html/body/h1"
             }
         };
 
@@ -154,15 +145,15 @@ public class ParserTests
         {
             new Dictionary<string, object>
             {
-                { "Title", "Voluptatibus" }
+                {"Title", "Voluptatibus"}
             },
             new Dictionary<string, object>
             {
-                { "Title", "Repudiandae" }
+                {"Title", "Repudiandae"}
             },
             new Dictionary<string, object>
             {
-                { "Title", "Delectus" }
+                {"Title", "Delectus"}
             }
         });
     }
@@ -183,15 +174,12 @@ public class ParserTests
 
         var schema = new Schema
         {
-            Fields = new[]
+            IdentifierField = new QueryField
             {
-                new QueryField
-                {
-                    Name = "Title",
-                    XPath = "html/body/h1"
-                }
+                Name = "Title",
+                XPath = "html/body/h1"
             },
-            MetadataFields = new[]
+            PropertyFields = new[]
             {
                 new QueryField
                 {
@@ -205,7 +193,7 @@ public class ParserTests
         {
             new Dictionary<string, object>
             {
-                { "Title", "Voluptatibus" },
+                {"Title", "Voluptatibus"},
                 {
                     "Descriptions", new[]
                     {
@@ -236,15 +224,12 @@ public class ParserTests
 
         var schema = new Schema
         {
-            Fields = new[]
+            IdentifierField = new QueryField
             {
-                new QueryField
-                {
-                    Name = "Title",
-                    XPath = "html/body/h1"
-                }
+                Name = "Title",
+                XPath = "html/body/h1"
             },
-            MetadataFields = new[]
+            PropertyFields = new[]
             {
                 new QueryField
                 {
@@ -267,21 +252,101 @@ public class ParserTests
         {
             new Dictionary<string, object>
             {
-                { "Title", "Voluptatibus" },
-                { "Host", @"https:\\heroes.com" },
-                { "Locale", "en_US" }
+                {"Title", "Voluptatibus"},
+                {"Host", @"https:\\heroes.com"},
+                {"Locale", "en_US"}
             },
             new Dictionary<string, object>
             {
-                { "Title", "Temporibus" },
-                { "Host", @"https:\\heroes.com" },
-                { "Locale", "en_US" }
+                {"Title", "Temporibus"},
+                {"Host", @"https:\\heroes.com"},
+                {"Locale", "en_US"}
             },
             new Dictionary<string, object>
             {
-                { "Title", "Debitis" },
-                { "Host", @"https:\\heroes.com" },
-                { "Locale", "en_US" }
+                {"Title", "Debitis"},
+                {"Host", @"https:\\heroes.com"},
+                {"Locale", "en_US"}
+            }
+        });
+    }
+
+    [Fact]
+    public void Parse_ShouldHandleCompositeObjects()
+    {
+        const string htmlContent = @"
+<html>
+    <body>
+        <h1>Voluptatibus</h1>
+        <div>
+            <p>1</p>
+            <p>2</p>
+            <p>3</p>
+        </div>
+        <h1>Temporibus</h1>
+        <div>
+            <p>4</p>
+            <p>5</p>
+            <p>6</p>
+        </div>
+        <h1>Debitis</h1>
+        <div>
+            <p>7</p>
+            <p>8</p>
+            <p>9</p>
+        </div>
+    </body>
+</html>
+";
+
+        var schema = new Schema
+        {
+            IdentifierField = new QueryField
+            {
+                Name = "Title",
+                XPath = "html/body/h1",
+            },
+            PropertyFields = new[]
+            {
+                new QueryField
+                {
+                    Name = "Abilities",
+                    XPath = "html/body/div[_index_]/p"
+                }
+            }
+        };
+
+        _sut.Parse(htmlContent, schema).Should().BeEquivalentTo(new[]
+        {
+            new Dictionary<string, object>
+            {
+                {"Title", "Voluptatibus"},
+                {
+                    "Abilities", new[]
+                    {
+                        "1", "2", "3"
+                    }
+                }
+            },
+            new Dictionary<string, object>
+            {
+                {"Title", "Temporibus"},
+                {
+                    "Abilities", new[]
+                    {
+                        "4", "5", "6"
+                    }
+                }
+            },
+            new Dictionary<string, object>
+            {
+                {"Title", "Debitis"},
+                {
+                    "Abilities", new[]
+                    {
+                        "7", "8", "9"
+                    }
+                }
             }
         });
     }
