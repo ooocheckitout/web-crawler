@@ -43,14 +43,19 @@ foreach (string collection in collections)
         if (File.Exists(schemaHashLocation)
             && await fileReader.ReadTextFileAsync(schemaHashLocation) == schemaHash)
         {
+            Console.WriteLine($"Skipping schema {schema.Name}");
             continue;
         }
+
+        Console.WriteLine($"Processing urls for {schema.Name}");
 
         foreach (string url in urls)
         {
             try
             {
                 string htmlLocation = locator.GetHtmlLocation(collection, url);
+
+                Console.WriteLine($"Writing html content of {url} to {htmlLocation}");
 
                 if (!File.Exists(htmlLocation))
                     await downloader.DownloadTextToFileAsync(url, htmlLocation);
@@ -66,7 +71,6 @@ foreach (string collection in collections)
             {
                 Console.WriteLine($"Failed to parse {url}");
                 Console.WriteLine(ex);
-                throw;
             }
         }
 
