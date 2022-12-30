@@ -1,0 +1,14 @@
+﻿[
+  {
+    "Title": "Wrecking Ball",
+    "Role": "Tank",
+    "Abilities": [
+      "Quad Cannons",
+      "Grappling Claw",
+      "Roll",
+      "Piledriver",
+      "Adaptive Shield",
+      "Minefield"
+    ]
+  }
+]

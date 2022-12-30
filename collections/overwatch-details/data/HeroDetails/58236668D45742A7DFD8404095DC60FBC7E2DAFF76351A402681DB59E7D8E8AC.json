@@ -1,0 +1,14 @@
+﻿[
+  {
+    "Title": "Hanzo",
+    "Role": "Damage",
+    "Abilities": [
+      "Storm Bow",
+      "Storm Arrows",
+      "Sonic Arrow",
+      "Lunge",
+      "Dragonstrike",
+      "Wall Climb"
+    ]
+  }
+]
