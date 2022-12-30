@@ -1,0 +1,38 @@
+﻿[
+  {
+    "HeroName": "Mercy",
+    "HumanTime": "14:10:23"
+  },
+  {
+    "HeroName": "Winston",
+    "HumanTime": "01:45:08"
+  },
+  {
+    "HeroName": "Zenyatta",
+    "HumanTime": "31:13"
+  },
+  {
+    "HeroName": "L\u00FAcio",
+    "HumanTime": "21:49"
+  },
+  {
+    "HeroName": "Orisa",
+    "HumanTime": "14:33"
+  },
+  {
+    "HeroName": "Genji",
+    "HumanTime": "04:20"
+  },
+  {
+    "HeroName": "Reaper",
+    "HumanTime": "00:59"
+  },
+  {
+    "HeroName": "Cassidy",
+    "HumanTime": "00:48"
+  },
+  {
+    "HeroName": "Widowmaker",
+    "HumanTime": "00:26"
+  }
+]

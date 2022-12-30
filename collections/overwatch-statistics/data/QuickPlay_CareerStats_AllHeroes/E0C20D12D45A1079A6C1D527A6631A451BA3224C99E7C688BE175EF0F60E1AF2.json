@@ -1,0 +1,70 @@
+﻿[
+  {
+    "StatName": "Eliminations - Most in Game",
+    "StatValue": "49"
+  },
+  {
+    "StatName": "Final Blows - Most in Game",
+    "StatValue": "36"
+  },
+  {
+    "StatName": "All Damage Done - Most in Game",
+    "StatValue": "31331"
+  },
+  {
+    "StatName": "Healing Done - Most in Game",
+    "StatValue": "20995"
+  },
+  {
+    "StatName": "Defensive Assists - Most in Game",
+    "StatValue": "47"
+  },
+  {
+    "StatName": "Offensive Assists - Most in Game",
+    "StatValue": "41"
+  },
+  {
+    "StatName": "Objective Kills - Most in Game",
+    "StatValue": "28"
+  },
+  {
+    "StatName": "Objective Time - Most in Game",
+    "StatValue": "06:09"
+  },
+  {
+    "StatName": "Multikill - Best",
+    "StatValue": "6"
+  },
+  {
+    "StatName": "Solo Kills - Most in Game",
+    "StatValue": "36"
+  },
+  {
+    "StatName": "Time Spent on Fire - Most in Game",
+    "StatValue": "11:05"
+  },
+  {
+    "StatName": "Melee Final Blows - Most in Game",
+    "StatValue": "6"
+  },
+  {
+    "StatName": "Environmental Kills - Most in Game",
+    "StatValue": "5"
+  },
+  {
+    "StatName": "Kill Streak - Best",
+    "StatValue": "49"
+  },
+  {
+    "StatName": "Hero Damage Done - Most in Game",
+    "StatValue": "21720"
+  },
+  {
+    "StatName": "Barrier Damage Done - Most in Game",
+    "StatValue": "13207"
+  },
+  {
+    "StatName": "Recon Assists - Most in Game",
+    "StatValue": "10"
+  }
+]

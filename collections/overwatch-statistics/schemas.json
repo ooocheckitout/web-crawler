@@ -43,10 +43,10 @@
         ]
     },
     {
-        "Name": "CompetitivePlay_TopHeroes_TimePlayed",
+        "Name": "Competitive_TopHeroes_TimePlayed",
         "IdentifierField": {
             "name": "HeroName",
-            "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[3]/div[2]/div[1]/div/div[2]/div[1]"
+            "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[3]/div[2]/div/div/div[2]/div[1]"
         },
         "PropertyFields": [
             {

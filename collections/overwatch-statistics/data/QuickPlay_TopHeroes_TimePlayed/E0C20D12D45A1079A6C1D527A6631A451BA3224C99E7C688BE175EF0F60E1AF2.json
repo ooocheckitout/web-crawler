@@ -1,0 +1,126 @@
+﻿[
+  {
+    "HeroName": "Winston",
+    "HumanTime": "151:11:55"
+  },
+  {
+    "HeroName": "Mercy",
+    "HumanTime": "69:50:55"
+  },
+  {
+    "HeroName": "Ana",
+    "HumanTime": "61:54:18"
+  },
+  {
+    "HeroName": "Orisa",
+    "HumanTime": "59:06:49"
+  },
+  {
+    "HeroName": "Pharah",
+    "HumanTime": "57:32:38"
+  },
+  {
+    "HeroName": "Zarya",
+    "HumanTime": "48:27:42"
+  },
+  {
+    "HeroName": "Moira",
+    "HumanTime": "40:02:25"
+  },
+  {
+    "HeroName": "Brigitte",
+    "HumanTime": "28:26:24"
+  },
+  {
+    "HeroName": "Sombra",
+    "HumanTime": "28:25:13"
+  },
+  {
+    "HeroName": "Symmetra",
+    "HumanTime": "27:57:28"
+  },
+  {
+    "HeroName": "Zenyatta",
+    "HumanTime": "26:42:20"
+  },
+  {
+    "HeroName": "Reinhardt",
+    "HumanTime": "24:42:13"
+  },
+  {
+    "HeroName": "Cassidy",
+    "HumanTime": "24:32:15"
+  },
+  {
+    "HeroName": "L\u00FAcio",
+    "HumanTime": "20:04:08"
+  },
+  {
+    "HeroName": "Soldier: 76",
+    "HumanTime": "16:50:09"
+  },
+  {
+    "HeroName": "Reaper",
+    "HumanTime": "13:56:45"
+  },
+  {
+    "HeroName": "Torbj\u00F6rn",
+    "HumanTime": "13:44:12"
+  },
+  {
+    "HeroName": "Junkrat",
+    "HumanTime": "13:37:28"
+  },
+  {
+    "HeroName": "Roadhog",
+    "HumanTime": "13:04:23"
+  },
+  {
+    "HeroName": "Doomfist",
+    "HumanTime": "11:23:27"
+  },
+  {
+    "HeroName": "Genji",
+    "HumanTime": "08:05:53"
+  },
+  {
+    "HeroName": "Wrecking Ball",
+    "HumanTime": "07:08:10"
+  },
+  {
+    "HeroName": "Mei",
+    "HumanTime": "06:28:17"
+  },
+  {
+    "HeroName": "Hanzo",
+    "HumanTime": "04:54:51"
+  },
+  {
+    "HeroName": "Ashe",
+    "HumanTime": "03:48:55"
+  },
+  {
+    "HeroName": "Baptiste",
+    "HumanTime": "02:43:55"
+  },
+  {
+    "HeroName": "Widowmaker",
+    "HumanTime": "02:25:37"
+  },
+  {
+    "HeroName": "D.Va",
+    "HumanTime": "02:11:27"
+  },
+  {
+    "HeroName": "Tracer",
+    "HumanTime": "02:07:16"
+  },
+  {
+    "HeroName": "Sigma",
+    "HumanTime": "01:11:29"
+  },
+  {
+    "HeroName": "Bastion",
+    "HumanTime": "42:43"
+  }
+]
