@@ -1,5 +1,6 @@
 [
     {
+        "Name": "Heroes",
         "IdentifierField": {
             "name": "Title",
             "xpath": "/html/body/div[1]/blz-media-gallery/blz-hero-card/div/span"

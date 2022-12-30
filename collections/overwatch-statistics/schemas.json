@@ -14,7 +14,23 @@
         ]
     },
     {
-        "Name": "TopHeroes_TimePlayed",
+        "Name": "Platforms",
+        "IdentifierField": {
+            "name": "Title",
+            "xpath": "/html/body/div[1]/blz-section/div/div[3]/blz-button",
+            "attribute": "analytics-label"
+        }
+    },
+    {
+        "Name": "GameModes",
+        "IdentifierField": {
+            "name": "Title",
+            "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[1]/blz-button",
+            "attribute": "analytics-label"
+        }
+    },
+    {
+        "Name": "QuickPlay_TopHeroes_TimePlayed",
         "IdentifierField": {
             "name": "HeroName",
             "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[1]"
@@ -27,7 +43,20 @@
         ]
     },
     {
-        "Name": "CareerStats_AllHeroes",
+        "Name": "CompetitivePlay_TopHeroes_TimePlayed",
+        "IdentifierField": {
+            "name": "HeroName",
+            "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[3]/div[2]/div[1]/div/div[2]/div[1]"
+        },
+        "PropertyFields": [
+            {
+                "name": "HumanTime",
+                "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[3]/div[2]/div[_index_]/div/div[2]/div[2]"
+            }
+        ]
+    },
+    {
+        "Name": "QuickPlay_CareerStats_AllHeroes",
         "IdentifierField": {
             "name": "StatName",
             "xpath": "/html/body/div[1]/div[1]/blz-section[2]/span[1]/div[1]/div/div[position()>1]/p[1]"

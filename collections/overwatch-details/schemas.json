@@ -1,5 +1,6 @@
 [
     {
+        "Name": "HeroDetails",
         "IdentifierField": {
             "name": "Title",
             "xpath": "/html/body/div[1]/blz-page-header/blz-header/h2"
@@ -15,5 +16,4 @@
             }
         ]
     }
-
 ]
