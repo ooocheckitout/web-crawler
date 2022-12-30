@@ -39,6 +39,10 @@
             {
                 "name": "HumanTime",
                 "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div[_index_]/div/div[2]/div[2]"
+            },
+            {
+                "name": "Username",
+                "xpath": "/html/body/div[1]/blz-section/div/div[1]/div/h1"
             }
         ]
     },
@@ -52,6 +56,10 @@
             {
                 "name": "HumanTime",
                 "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[3]/div[2]/div[_index_]/div/div[2]/div[2]"
+            },
+            {
+                "name": "Username",
+                "xpath": "/html/body/div[1]/blz-section/div/div[1]/div/h1"
             }
         ]
     },
@@ -65,6 +73,10 @@
             {
                 "name": "StatValue",
                 "xpath": "/html/body/div[1]/div[1]/blz-section[2]/span[1]/div[1]/div/div[1 + _index_]/p[2]"
+            },
+            {
+                "name": "Username",
+                "xpath": "/html/body/div[1]/blz-section/div/div[1]/div/h1"
             }
         ]
     }

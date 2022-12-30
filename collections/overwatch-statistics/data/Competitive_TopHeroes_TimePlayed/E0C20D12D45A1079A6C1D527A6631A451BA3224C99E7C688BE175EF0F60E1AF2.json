@@ -1,38 +1,47 @@
 ﻿[
   {
     "HeroName": "Mercy",
-    "HumanTime": "14:10:23"
+    "HumanTime": "14:10:23",
+    "Username": "Adam"
   },
   {
     "HeroName": "Winston",
-    "HumanTime": "01:45:08"
+    "HumanTime": "01:45:08",
+    "Username": "Adam"
   },
   {
     "HeroName": "Zenyatta",
-    "HumanTime": "31:13"
+    "HumanTime": "31:13",
+    "Username": "Adam"
   },
   {
     "HeroName": "L\u00FAcio",
-    "HumanTime": "21:49"
+    "HumanTime": "21:49",
+    "Username": "Adam"
   },
   {
     "HeroName": "Orisa",
-    "HumanTime": "14:33"
+    "HumanTime": "14:33",
+    "Username": "Adam"
   },
   {
     "HeroName": "Genji",
-    "HumanTime": "04:20"
+    "HumanTime": "04:20",
+    "Username": "Adam"
   },
   {
     "HeroName": "Reaper",
-    "HumanTime": "00:59"
+    "HumanTime": "00:59",
+    "Username": "Adam"
   },
   {
     "HeroName": "Cassidy",
-    "HumanTime": "00:48"
+    "HumanTime": "00:48",
+    "Username": "Adam"
   },
   {
     "HeroName": "Widowmaker",
-    "HumanTime": "00:26"
+    "HumanTime": "00:26",
+    "Username": "Adam"
   }
 ]
