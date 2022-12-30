@@ -1,0 +1,13 @@
+﻿[
+  {
+    "Title": "Zarya",
+    "Role": "Tank",
+    "Abilities": [
+      "Particle Cannon",
+      "Particle Barrier",
+      "Projected Barrier",
+      "Graviton Surge",
+      "Energy"
+    ]
+  }
+]

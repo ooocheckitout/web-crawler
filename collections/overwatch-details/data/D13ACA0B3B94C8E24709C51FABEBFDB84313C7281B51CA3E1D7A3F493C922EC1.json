@@ -1,0 +1,13 @@
+﻿[
+  {
+    "Title": "Doomfist",
+    "Role": "Tank",
+    "Abilities": [
+      "Hand Cannon",
+      "Rocket Punch",
+      "Seismic Slam",
+      "Power Block",
+      "Meteor Strike"
+    ]
+  }
+]

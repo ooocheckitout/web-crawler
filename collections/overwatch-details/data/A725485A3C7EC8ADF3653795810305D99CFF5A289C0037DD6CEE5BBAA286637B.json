@@ -1,0 +1,13 @@
+﻿[
+  {
+    "Title": "Reinhardt",
+    "Role": "Tank",
+    "Abilities": [
+      "Rocket Hammer",
+      "Charge",
+      "Fire Strike",
+      "Barrier Field",
+      "Earthshatter"
+    ]
+  }
+]
