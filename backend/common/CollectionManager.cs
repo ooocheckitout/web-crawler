@@ -36,8 +36,8 @@
         return $"{_collectionsRoot}/{collection}/data/{schema}/{hash}.json";
     }
 
-    public string GetSchemaHashLocation(string collection, string schema)
+    public string GetSchemaHashLocation(string collection, string schema, string htmlFileName)
     {
-        return $"{_collectionsRoot}/{collection}/{schema}.hash";
+        return $"{_collectionsRoot}/{collection}/data/{schema}/{htmlFileName}.hash";
     }
 }

@@ -24,56 +24,47 @@ var hasher = new Hasher();
 var locator = new CollectionLocator(collectionsRoot, hasher);
 var parser = new Parser();
 
-var collections = locator.GetCollections().ToList();
-
-foreach (string collection in collections)
+foreach (string collection in locator.GetCollections())
 {
-    var schemas = await fileReader.ReadJsonFileAsync<IEnumerable<Schema>>(
-        locator.GetSchemasLocation(collection));
+    var urls = await fileReader.ReadJsonFileAsync<IReadOnlyCollection<string>>(locator.GetUrlsLocation(collection));
+    var schemas = await fileReader.ReadJsonFileAsync<IReadOnlyCollection<Schema>>(locator.GetSchemasLocation(collection));
 
-    var urls = (await fileReader.ReadJsonFileAsync<IEnumerable<string>>(
-        locator.GetUrlsLocation(collection))).ToList();
-
-    foreach (var schema in schemas)
+    foreach (string url in urls)
     {
-        // continue only if content or schema has changed
-        string schemaHash = hasher.GetSha256HashAsHex(JsonSerializer.Serialize(schema));
-        string schemaHashLocation = locator.GetSchemaHashLocation(collection, schema.Name);
+        string htmlLocation = locator.GetHtmlLocation(collection, url);
 
-        if (File.Exists(schemaHashLocation)
-            && await fileReader.ReadTextFileAsync(schemaHashLocation) == schemaHash)
-        {
-            Console.WriteLine($"Skipping schema {schema.Name}");
-            continue;
-        }
+        if (!File.Exists(htmlLocation))
+            await downloader.DownloadTextToFileAsync(url, htmlLocation);
 
-        Console.WriteLine($"Processing urls for {schema.Name}");
+        string htmlContent = await fileReader.ReadTextFileAsync(htmlLocation);
 
-        foreach (string url in urls)
+        foreach (var schema in schemas)
         {
             try
             {
-                string htmlLocation = locator.GetHtmlLocation(collection, url);
+                // continue only if content or schema has changed
+                string schemaHash = hasher.GetSha256HashAsHex(JsonSerializer.Serialize(schema));
+                string schemaHashLocation = locator.GetSchemaHashLocation(collection, schema.Name, Path.GetFileNameWithoutExtension(htmlLocation));
 
-                Console.WriteLine($"Writing html content of {url} to {htmlLocation}");
-
-                if (!File.Exists(htmlLocation))
-                    await downloader.DownloadTextToFileAsync(url, htmlLocation);
-
-                string htmlContent = await fileReader.ReadTextFileAsync(htmlLocation);
+                if (File.Exists(schemaHashLocation)
+                    && await fileReader.ReadTextFileAsync(schemaHashLocation) == schemaHash)
+                {
+                    Console.WriteLine($"Skipping schema {schema.Name}");
+                    continue;
+                }
 
                 var objects = parser.Parse(htmlContent, schema);
 
                 string dataLocation = locator.GetDataLocation(collection, schema.Name, url);
                 await fileWriter.ToJsonFileAsync(dataLocation, objects);
+
+                await fileWriter.ToTextFileAsync(schemaHashLocation, schemaHash);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to parse {url}");
+                Console.WriteLine($"Failed to parse {url} with {schema.Name}");
                 Console.WriteLine(ex);
             }
         }
-
-        await fileWriter.ToTextFileAsync(schemaHashLocation, schemaHash);
     }
 }

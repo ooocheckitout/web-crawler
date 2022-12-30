@@ -14,22 +14,6 @@
         ]
     },
     {
-        "Name": "Platforms",
-        "IdentifierField": {
-            "name": "Title",
-            "xpath": "/html/body/div[1]/blz-section/div/div[3]/blz-button",
-            "attribute": "analytics-label"
-        }
-    },
-    {
-        "Name": "GameModes",
-        "IdentifierField": {
-            "name": "Title",
-            "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[1]/blz-button",
-            "attribute": "analytics-label"
-        }
-    },
-    {
         "Name": "QuickPlay_TopHeroes_TimePlayed",
         "IdentifierField": {
             "name": "HeroName",
