@@ -12,7 +12,7 @@ heroes_df = (
     spark
     .read
     .option("multiline","true")
-    .json(f"{collectionsRoot}/overwatch-heroes/data")
+    .json(f"{collectionsRoot}/overwatch-heroes/data/Heroes")
     .withColumn("DetailsUrl", concat_ws("", col("Host"), col("RelativeDetailsUrl")))
     .select("Title", "DetailsUrl", "ImageUrl")
 )
@@ -22,17 +22,25 @@ details_df = (
     spark
     .read
     .option("multiline","true")
-    .json(f"{collectionsRoot}/overwatch-details/data")
+    .json(f"{collectionsRoot}/overwatch-details/data/HeroDetails")
 )
 details_df.show()
 
-players_df = (
+quickplay_time_played_df = (
     spark
     .read
     .option("multiline","true")
-    .json(f"{collectionsRoot}/overwatch-statistics/data/player")
+    .json(f"{collectionsRoot}/overwatch-statistics/data/QuickPlay_TopHeroes_TimePlayed")
 )
-players_df.show()
+quickplay_time_played_df.show()
+
+competitive_time_played_df = (
+    spark
+    .read
+    .option("multiline","true")
+    .json(f"{collectionsRoot}/overwatch-statistics/data/Competitive_TopHeroes_TimePlayed")
+)
+competitive_time_played_df.show()
 
 # silver
 heroes_with_details_df = (
