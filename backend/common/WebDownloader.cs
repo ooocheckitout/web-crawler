@@ -13,7 +13,7 @@
     {
         using var response = await _client.GetAsync(url);
         using var content = response.Content;
-        var stringContent = await content.ReadAsStringAsync();
+        string stringContent = await content.ReadAsStringAsync();
 
         await _fileWriter.ToTextFileAsync(fileLocation, stringContent);
 

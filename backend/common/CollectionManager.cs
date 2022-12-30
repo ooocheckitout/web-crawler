@@ -1,25 +1,14 @@
-﻿using System.Text.Json;
+﻿using System.Text;
 
-public class CollectionManager
+public class CollectionLocator
 {
     private readonly string _collectionsRoot;
-    private readonly FileReader _fileReader;
     private readonly Hasher _hasher;
-    private readonly WebDownloader _downloader;
-    private readonly FileWriter _fileWriter;
 
-    public CollectionManager(
-        string collectionsRoot,
-        FileReader fileReader,
-        Hasher hasher,
-        WebDownloader downloader,
-        FileWriter fileWriter)
+    public CollectionLocator(string collectionsRoot, Hasher hasher)
     {
         _collectionsRoot = collectionsRoot;
-        _fileReader = fileReader;
         _hasher = hasher;
-        _downloader = downloader;
-        _fileWriter = fileWriter;
     }
 
     public IEnumerable<string> GetCollections()
@@ -27,31 +16,30 @@ public class CollectionManager
         return Directory.EnumerateDirectories(_collectionsRoot).Select(Path.GetFileName)!;
     }
 
-    public Task<IEnumerable<string>> GetUrlsAsync(string collection)
+    public string GetSchemasLocation(string collection)
     {
-        return _fileReader.ReadJsonFileAsync<IEnumerable<string>>($"{_collectionsRoot}/{collection}/urls.json");
+        return $"{_collectionsRoot}/{collection}/schemas.json";
     }
 
-    public Task<IEnumerable<Schema>> GetSchemasAsync(string collection)
+    public string GetUrlsLocation(string collection)
     {
-        return _fileReader.ReadJsonFileAsync<IEnumerable<Schema>>($"{_collectionsRoot}/{collection}/schemas.json");
+        return $"{_collectionsRoot}/{collection}/urls.json";
     }
 
-    public Task<string> GetHtmlAsync(string collection, string url)
+    public string GetHtmlLocation(string collection, string url)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        var fileLocation = $"{_collectionsRoot}/{collection}/content/{hash}.html";
-
-        return File.Exists(fileLocation)
-            ? _fileReader.ReadTextFileAsync(fileLocation)
-            : _downloader.DownloadTextToFileAsync(url, fileLocation);
+        return $"{_collectionsRoot}/{collection}/content/{hash}.html";
     }
 
-    public Task SaveDataAsync(string collection, string schemaName, string url, IEnumerable<IDictionary<string, object>> objects)
+    public string GetDataLocation(string collection, string schema, string url)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        var fileLocation = $"{_collectionsRoot}/{collection}/data/{schemaName}/{hash}.json";
+        return $"{_collectionsRoot}/{collection}/data/{schema}/{hash}.json";
+    }
 
-        return _fileWriter.ToJsonFileAsync(fileLocation, objects);
+    public string GetSchemaHashLocation(string collection, string schema)
+    {
+        return $"{_collectionsRoot}/{collection}/{schema}.hash";
     }
 }

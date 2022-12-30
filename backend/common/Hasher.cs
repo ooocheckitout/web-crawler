@@ -10,7 +10,6 @@ public class Hasher
         var secretHash = sha256.ComputeHash(secretBytes);
         var hash = Convert.ToHexString(secretHash);
 
-        Console.WriteLine($"Calculated {hash} hash from {original} string");
         return hash;
     }
 }
