@@ -45,8 +45,6 @@ class Parser
 
     private ICollection<string> GetFieldValue(QueryField field, HtmlDocument document, Variables? specials = default)
     {
-        Console.WriteLine($"Retrieving value for {field.Name} field");
-
         string calculatedXpath = field.XPath.Replace("_index_", specials?.Index.ToString());
 
         var results = document.DocumentNode.SelectNodes(calculatedXpath);

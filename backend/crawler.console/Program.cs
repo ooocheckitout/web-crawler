@@ -13,37 +13,33 @@ execute:
 
  */
 
+const string collectionsRoot = @"D:\code\web-crawler\collections";
+
 var fileReader = new FileReader();
 var fileWriter = new FileWriter();
 var downloader = new WebDownloader(new HttpClient(), fileWriter);
 var hasher = new Hasher();
-var collectionManager = new CollectionManager(fileReader, downloader, hasher, fileWriter);
+var collectionManager = new CollectionManager(collectionsRoot, fileReader, hasher, downloader, fileWriter);
 var parser = new Parser();
 
-var collections = new[]
-{
-    "heroes",
-    "details",
-    "statistics"
-};
 
-foreach (string collection in collections)
+foreach (string collection in collectionManager.GetCollections())
 foreach (string url in await collectionManager.GetUrlsAsync(collection))
 {
     try
     {
-        string htmlContent = await collectionManager.GetOrCreateHtmlContentAsync(collection, url);
+        string html = await collectionManager.GetHtmlAsync(collection, url);
 
-        var schemas = await collectionManager.GetSchemaAsync(collection);
-        foreach (var schema in schemas)
+        foreach (var schema in await collectionManager.GetSchemasAsync(collection))
         {
-            var dataObjects = parser.Parse(htmlContent, schema);
-            await collectionManager.CreateDataAsync(collection, schema.Name, url, dataObjects);
+            var objects = parser.Parse(html, schema);
+            await collectionManager.SaveDataAsync(collection, schema.Name, url, objects);
         }
     }
-    catch (Exception e)
+    catch (Exception ex)
     {
         Console.WriteLine($"Failed to parse {url}");
-        Console.WriteLine(e);
+        Console.WriteLine(ex);
+        throw;
     }
 }
