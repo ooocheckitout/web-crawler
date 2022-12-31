@@ -8,11 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\common\common.csproj" />
+      <PackageReference Include="Microsoft.Spark" Version="2.1.1" />
     </ItemGroup>
 
 </Project>

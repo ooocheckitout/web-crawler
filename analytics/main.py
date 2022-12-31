@@ -78,7 +78,7 @@ time_played_df.show()
     .show()
 )
 
-from pyspark.sql.functions import to_timestamp, sum, month, dayofmonth, hour, minute, second, floor
+from pyspark.sql.functions import to_timestamp, sum, floor
 (
     time_played_df
     
