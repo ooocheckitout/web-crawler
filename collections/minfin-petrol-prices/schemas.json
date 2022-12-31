@@ -1,0 +1,15 @@
+[
+    {
+        "Name": "Prices",
+        "IdentifierField":{
+            "name": "Title",
+            "xpath": "/html/body/main/div/div/div/div/div/article/table/tr/td[1]"
+        },
+        "PropertyFields":[
+            {
+                "name": "Price",
+                "xpath": "/html/body/main/div/div/div/div/div/article/table/tr[1+_index_]/td[2]"
+            }
+        ]
+    }
+]

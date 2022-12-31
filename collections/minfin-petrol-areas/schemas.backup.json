@@ -1,0 +1,22 @@
+[
+    {
+        "Name": "Regions",
+        "IdentifierField":{
+            "name": "Title",
+            "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/ul[3]/li[2]/ul/li/a"
+        },
+        "PropertyFields":[
+            {
+                "name": "RelativeUrl",
+                "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/ul[3]/li[2]/ul/li[_index_]/a",
+                "attribute": "href"
+            }
+        ],
+        "StaticFields":[
+            {
+                "name": "Host",
+                "value": "https://index.minfin.com.ua/markets/fuel/"
+            }
+        ]
+    }
+]
