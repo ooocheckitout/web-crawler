@@ -1,4 +1,6 @@
-﻿class Hero
+﻿namespace crawler.tests;
+
+class Hero
 {
     public string Title { get; set; }
     public string RelativeDetailsUrl { get; set; }

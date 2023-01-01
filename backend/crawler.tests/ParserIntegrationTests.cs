@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using Xunit;
 
+namespace crawler.tests;
+
 public class ParserIntegrationTests
 {
     [Fact]
