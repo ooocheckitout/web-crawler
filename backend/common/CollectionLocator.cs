@@ -1,4 +1,6 @@
-﻿public class CollectionLocator
+﻿using System.Text.Json;
+
+public class CollectionLocator
 {
     private readonly string _collectionsRoot;
     private readonly Hasher _hasher;
@@ -9,9 +11,9 @@
         _hasher = hasher;
     }
 
-    public IEnumerable<string> GetCollections()
+    public string GetRoot()
     {
-        return Directory.EnumerateDirectories(_collectionsRoot).Select(Path.GetFileName)!;
+        return _collectionsRoot;
     }
 
     public string GetSchemasLocation(string collection)
@@ -36,8 +38,9 @@
         return $"{_collectionsRoot}/{collection}/data/{schema}/{hash}.json";
     }
 
-    public string GetSchemaHashLocation(string collection, string schema, string htmlFileName)
+    public string GetChecksumLocation(string collection, string schema, string url)
     {
-        return $"{_collectionsRoot}/{collection}/data/{schema}/{htmlFileName}.hash";
+        string hash = _hasher.GetSha256HashAsHex(url);
+        return $"{_collectionsRoot}/{collection}/data/{schema}/{hash}.checksum";
     }
 }

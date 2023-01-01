@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Xunit;
 
-public class IntegrationTests
+public class ParserIntegrationTests
 {
     [Fact]
     public async Task Details()

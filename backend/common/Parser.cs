@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 
-class Parser
+public class Parser
 {
     public IEnumerable<Dictionary<string, object>> Parse(string htmlContent, Schema schema)
     {
@@ -23,7 +23,7 @@ class Parser
             var obj = objects[index];
             foreach (var propertyField in schema.PropertyFields)
             {
-                var values = GetFieldValue(propertyField, document, new Variables {Index = index + 1});
+                var values = GetFieldValue(propertyField, document, new ParserVariables {Index = index + 1});
 
                 if (values.Count == 1)
                 {
@@ -43,7 +43,7 @@ class Parser
         return objects;
     }
 
-    private ICollection<string> GetFieldValue(QueryField field, HtmlDocument document, Variables? specials = default)
+    private ICollection<string> GetFieldValue(QueryField field, HtmlDocument document, ParserVariables? specials = default)
     {
         string calculatedXpath = field.XPath.Replace("_index_", specials?.Index.ToString());
 

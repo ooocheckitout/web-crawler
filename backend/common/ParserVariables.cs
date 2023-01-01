@@ -1,4 +1,4 @@
-﻿class Variables
+﻿class ParserVariables
 {
     public int Index { get; set; }
 }
