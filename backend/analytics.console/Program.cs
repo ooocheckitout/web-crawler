@@ -1,30 +1,48 @@
-﻿using Apache.Arrow;
+﻿using System.Text;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
+
+Console.OutputEncoding = Encoding.UTF8;
 
 var spark = SparkSession
     .Builder()
     .Config("spark.sql.session.timeZone", "UTC")
     .GetOrCreate();
 
-var dataFrameReader = new DataFrameReader(spark);
-
 const string collectionsRoot = @"D:\code\web-crawler\collections";
 
-var heroes_df = spark
+var heroesDf = spark
     .Read()
     .Option("multiline", true)
     .Json($"{collectionsRoot}/overwatch-heroes/data/Heroes/*.json")
-    .WithColumn("DetailsUrl", Functions.ConcatWs("", Functions.Col("Host"), Functions.Col("RelativeDetailsUrl")))
+    .WithColumn("DetailsUrl", ConcatWs("", Col("Host"), Col("RelativeDetailsUrl")))
     .Select("Title", "DetailsUrl", "ImageUrl");
 
-var details_df = spark
+var detailsDf = spark
     .Read()
     .Option("multiline", true)
     .Json($"{collectionsRoot}/overwatch-details/data/HeroDetails/*.json");
 
-var heroes_with_details_df = heroes_df
-    .Join(details_df, details_df["Title"] == heroes_df["Title"])
-    .Select(heroes_df["Title"], Col("Role"), Col("Abilities"), Col("DetailsUrl"), Col("ImageUrl"));
+var heroesWithDetailsDf = heroesDf
+    .Join(detailsDf, detailsDf["Title"] == heroesDf["Title"])
+    .Select(heroesDf["Title"], Col("Role"), Col("Abilities"), Col("DetailsUrl"), Col("ImageUrl"));
 
-heroes_with_details_df.Show();
+heroesWithDetailsDf.Show();
+
+var petrolPricesDf = spark
+    .Read()
+    .Option("multiline", true)
+    .Json($"{collectionsRoot}/minfin-petrol-prices/data/Prices/*.json")
+    .WithColumn("PriceAsDouble",  RegexpReplace(Col("Price"), ",", ".").Cast("double"));
+
+petrolPricesDf.Where("Title == 'Бензин А-95 премиум'").Show(100);
+
+petrolPricesDf
+    .GroupBy("Title").Agg(
+        Round(Min("PriceAsDouble"), 2).Alias("min"),
+        Round(Max("PriceAsDouble"), 2).Alias("max"),
+        Round(Mean("PriceAsDouble"), 2).Alias("mean"),
+        Round(Sum("PriceAsDouble"), 2).Alias("sum"))
+    .Sort(Col("mean"))
+    .Show(100);
+
