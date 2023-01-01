@@ -27,8 +27,7 @@
         </div>  
       </div>
       <div class="w-1/2">
-        <!-- <Viewer :url="url" @mousemove="highlightHandler" @click="selectHandler" /> -->
-        <iframe :src="url" frameborder="0" class="w-full h-full" @mousemove="highlightHandler" @click="selectHandler"></iframe>
+        <Viewer :url="url" @mousemove="highlightHandler" @click="selectHandler" id="viewer" />
       </div>
     </div>
   </div>
@@ -125,7 +124,17 @@ export default {
 
       this.highlight(currentElement, highlightClass);
 
-      var xpath = this.getElementXPath(currentElement);
+      var viewerElement = document.getElementById("viewer");
+      var viewerXpath = this.getElementTreeXPath(viewerElement);;
+      var currentElementXpath = this.getElementXPath(currentElement);
+      var xpathWithoutViewerPart = currentElementXpath.replace(viewerXpath, "/html/body");
+
+      var xpath = currentElementXpath + ` | ${currentElementXpath.replace("/tbody", "")}`
+
+      console.log(viewerXpath);
+      console.log(currentElementXpath);
+      console.log(xpath);
+
       const array = [...xpath.matchAll(/\[.*?\]/g)];
 
       var suggestions = array
