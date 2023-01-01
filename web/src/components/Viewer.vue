@@ -1,5 +1,6 @@
 <template lang="">
-    <div v-html="html"></div>
+    <!-- <div v-html="html"></div> -->
+    <iframe :src="url" frameborder="0" class="w-full h-full"></iframe>
 </template>
 <script>
 export default {

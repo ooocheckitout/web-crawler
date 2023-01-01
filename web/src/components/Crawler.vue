@@ -1,20 +1,37 @@
 <template lang="">
-    <div class="flex flex-col h-screen text-center">
-        <div>
-            <input type="text" v-model="url" class="w-full h-full p-2 border-2 border-indigo-600 border-solid rounded ">
-        </div>
-        <div class="grid h-full grid-cols-2 gap-2 ">
-            <div class="">
-                <p>Current element:</p>
-                <p>{{lastElement}}</p>
-                <p>{{lastElementXpath}}</p>
+  <div>
+    <input type="text" v-model="url" class="w-full h-full p-2 border-2 border-indigo-600 border-solid rounded " />
+
+    <div class="flex flex-row">
+      <div class="sticky top-0 flex flex-col w-1/2 h-screen ">
+        <div class="h-1/2">
+          <div>
+            <p>Selected elements:</p>
+            <div v-for="(item, index) in selectedElements" :key="index">
+              <p>{{ item.selectedSuggestion ? item.selectedSuggestion.xpath : item.xpath }}</p>
+
+              <p>Suggestions:</p>
+              <div v-for="(suggestion, index) in item.suggestedXpaths" :key="index">
+                <input type="button" :value="suggestion.xpath"
+                    @mouseover="highlight(suggestion.elements, 'bg-sky-500')"
+                    @mouseleave="unhighlight(suggestion.elements, 'bg-sky-500')"
+                    @click="applySuggestion(suggestion, item)" />
+              </div>
             </div>
-            
-            <div @mousemove="selectElement" @click="selectElement">
-                <Viewer :url="url" />
-            </div>
+          </div>
         </div>
+        <div class="h-1/2">
+          <p>Selected elements:</p><div v-for="(item, index) in selectedElements" :key="index">
+            <p>{{item.text}}</p>
+          </div>
+        </div>  
+      </div>
+      <div class="w-1/2">
+        <!-- <Viewer :url="url" @mousemove="highlightHandler" @click="selectHandler" /> -->
+        <iframe :src="url" frameborder="0" class="w-full h-full" @mousemove="highlightHandler" @click="selectHandler"></iframe>
+      </div>
     </div>
+  </div>
 </template>
 <script>
 import Viewer from "./Viewer.vue";
@@ -25,46 +42,117 @@ export default {
   },
   data() {
     return {
-      url: "https://tailwindcss.com/docs/grid-template-columns",
-      lastElement: undefined,
-      lastElementXpath: undefined,
+      url: "https://index.minfin.com.ua/markets/fuel/reg/vinnickaya/", //"https://tailwindcss.com/docs/grid-template-columns",
+
+      lastHighlightedElement: null,
+      selectedElements: [],
+
+      properties: [],
     };
   },
+  watch: {
+    url: {
+      handler: function() {
+        this.lastHighlightedElement = null;
+        this.selectedElements = []
+      }
+    }
+  },
   methods: {
-    highlightElement(event){
-        let element = document.elementFromPoint(
-        event.clientX,
-        event.clientY
-      );
+    applySuggestion(suggestion, item){
+      const highlightClass = "bg-red-500";
 
-      const highlightClasses = "bg-sky-500";
-      element.classList.add(highlightClasses);
+      if (item.selectedSuggestion)
+        this.unhighlight(item.selectedSuggestion.elements, highlightClass)
+      
+      console.log(item.selectedSuggestion);
+
+      item.selectedSuggestion = suggestion;
+      this.unhighlight(item.element, highlightClass)
+      this.highlight(suggestion.elements, highlightClass)
     },
 
-    selectElement(event) {
-      let currentElement = document.elementFromPoint(
-        event.clientX,
-        event.clientY
-      );
-      if (currentElement == this.lastElement) return;
+    highlight(elements, highlightClass){
+      if (!Array.isArray(elements))
+        elements = [elements]
 
-      const highlightClasses = "bg-sky-500";
+      for (const element of elements) {
+        if (element.classList?.contains(highlightClass))
+          continue;
 
-      if (this.lastElement != undefined) {
-        // clean
-        this.lastElement.classList.remove(highlightClasses);
-        // highlight
-        currentElement.classList.add(highlightClasses);
+        element.classList.add(highlightClass);
+      }
+    },
+
+    unhighlight(elements, highlightClass){
+      if (!Array.isArray(elements))
+        elements = [elements]
+
+      for (const element of elements) {
+        if (!element.classList?.contains(highlightClass))
+          continue;
+
+          element.classList.remove(highlightClass);
+      }
+    },
+
+    highlightHandler(event) {
+      let currentElement = document.elementFromPoint(event.clientX, event.clientY);
+
+      if (currentElement == this.lastHighlightedElement) return;
+
+      const highlightClass = "bg-sky-500";
+
+      if (this.lastHighlightedElement != undefined) {
+        this.unhighlight(this.lastHighlightedElement, highlightClass);
       }
 
-      this.lastElement = currentElement;
-      this.lastElementXpath = this.getElementXPath(this.lastElement);
+      this.highlight(currentElement, highlightClass);
+
+      this.lastHighlightedElement = currentElement;
     },
+
+    selectHandler(event) {
+      let currentElement = document.elementFromPoint(event.clientX, event.clientY);
+      
+      if (this.selectedElements.find(x => x.element == currentElement)) return;
+
+      const highlightClass = "bg-red-500";
+
+      if (this.lastHighlightedElement != undefined) {
+        this.unhighlight(this.lastHighlightedElement, highlightClass);
+      }
+
+      this.highlight(currentElement, highlightClass);
+
+      var xpath = this.getElementXPath(currentElement);
+      const array = [...xpath.matchAll(/\[.*?\]/g)];
+
+      var suggestions = array
+        .map(x => xpath.substring(0, x.index) + xpath.substring(x.index+x[0].length, xpath.length))
+        .map(x => { return {xpath: x, elements: this.evaluateXPath(document, x)} })
+        .filter(x => x.elements.length > 1)
+
+      this.selectedElements.push({
+        element: currentElement,
+        xpath: xpath,
+        suggestedXpaths: suggestions,
+        selectedSuggestion: null,
+        text: currentElement.innerText
+      })
+
+      this.properties.push({
+        Name: `Property-${this.properties.length}`,
+        Xpath: xpath
+      })
+    },
+
     // https://github.com/firebug/firebug/blob/master/extension/content/firebug/lib/xpath.js
     getElementXPath(element) {
       if (element && element.id) return '//*[@id="' + element.id + '"]';
       else return this.getElementTreeXPath(element);
     },
+
     getElementTreeXPath(element) {
       var paths = [];
 
@@ -104,6 +192,7 @@ export default {
 
       return paths.length ? "/" + paths.join("/") : null;
     },
+    
     evaluateXPath(doc, xpath, contextNode, resultType) {
       if (contextNode === undefined) contextNode = doc;
 
