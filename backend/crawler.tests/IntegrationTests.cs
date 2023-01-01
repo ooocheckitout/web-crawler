@@ -8,9 +8,9 @@ public class IntegrationTests
     {
         var fileReader = new FileReader();
 
-        var content = await fileReader.ReadTextFileAsync("cases/details/content.html");
-        var schema = await fileReader.ReadJsonFileAsync<Schema>("cases/details/schema.json");
-        var results = await fileReader.ReadJsonFileAsync<IEnumerable<HeroDetails>>("cases/details/results.json");
+        var content = await fileReader.ReadTextAsync("cases/details/content.html");
+        var schema = await fileReader.ReadJsonAsync<Schema>("cases/details/schema.json");
+        var results = await fileReader.ReadJsonAsync<IEnumerable<HeroDetails>>("cases/details/results.json");
         var dataAsDictionary = results.Select(x => new Dictionary<string, object>
         {
             { nameof(x.Title), x.Title },
@@ -26,9 +26,9 @@ public class IntegrationTests
     {
         var fileReader = new FileReader();
 
-        var content = await fileReader.ReadTextFileAsync("cases/heroes/content.html");
-        var schema = await fileReader.ReadJsonFileAsync<Schema>("cases/heroes/schema.json");
-        var results = await fileReader.ReadJsonFileAsync<IEnumerable<Hero>>("cases/heroes/results.json");
+        var content = await fileReader.ReadTextAsync("cases/heroes/content.html");
+        var schema = await fileReader.ReadJsonAsync<Schema>("cases/heroes/schema.json");
+        var results = await fileReader.ReadJsonAsync<IEnumerable<Hero>>("cases/heroes/results.json");
         var dataAsDictionary = results.Select(x => new Dictionary<string, object>
         {
             { nameof(x.Title), x.Title },

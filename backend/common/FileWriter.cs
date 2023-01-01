@@ -5,17 +5,17 @@ using System.Text.Unicode;
 
 public class FileWriter
 {
-    public Task ToJsonFileAsync(string fileLocation, object obj)
+    public Task AsJsonAsync(string fileLocation, object obj)
     {
-        var content = JsonSerializer.Serialize(obj, new JsonSerializerOptions
+        string content = JsonSerializer.Serialize(obj, new JsonSerializerOptions
         {
             WriteIndented = true,
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
         });
-        return ToTextFileAsync(fileLocation, content);
+        return AsTextAsync(fileLocation, content);
     }
 
-    public async Task ToTextFileAsync(string fileLocation, string content)
+    public async Task AsTextAsync(string fileLocation, string content)
     {
         // Console.WriteLine($"Writing content to file {fileLocation}");
 

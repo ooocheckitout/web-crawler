@@ -15,7 +15,7 @@
         using var content = response.Content;
         string stringContent = await content.ReadAsStringAsync();
 
-        await _fileWriter.ToTextFileAsync(fileLocation, stringContent);
+        await _fileWriter.AsTextAsync(fileLocation, stringContent);
 
         return stringContent;
     }
