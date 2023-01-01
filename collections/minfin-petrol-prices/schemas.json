@@ -9,6 +9,10 @@
             {
                 "name": "Price",
                 "xpath": "/html/body/main/div/div/div/div/div/article/table/tr[1+_index_]/td[2]"
+            },
+            {
+                "name": "Region",
+                "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/div[1]/ul/li[5]/span"
             }
         ]
     }
