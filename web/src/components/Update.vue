@@ -11,13 +11,14 @@
                 </div>
                 <div class="h-1/2">
                     <p>Data</p>
-                    <div v-for="(data, index) in propertyDatas" :key="index">
+                    <div v-for="(data, index) in datas" :key="index">
                         <p>{{ data.property.name }}</p>
                         <p>{{ data.value }}</p>
                     </div>
                 </div>
             </div>
-            <div v-html="htmlContent" class="w-1/2" id="viewer"></div>
+            <div v-html="htmlContent" @mousemove="highlightHandler" @click="selectHandler" class="w-1/2" id="viewer">
+            </div>
         </div>
     </div>
 </template>
@@ -28,23 +29,13 @@ export default {
         return {
             url: "https://index.minfin.com.ua/markets/fuel/reg/vinnickaya/",
             htmlContent: null,
-            properties: [
-                {
-                    "name": "Title",
-                    "xpath": "/html/body/div/div/div/div/div[2]/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[1]"
-                },
-                {
-                    "name": "Price",
-                    "xpath": "/html/body/div/div/div/div/div[2]/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[2]/big"
-                }
-            ],
-            propertyDatas: []
+            properties: [],
+            datas: []
         }
     },
     updated() {
         this.updateData();
     },
-
     watch: {
         url: {
             async handler(newValue, oldValue) {
@@ -54,21 +45,91 @@ export default {
             immediate: true
         },
         properties: {
-            handler: (newValue, oldValue) => this.updateData(),
-            deep: true
+            handler(newValue, oldValue) {
+                this.updateData();
+                this.suggest();
+            },
         }
     },
     methods: {
         updateData() {
-            this.propertyDatas = []
+            this.datas = []
 
             for (const property of this.properties) {
                 var elements = this.evaluateXPath(document, property.xpath);
-                this.propertyDatas.push({
+                this.datas.push({
                     property,
                     value: elements.map(x => x.innerText)
                 })
             }
+        },
+
+        suggest() {
+            const array = [...xpath.matchAll(/\[.*?\]/g)];
+
+            var suggestions = array
+                .map(x => xpath.substring(0, x.index) + xpath.substring(x.index + x[0].length, xpath.length))
+                .map(x => { return { xpath: x, elements: this.evaluateXPath(document, x) } })
+                .filter(x => x.elements.length > 1)
+
+                // TODO: finish impl
+        },
+
+        highlight(elements, highlightClass) {
+            if (!Array.isArray(elements))
+                elements = [elements]
+
+            for (const element of elements) {
+                if (element.classList?.contains(highlightClass))
+                    continue;
+
+                element.classList.add(highlightClass);
+            }
+        },
+
+        unhighlight(elements, highlightClass) {
+            if (!Array.isArray(elements))
+                elements = [elements]
+
+            for (const element of elements) {
+                if (!element.classList?.contains(highlightClass))
+                    continue;
+
+                element.classList.remove(highlightClass);
+            }
+        },
+
+        highlightHandler(event) {
+            let currentElement = document.elementFromPoint(event.clientX, event.clientY);
+
+            if (currentElement == this.lastHighlightedElement) return;
+
+            const highlightClass = "bg-sky-500";
+
+            if (this.lastHighlightedElement != undefined) {
+                this.unhighlight(this.lastHighlightedElement, highlightClass);
+            }
+
+            this.highlight(currentElement, highlightClass);
+
+            this.lastHighlightedElement = currentElement;
+        },
+
+        selectHandler(event) {
+            let currentElement = document.elementFromPoint(event.clientX, event.clientY);
+
+            const highlightClass = "bg-red-500";
+
+            if (this.lastHighlightedElement != undefined) {
+                this.unhighlight(this.lastHighlightedElement, highlightClass);
+            }
+
+            this.highlight(currentElement, highlightClass);
+
+            this.properties.push({
+                name: `Property-${this.properties.length + 1}`,
+                xpath: this.getElementXPath(currentElement)
+            })
         },
 
         getElementXPath(element) {
