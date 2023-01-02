@@ -4,28 +4,54 @@
     @click="selectHandler" ></div>
 </template>
 <script>
+import xpathService from "../services/xpath";
+import highlightService from "../services/highlight";
+
 export default {
   props: {
-    url: {
+    html: {
       type: String,
-      default: "https://tailwindcss.com",
+      default: "",
     },
-  },
-  watch: {
-    url: {
-      async handler() {
-        let response = await fetch(this.url);
-        this.html = await response.text();
-      },
-      immediate: true,
+    schema: {
+      type: Array,
+      default: [],
     },
   },
   data() {
     return {
-      html: null,
       lastHighlightedElement: null,
       lastSelectedElement: null,
     };
+  },
+  watch: {
+    schema: {
+      async handler(schema, oldSchema) {
+        // ensure html is completely loaded to the dom
+        this.$nextTick(() => {
+          if (oldSchema) {
+            for (const property of oldSchema) {
+              let elements = xpathService.evaluateXPath(
+                document,
+                property.suggestedXpath ?? property.xpath
+              );
+              console.log("unhighlight", elements);
+              highlightService.unhighlight(elements, "bg-red-500");
+            }
+          }
+
+          for (const property of schema) {
+            let elements = xpathService.evaluateXPath(
+              document,
+              property.suggestedXpath ?? property.xpath
+            );
+            highlightService.highlight(elements, "bg-red-500");
+          }
+        });
+      },
+      immediate: true,
+      deep: true,
+    },
   },
   methods: {
     selectHandler(event) {
@@ -37,7 +63,7 @@ export default {
       if (currentElement == this.lastSelectedElement) return;
 
       const highlightClass = "bg-red-500";
-      this.highlight(currentElement, highlightClass);
+      highlightService.highlight(currentElement, highlightClass);
 
       this.lastSelectedElement = currentElement;
       this.$emit("selected", this.lastSelectedElement);
@@ -52,34 +78,10 @@ export default {
       if (currentElement == this.lastHighlightedElement) return;
 
       const highlightClass = "bg-sky-500";
-      this.unhighlight(this.lastHighlightedElement, highlightClass);
+      highlightService.unhighlight(this.lastHighlightedElement, highlightClass);
 
       this.lastHighlightedElement = currentElement;
-      this.highlight(this.lastHighlightedElement, highlightClass);
-    },
-
-    highlight(elements, highlightClass) {
-      if (!elements) return;
-
-      if (!Array.isArray(elements)) elements = [elements];
-
-      for (const element of elements) {
-        if (element.classList?.contains(highlightClass)) continue;
-
-        element.classList.add(highlightClass);
-      }
-    },
-
-    unhighlight(elements, highlightClass) {
-      if (!elements) return;
-
-      if (!Array.isArray(elements)) elements = [elements];
-
-      for (const element of elements) {
-        if (!element.classList?.contains(highlightClass)) continue;
-
-        element.classList.remove(highlightClass);
-      }
+      highlightService.highlight(this.lastHighlightedElement, highlightClass);
     },
   },
 };
