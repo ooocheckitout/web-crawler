@@ -1,24 +1,27 @@
 <template>
     <div>
         <div class="flex flex-row">
-            <div class="sticky top-0 flex flex-col w-1/2 h-screen">
+            <div class="lex flex-col w-1/2 h-screen">
                 <div class="h-1/2">
                     <p>Schema</p>
                     <div v-for="(property, index) in properties" :key="index" class="flex flex-row space-x-2">
                         <p>{{ property.name }}</p>
                         <p>{{ property.xpath }}</p>
+                        <input type="checkbox" v-model="property.isIdentifier" disabled />
                     </div>
                 </div>
                 <div class="h-1/2">
                     <p>Data</p>
-                    <div v-for="(data, index) in datas" :key="index" class="flex flex-row">
-                        <p>{{ data.property.name }}</p>
-                        <p>{{ data.value }}</p>
-                    </div>
+                    <pre>{{ datas }}</pre>
+                    <!-- <div v-for="(data, index) in datas" :key="index" class="flex flex-row space-x-2">
+                        <p>{{ data.propertyName }}</p>
+                        <p>{{ data.values }}</p>
+                    </div> -->
                 </div>
             </div>
-            <div id="viewer" v-html="htmlContent" @mousemove="highlightHandler" @click="selectHandler"
-                class="w-1/2 space-x-2">
+            <div class="w-1/2">
+                <div id="viewer" v-html="htmlContent" @mousemove="highlightHandler" @click="selectHandler">
+                </div>
             </div>
         </div>
     </div>
@@ -33,18 +36,27 @@ export default {
             properties: [
                 {
                     name: "Fuels",
-                    xpath: "/html/body/div/div/div/div/div[2]/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[1]"
+                    xpath: "/html/body/div/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[1]",
+                    isIdentifier: true
                 },
                 {
                     name: "Prices",
-                    xpath: "/html/body/div/div/div/div/div[2]/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[2]"
+                    xpath: "/html/body/div/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[2]"
+                },
+                {
+                    name: "Percentage",
+                    xpath: "/html/body/div/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[3]"
                 },
                 {
                     name: "Region",
-                    xpath: "/html/body/div/div/div/div/div[2]/main/div/div/div[1]/div/div[1]/article/div[1]/ul/li[5]/span",
+                    xpath: "/html/body/div/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[1]/ul/li[5]/span",
+                },
+                {
+                    name: "Urls",
+                    xpath: "/html/body/div/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/ul/li[2]/ul/li",
                 }
             ],
-            datas: [],
+            datas: []
         }
     },
     updated() {
@@ -67,15 +79,12 @@ export default {
     },
     methods: {
         updateData() {
-            this.datas = []
+            this.datas = {}
 
-            for (const property of this.properties) {
+            var values = this.properties.map(property => {
                 var elements = this.evaluateXPath(document, property.xpath);
-                this.datas.push({
-                    property,
-                    value: elements.map(x => x.innerText)
-                })
-            }
+                this.datas[property.name] = elements.map(x => x.innerText)
+            });
         },
 
         suggest() {
