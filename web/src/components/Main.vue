@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-row" v-if="isLoaded">
-    <div class="flex flex-col w-1/2">
+    <div class="sticky top-0 flex flex-col w-1/2">
       <div class="min-h-[50vh]">
         <Schema :schema="schema" @suggested="suggestionHandler" />
       </div>
@@ -33,18 +33,40 @@ export default {
       html: null,
       schema: [
         {
-          name: "Fuel",
-          xpath:
-            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/table/tbody/tr[2]/td[1]",
+          name: "Operator",
+          xpath: "/html/body",
           suggestedXpath:
-            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[1]",
+            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[1]",
         },
         {
-          name: "Price",
-          xpath:
-            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/table/tbody/tr[2]/td[2]",
+          name: "A95+",
+          xpath: "/html/body",
           suggestedXpath:
-            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[2]",
+            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[3]",
+        },
+        {
+          name: "A95",
+          xpath: "/html/body",
+          suggestedXpath:
+            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[4]",
+        },
+        {
+          name: "A92",
+          xpath: "/html/body",
+          suggestedXpath:
+            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[5]",
+        },
+        {
+          name: "Disel",
+          xpath: "/html/body",
+          suggestedXpath:
+            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[6]",
+        },
+        {
+          name: "Gasoline",
+          xpath: "/html/body",
+          suggestedXpath:
+            "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[7]",
         },
       ],
       isLoaded: false,

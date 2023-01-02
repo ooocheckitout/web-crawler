@@ -1,7 +1,7 @@
 <template lang="">
     <div v-html="html" 
     @mousemove="highlightHandler"
-    @click="selectHandler" ></div>
+    @click="selectHandler"></div>
 </template>
 <script>
 import xpathService from "../services/xpath";
@@ -36,7 +36,7 @@ export default {
                 property.suggestedXpath ?? property.xpath
               );
               console.log("unhighlight", elements);
-              highlightService.unhighlight(elements, "bg-red-500");
+              highlightService.unhighlight(elements, "!bg-red-500");
             }
           }
 
@@ -45,7 +45,7 @@ export default {
               document,
               property.suggestedXpath ?? property.xpath
             );
-            highlightService.highlight(elements, "bg-red-500");
+            highlightService.highlight(elements, "!bg-red-500");
           }
         });
       },
@@ -62,7 +62,7 @@ export default {
 
       if (currentElement == this.lastSelectedElement) return;
 
-      const highlightClass = "bg-red-500";
+      const highlightClass = "!bg-red-500";
       highlightService.highlight(currentElement, highlightClass);
 
       this.lastSelectedElement = currentElement;
@@ -77,7 +77,7 @@ export default {
 
       if (currentElement == this.lastHighlightedElement) return;
 
-      const highlightClass = "bg-sky-500";
+      const highlightClass = "!bg-sky-500";
       highlightService.unhighlight(this.lastHighlightedElement, highlightClass);
 
       this.lastHighlightedElement = currentElement;

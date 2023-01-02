@@ -42,7 +42,7 @@ export default {
 
           for (const property of schema) {
             let propertySuggestions = this.suggest(property);
-            
+
             if (property.suggestedXpath) {
               for (const suggestion of propertySuggestions) {
                 this.unhighlightSuggestionHandler(suggestion);
@@ -65,18 +65,25 @@ export default {
   methods: {
     highlightSuggestionHandler(suggestion) {
       let elements = xpathService.evaluateXPath(document, suggestion.xpath);
-      highlightService.highlight(elements, "bg-cyan-500");
+      highlightService.highlight(elements, "!bg-cyan-500");
     },
+
     unhighlightSuggestionHandler(suggestion) {
       let elements = xpathService.evaluateXPath(document, suggestion.xpath);
-      highlightService.unhighlight(elements, "bg-cyan-500");
+      highlightService.unhighlight(elements, "!bg-cyan-500");
     },
+
     applySuggestionHandler(suggestion) {
       this.$emit("suggested", suggestion.property, suggestion.xpath);
     },
 
     suggest(property) {
       const matchedXpathIndexes = [...property.xpath.matchAll(/\[.*?\]/g)];
+
+      var currentElements = xpathService.evaluateXPath(
+        document,
+        property.xpath
+      );
       var suggestions = matchedXpathIndexes
         .map((match) => {
           let before = property.xpath.substring(0, match.index);
@@ -86,14 +93,28 @@ export default {
           );
           return before + after;
         })
-        .map((xpath) => {
+        .map((suggestedXpath) => {
           return {
-            xpath,
-            elements: xpathService.evaluateXPath(document, xpath),
+            xpath: suggestedXpath,
+            elements: xpathService.evaluateXPath(document, suggestedXpath),
             property: property,
           };
         })
-        .filter((x) => x.elements.length > 1);
+        // filter empty
+        .filter((x) => x.elements.length > 1)
+        // filter xpath that return same result
+        .filter(
+          (x) =>
+            !(
+              x.elements.length == currentElements.length &&
+              x.elements.every((val, index) => val != currentElements[index])
+            )
+        )
+        // filter duplicates
+        .filter((x, index, self) => {
+          let found = self.findIndex((inner) => inner.xpath == x.xpath);
+          return found == index;
+        });
 
       return suggestions;
     },
