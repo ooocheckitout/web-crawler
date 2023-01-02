@@ -1,21 +1,16 @@
 <template>
   <div>
-    <!-- <Crawler /> -->
-    <Update />
+    <Main />
   </div>
 </template>
 
 <script>
-import Crawler from "./components/Crawler.vue";
-import Viewer from "./components/Viewer.vue";
-import Update from "./components/Update.vue";
+import Main from "./components/Main.vue";
 
 export default {
   name: "App",
   components: {
-    Crawler,
-    Viewer,
-    Update
+    Main
   },
 };
 </script>
