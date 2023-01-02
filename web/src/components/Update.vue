@@ -4,20 +4,21 @@
             <div class="sticky top-0 flex flex-col w-1/2 h-screen">
                 <div class="h-1/2">
                     <p>Schema</p>
-                    <div v-for="(property, index) in properties" :key="index">
+                    <div v-for="(property, index) in properties" :key="index" class="flex flex-row space-x-2">
                         <p>{{ property.name }}</p>
                         <p>{{ property.xpath }}</p>
                     </div>
                 </div>
                 <div class="h-1/2">
                     <p>Data</p>
-                    <div v-for="(data, index) in datas" :key="index">
+                    <div v-for="(data, index) in datas" :key="index" class="flex flex-row">
                         <p>{{ data.property.name }}</p>
                         <p>{{ data.value }}</p>
                     </div>
                 </div>
             </div>
-            <div v-html="htmlContent" @mousemove="highlightHandler" @click="selectHandler" class="w-1/2" id="viewer">
+            <div id="viewer" v-html="htmlContent" @mousemove="highlightHandler" @click="selectHandler"
+                class="w-1/2 space-x-2">
             </div>
         </div>
     </div>
@@ -29,8 +30,21 @@ export default {
         return {
             url: "https://index.minfin.com.ua/markets/fuel/reg/vinnickaya/",
             htmlContent: null,
-            properties: [],
-            datas: []
+            properties: [
+                {
+                    name: "Fuels",
+                    xpath: "/html/body/div/div/div/div/div[2]/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[1]"
+                },
+                {
+                    name: "Prices",
+                    xpath: "/html/body/div/div/div/div/div[2]/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[2]"
+                },
+                {
+                    name: "Region",
+                    xpath: "/html/body/div/div/div/div/div[2]/main/div/div/div[1]/div/div[1]/article/div[1]/ul/li[5]/span",
+                }
+            ],
+            datas: [],
         }
     },
     updated() {
