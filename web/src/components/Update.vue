@@ -72,7 +72,9 @@ export default {
                 .map(x => { return { xpath: x, elements: this.evaluateXPath(document, x) } })
                 .filter(x => x.elements.length > 1)
 
-                // TODO: finish impl
+            console.log(suggestions)
+
+            // TODO: finish impl
         },
 
         highlight(elements, highlightClass) {
