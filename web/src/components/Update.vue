@@ -37,7 +37,6 @@ export default {
                 {
                     name: "Fuels",
                     xpath: "/html/body/div/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/table/tbody/tr/td[1]",
-                    isIdentifier: true
                 },
                 {
                     name: "Prices",
@@ -81,7 +80,7 @@ export default {
         updateData() {
             this.datas = {}
 
-            var values = this.properties.map(property => {
+            this.properties.forEach(property => {
                 var elements = this.evaluateXPath(document, property.xpath);
                 this.datas[property.name] = elements.map(x => x.innerText)
             });
