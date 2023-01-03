@@ -8,6 +8,7 @@ public class CollectionHandlerIntegrationTests
     [Theory]
     [InlineData("minfin-petrol-regions")]
     [InlineData("minfin-petrol-prices")]
+    [InlineData("tailwind-color-palette")]
     public async Task CollectionHandler_ShouldHandleCollections(string collectionName)
     {
         const string collectionsRoot = @"D:\code\web-crawler\collections";

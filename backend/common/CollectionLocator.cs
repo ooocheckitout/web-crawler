@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-public class CollectionLocator
+﻿public class CollectionLocator
 {
     readonly string _collectionsRoot;
     readonly Hasher _hasher;
