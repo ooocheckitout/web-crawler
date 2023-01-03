@@ -1,6 +1,7 @@
 <template lang="">
     <div v-html="html" 
     @mousemove="highlightHandler"
+    @mouseleave="leaveHandler"
     @click="selectHandler"></div>
 </template>
 <script>
@@ -35,7 +36,6 @@ export default {
                 document,
                 property.suggestedXpath ?? property.xpath
               );
-              console.log("unhighlight", elements);
               highlightService.unhighlight(elements, "!bg-red-500");
             }
           }
@@ -83,6 +83,11 @@ export default {
       this.lastHighlightedElement = currentElement;
       highlightService.highlight(this.lastHighlightedElement, highlightClass);
     },
+
+    leaveHandler(){
+      const highlightClass = "!bg-sky-500";
+      highlightService.unhighlight(this.lastHighlightedElement, highlightClass);
+    }
   },
 };
 </script>

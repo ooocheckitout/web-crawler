@@ -34,6 +34,10 @@ export default {
       type: Array,
       default: [],
     },
+    rootXPath: {
+      type: String,
+      default: "/html/body",
+    },
   },
   data() {
     return {
@@ -43,9 +47,10 @@ export default {
   },
   watch: {
     schema: {
-      async handler(schema) {
+      async handler() {
         // ensure html is completely loaded to the dom
         this.$nextTick(() => {
+          console.log("update schema");
           this.updateData();
           this.suggest();
         });
@@ -58,7 +63,11 @@ export default {
     updateData() {
       this.data = this.schema
         .map((property) => {
-          var elements = xpathService.evaluateXPath(document, property.xpath);
+          let calculatedXPath = property.xpath.replace(
+            "/html/body",
+            this.rootXPath
+          );
+          var elements = xpathService.evaluateXPath(document, calculatedXPath);
           return { property, values: elements.map((x) => x.innerText) };
         })
         .toMap(
@@ -71,14 +80,18 @@ export default {
       let results = [];
 
       for (const property of this.schema) {
-        // /html/body/div[1]/h1 -> /html/body/div/h1
-        const matchedXpathIndexes = [...property.xpath.matchAll(/\[.*?\]/g)];
+        let calculatedXPath = property.xpath.replace(
+              "/html/body",
+              this.rootXPath
+            );
+
+        const matchedXpathIndexes = [...calculatedXPath.matchAll(/\[.*?\]/g)];
         var propertySuggestions = matchedXpathIndexes
           .map((match) => {
-            let before = property.xpath.substring(0, match.index);
-            let after = property.xpath.substring(
+            let before = calculatedXPath.substring(0, match.index);
+            let after = calculatedXPath.substring(
               match.index + match[0].length,
-              property.xpath.length
+              calculatedXPath.length
             );
             return before + after;
           })
@@ -89,7 +102,7 @@ export default {
               property: property,
               originalElements: xpathService.evaluateXPath(
                 document,
-                property.xpath
+                calculatedXPath
               ),
             };
           });
