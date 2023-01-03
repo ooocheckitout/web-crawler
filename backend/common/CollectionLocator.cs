@@ -2,8 +2,8 @@
 
 public class CollectionLocator
 {
-    private readonly string _collectionsRoot;
-    private readonly Hasher _hasher;
+    readonly string _collectionsRoot;
+    readonly Hasher _hasher;
 
     public CollectionLocator(string collectionsRoot, Hasher hasher)
     {
@@ -32,15 +32,15 @@ public class CollectionLocator
         return $"{_collectionsRoot}/{collection}/content/{hash}.html";
     }
 
-    public string GetDataLocation(string collection, string schema, string url)
+    public string GetDataLocation(string collection, string url)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        return $"{_collectionsRoot}/{collection}/data/{schema}/{hash}.json";
+        return $"{_collectionsRoot}/{collection}/data/{hash}.json";
     }
 
-    public string GetChecksumLocation(string collection, string schema, string url)
+    public string GetChecksumLocation(string collection, string url)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        return $"{_collectionsRoot}/{collection}/data/{schema}/{hash}.checksum";
+        return $"{_collectionsRoot}/{collection}/checksum/{hash}.checksum";
     }
 }

@@ -11,6 +11,8 @@
 
     public async Task<string> DownloadTextToFileAsync(string url, string fileLocation)
     {
+        Console.WriteLine($"Downloading text from {url} to {fileLocation}");
+
         using var response = await _client.GetAsync(url);
         using var content = response.Content;
         string stringContent = await content.ReadAsStringAsync();

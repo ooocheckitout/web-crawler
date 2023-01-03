@@ -1,7 +1,7 @@
 ﻿public class CollectionFactory
 {
-    private readonly CollectionLocator _locator;
-    private readonly FileReader _fileReader;
+    readonly CollectionLocator _locator;
+    readonly FileReader _fileReader;
 
     public CollectionFactory(CollectionLocator locator, FileReader fileReader)
     {
@@ -15,7 +15,7 @@
         {
             Name = collectionName,
             Urls = await GetUrlsAsync(collectionName),
-            Schemas = await GetSchemasAsync(collectionName)
+            Schema = await GetSchemasAsync(collectionName)
         };
     }
 
@@ -25,15 +25,15 @@
         return Task.WhenAll(collections.Select(GetSingleAsync));
     }
 
-    private Task<IEnumerable<string>> GetUrlsAsync(string collectionName)
+    Task<IEnumerable<string>> GetUrlsAsync(string collectionName)
     {
         string location = _locator.GetUrlsLocation(collectionName);
         return _fileReader.ReadJsonAsync<IEnumerable<string>>(location);
     }
 
-    private Task<IEnumerable<Schema>> GetSchemasAsync(string collectionName)
+    Task<Schema> GetSchemasAsync(string collectionName)
     {
         string location = _locator.GetSchemasLocation(collectionName);
-        return _fileReader.ReadJsonAsync<IEnumerable<Schema>>(location);
+        return _fileReader.ReadJsonAsync<Schema>(location);
     }
 }

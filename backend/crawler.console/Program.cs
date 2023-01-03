@@ -1,4 +1,7 @@
-﻿const string collectionsRoot = @"D:\code\web-crawler\collections";
+﻿using System.Text.Json;
+using common;
+
+const string collectionsRoot = @"D:\code\web-crawler\collections";
 
 var hasher = new Hasher();
 var locator = new CollectionLocator(collectionsRoot, hasher);

@@ -1,57 +1,33 @@
 ﻿using HtmlAgilityPack;
 
+namespace common;
+
 public class Parser
 {
-    public IEnumerable<Dictionary<string, object>> Parse(string htmlContent, Schema schema)
+    public IDictionary<string, object> Parse(string htmlContent, Schema schema)
     {
         var document = new HtmlDocument();
         document.LoadHtml(htmlContent);
 
-        var objects = new List<Dictionary<string, object>>();
-
-        var identifiers = GetFieldValue(schema.IdentifierField, document);
-        foreach (string identifier in identifiers)
+        var dataObject = new Dictionary<string, object>();
+        foreach (var field in schema)
         {
-            objects.Add(new Dictionary<string, object>
+            if (field.IsStatic)
             {
-                {schema.IdentifierField.Name, identifier}
-            });
-        }
-
-        for (var index = 0; index < objects.Count; index++)
-        {
-            var obj = objects[index];
-            foreach (var propertyField in schema.PropertyFields)
-            {
-                var values = GetFieldValue(propertyField, document, new ParserVariables {Index = index + 1});
-
-                if (values.Count == 1)
-                {
-                    obj.Add(propertyField.Name, values.First());
-                    continue;
-                }
-
-                obj.Add(propertyField.Name, values);
+                dataObject.Add(field.Name, field.StaticValue);
+                continue;
             }
 
-            foreach (var staticField in schema.StaticFields)
-            {
-                obj.Add(staticField.Name, staticField.Value);
-            }
+            var cleanedXPath = $"{field.XPath} | {field.XPath.Replace("tbody", "")}";
+            var results = document.DocumentNode.SelectNodes(cleanedXPath);
+            if (results is null)
+                throw new InvalidOperationException($"No elements found for {field.Name} field!");
+
+            var values = results.Select(x => GetNodeValue(x, field));
+            dataObject.Add(field.Name, results.Count == 1 ? values.Single() : values);
         }
 
-        return objects;
-    }
-
-    private ICollection<string> GetFieldValue(QueryField field, HtmlDocument document, ParserVariables? specials = default)
-    {
-        string calculatedXpath = field.XPath.Replace("_index_", specials?.Index.ToString());
-
-        var results = document.DocumentNode.SelectNodes(calculatedXpath);
-        if (results is null)
-            throw new InvalidOperationException($"No elements found for {field.Name} field!");
-
-        return results.Select(x => GetNodeValue(x, field)).ToList();
+        return dataObject;
     }
 
     string GetNodeValue(HtmlNode node, QueryField field)

@@ -1,13 +1,15 @@
 ﻿using System.Text.Json;
 
+namespace common;
+
 public class CollectionHandler
 {
-    private readonly CollectionLocator _locator;
-    private readonly WebDownloader _downloader;
-    private readonly FileReader _fileReader;
-    private readonly Parser _parser;
-    private readonly FileWriter _fileWriter;
-    private readonly Hasher _hasher;
+    readonly CollectionLocator _locator;
+    readonly WebDownloader _downloader;
+    readonly FileReader _fileReader;
+    readonly Parser _parser;
+    readonly FileWriter _fileWriter;
+    readonly Hasher _hasher;
 
     public CollectionHandler(
         CollectionLocator locator,
@@ -27,32 +29,33 @@ public class CollectionHandler
 
     public async Task HandleAsync(Collection collection)
     {
-        foreach (var schema in collection.Schemas)
+        foreach (string url in collection.Urls)
         {
-            foreach (string url in collection.Urls)
-            {
-                string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
-                if (!File.Exists(htmlLocation))
-                    await _downloader.DownloadTextToFileAsync(url, htmlLocation);
+            string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
+            if (!File.Exists(htmlLocation))
+                await _downloader.DownloadTextToFileAsync(url, htmlLocation);
 
-                string htmlContent = await _fileReader.ReadTextAsync(htmlLocation);
+            string htmlContent = await _fileReader.ReadTextAsync(htmlLocation);
 
-                string checksum = CalculateChecksum(schema, htmlContent);
-                string checksumLocation = _locator.GetChecksumLocation(collection.Name, schema.Name, url);
-                string existingChecksum = File.Exists(checksumLocation) ? await _fileReader.ReadTextAsync(checksumLocation) : string.Empty;
+            string checksum = CalculateChecksum(collection.Schema, htmlContent);
+            string checksumLocation = _locator.GetChecksumLocation(collection.Name, url);
+            string existingChecksum = File.Exists(checksumLocation)
+                ? await _fileReader.ReadTextAsync(checksumLocation)
+                : string.Empty;
 
-                if (checksum == existingChecksum)
-                    continue;
+            if (checksum == existingChecksum)
+                continue;
 
-                var objects = _parser.Parse(htmlContent, schema);
+            var objects = _parser.Parse(htmlContent, collection.Schema);
 
-                string dataLocation = _locator.GetDataLocation(collection.Name, schema.Name, url);
-                await _fileWriter.AsJsonAsync(dataLocation, objects);
-            }
+            string dataLocation = _locator.GetDataLocation(collection.Name, url);
+            await _fileWriter.AsJsonAsync(dataLocation, objects);
+
+            await _fileWriter.AsTextAsync(checksumLocation, checksum);
         }
     }
 
-    private string CalculateChecksum(Schema schema, string htmlContent)
+    string CalculateChecksum(Schema schema, string htmlContent)
     {
         string schemaChecksum = _hasher.GetSha256HashAsHex(JsonSerializer.Serialize(schema));
         string contentChecksum = _hasher.GetSha256HashAsHex(htmlContent);
