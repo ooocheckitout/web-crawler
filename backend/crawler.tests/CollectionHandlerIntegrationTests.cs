@@ -1,11 +1,12 @@
-﻿using Xunit;
+﻿using common;
+using Xunit;
 
 namespace crawler.tests;
 
 public class CollectionHandlerIntegrationTests
 {
     [Theory]
-    [InlineData("minfin-petrol-areas")]
+    [InlineData("minfin-petrol-regions")]
     [InlineData("minfin-petrol-prices")]
     public async Task CollectionHandler_ShouldHandleCollections(string collectionName)
     {
