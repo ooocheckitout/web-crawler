@@ -4,7 +4,12 @@
       <Schema :schema="schema" @suggested="suggestionHandler" />
     </div>
     <div class="w-1/2">
-      <Viewer :html="html" :schema="schema" @selected="selectHandler" />
+      <Viewer
+        :html="html"
+        :schema="schema"
+        @selected="selectHandler"
+        ref="viewer"
+      />
     </div>
   </div>
 </template>
@@ -22,9 +27,11 @@ export default {
   },
   data() {
     return {
-      url: "https://tailwindcss.com/docs/customizing-colors", // "https://index.minfin.com.ua/markets/fuel/reg/vinnickaya/",
+      // url: "https://tailwindcss.com/docs/customizing-colors",
+      url: "https://index.minfin.com.ua/markets/fuel/reg/vinnickaya/",
       html: null,
-      schema: [
+      schema: [],
+      schema_colors: [
         {
           name: "Property-1",
           xpath:
@@ -41,7 +48,7 @@ export default {
             "/html/body/div/div/div/div[2]/div/div/div[3]/div/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]",
         },
       ],
-      schema_petrol: [
+      schema: [
         {
           name: "Operator",
           xpath:
@@ -89,11 +96,10 @@ export default {
   },
   methods: {
     selectHandler(element) {
-      console.log(element);
-
       let property = {
         name: `Property-${this.schema.length + 1}`,
         xpath: xpathService.getElementXPath(element),
+        viewerXPath: xpathService.getElementXPath(this.$refs.viewer.$el),
       };
 
       this.schema.push(property);

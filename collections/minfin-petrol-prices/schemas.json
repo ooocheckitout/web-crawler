@@ -1,19 +1,30 @@
 [
     {
-        "Name": "Prices",
-        "IdentifierField":{
-            "name": "Title",
-            "xpath": "/html/body/main/div/div/div/div/div/article/table/tr/td[1]"
-        },
-        "PropertyFields":[
-            {
-                "name": "Price",
-                "xpath": "/html/body/main/div/div/div/div/div/article/table/tr[1+_index_]/td[2]"
-            },
-            {
-                "name": "Region",
-                "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/div[1]/ul/li[5]/span"
-            }
-        ]
+      "name": "Operator",
+      "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[1]"
+    },
+    {
+      "name": "A95+",
+      "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[3]"
+    },
+    {
+      "name": "A95",
+      "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[4]"
+    },
+    {
+      "name": "A92",
+      "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[5]"
+    },
+    {
+      "name": "Disel",
+      "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[6]"
+    },
+    {
+      "name": "Gasoline",
+      "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[7]"
+    },
+    {
+      "name": "Region",
+      "xpath": "/html/body/main/div/div/div[1]/div/div[1]/article/div[1]/ul/li[5]/span"
     }
-]
+  ]
