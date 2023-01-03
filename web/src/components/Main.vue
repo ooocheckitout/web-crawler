@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-row" v-if="isLoaded">
-    <div class="w-1/2">
-      <Schema :schema="schema" />
+    <div class="sticky top-0 w-1/2 h-screen">
+      <Schema :schema="schema" @suggested="suggestionHandler" />
     </div>
     <div class="w-1/2">
       <Viewer :html="html" :schema="schema" @selected="selectHandler" />
@@ -22,9 +22,26 @@ export default {
   },
   data() {
     return {
-      url: "https://index.minfin.com.ua/markets/fuel/reg/vinnickaya/",
+      url: "https://tailwindcss.com/docs/customizing-colors", // "https://index.minfin.com.ua/markets/fuel/reg/vinnickaya/",
       html: null,
       schema: [
+        {
+          name: "Property-1",
+          xpath:
+            "/html/body/div/div/div/div[2]/div/div/div[3]/div/div[2]/div/div[1]/div[2]/div/div/div[1]/div/div",
+        },
+        {
+          name: "Property-2",
+          xpath:
+            "/html/body/div/div/div/div[2]/div/div/div[3]/div/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[1]",
+        },
+        {
+          name: "Property-3",
+          xpath:
+            "/html/body/div/div/div/div[2]/div/div/div[3]/div/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]",
+        },
+      ],
+      schema_petrol: [
         {
           name: "Operator",
           xpath:
@@ -72,6 +89,8 @@ export default {
   },
   methods: {
     selectHandler(element) {
+      console.log(element);
+
       let property = {
         name: `Property-${this.schema.length + 1}`,
         xpath: xpathService.getElementXPath(element),
@@ -80,7 +99,8 @@ export default {
       this.schema.push(property);
     },
     suggestionHandler(property, suggestedXpath) {
-      property.suggestedXpath = suggestedXpath;
+      console.log(property, suggestedXpath);
+      property.xpath = suggestedXpath;
     },
   },
 };

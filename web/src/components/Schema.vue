@@ -4,7 +4,7 @@
       <p>Schema</p>
       <pre>{{ schema }}</pre>
       <p>Suggestions</p>
-      <pre>{{ suggestions.map(x => x.xpath) }}</pre>
+      <pre>{{ suggestions.map((x) => x.xpath) }}</pre>
       <div v-for="(item, index) in suggestions" :key="index">
         <input
           type="button"
@@ -56,18 +56,17 @@ export default {
   },
   methods: {
     updateData() {
-      let results = [];
-
-      for (const property of this.schema) {
-        var elements = xpathService.evaluateXPath(document, property.xpath);
-        results.push({ property, values: elements.map((x) => x.innerText) });
-      }
-
-      this.data = results.reduce((map, val) => {
-        map[val.property.name] = val.values;
-        return map;
-      }, {});
+      this.data = this.schema
+        .map((property) => {
+          var elements = xpathService.evaluateXPath(document, property.xpath);
+          return { property, values: elements.map((x) => x.innerText) };
+        })
+        .toMap(
+          (x) => x.property.name,
+          (x) => x.values
+        );
     },
+
     suggest() {
       let results = [];
 
@@ -88,26 +87,30 @@ export default {
               xpath: suggestedXpath,
               elements: xpathService.evaluateXPath(document, suggestedXpath),
               property: property,
+              originalElements: xpathService.evaluateXPath(
+                document,
+                property.xpath
+              ),
             };
           });
 
-        results.push(propertySuggestions);
+        results.push(...propertySuggestions);
       }
 
       this.suggestions = results
-        .flatMap((x) => x)
         .filter((x) => x.elements.length > 0)
-        .map(x => x);
+        .uniqueBy((x) => x.xpath)
+        .filter((x) => !x.elements.compare(x.originalElements));
     },
 
     highlightSuggestionHandler(suggestion) {
       let elements = xpathService.evaluateXPath(document, suggestion.xpath);
-      highlightService.highlight(elements, "!bg-cyan-500");
+      highlightService.highlight(elements, "!bg-indigo-500");
     },
 
     unhighlightSuggestionHandler(suggestion) {
       let elements = xpathService.evaluateXPath(document, suggestion.xpath);
-      highlightService.unhighlight(elements, "!bg-cyan-500");
+      highlightService.unhighlight(elements, "!bg-indigo-500");
     },
 
     applySuggestionHandler(suggestion) {
