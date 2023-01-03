@@ -19,12 +19,17 @@
     />
     <div class="flex flex-row" :key="isLoaded">
       <div class="sticky top-0 w-1/2 h-screen">
-        <Schema :schema="schema" :rootXPath="rootXPath" @suggested="suggestionHandler" />
+        <Schema
+          :schema="schema"
+          :rootXPath="rootXPath"
+          @suggested="suggestionHandler"
+        />
       </div>
       <div class="w-1/2">
         <Viewer
           :html="html"
           :schema="schema"
+          :rootXPath="rootXPath"
           @selected="selectHandler"
           ref="viewer"
         />
@@ -118,8 +123,8 @@ export default {
         let response = await fetch(this.url);
         this.html = await response.text();
         this.isLoaded = true;
-        this.rootXPath = xpathService.getElementXPath(this.$refs.viewer.$el),
-        console.log(this.url, "loaded");
+        (this.rootXPath = xpathService.getElementXPath(this.$refs.viewer.$el)),
+          console.log(this.url, "loaded");
       },
       immediate: true,
     },
@@ -131,13 +136,16 @@ export default {
 
       let property = {
         name: `Property-${this.schema.length + 1}`,
-        xpath: originalDocumentXPath
+        xpath: originalDocumentXPath,
       };
 
       this.schema.push(property);
     },
     suggestionHandler(property, suggestedXpath) {
-      let originalDocumentXPath = suggestedXpath.replace(this.rootXPath, "/html/body");
+      let originalDocumentXPath = suggestedXpath.replace(
+        this.rootXPath,
+        "/html/body"
+      );
       property.xpath = originalDocumentXPath;
     },
 
@@ -146,7 +154,7 @@ export default {
       this.url = example.url;
       this.$nextTick(() => {
         this.schema = example.schema;
-      })
+      });
     },
   },
 };

@@ -50,7 +50,6 @@ export default {
       async handler() {
         // ensure html is completely loaded to the dom
         this.$nextTick(() => {
-          console.log("update schema");
           this.updateData();
           this.suggest();
         });

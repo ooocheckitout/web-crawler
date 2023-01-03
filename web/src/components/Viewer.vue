@@ -18,6 +18,10 @@ export default {
       type: Array,
       default: [],
     },
+    rootXPath: {
+      type: String,
+      default: "/html/body",
+    },
   },
   data() {
     return {
@@ -32,18 +36,28 @@ export default {
         this.$nextTick(() => {
           if (oldSchema) {
             for (const property of oldSchema) {
+              let calculatedXPath = property.xpath.replace(
+                "/html/body",
+                this.rootXPath
+              );
+
               let elements = xpathService.evaluateXPath(
                 document,
-                property.suggestedXpath ?? property.xpath
+                calculatedXPath
               );
               highlightService.unhighlight(elements, "!bg-red-500");
             }
           }
 
           for (const property of schema) {
+            let calculatedXPath = property.xpath.replace(
+                "/html/body",
+                this.rootXPath
+              );
+
             let elements = xpathService.evaluateXPath(
               document,
-              property.suggestedXpath ?? property.xpath
+              calculatedXPath
             );
             highlightService.highlight(elements, "!bg-red-500");
           }
@@ -84,10 +98,10 @@ export default {
       highlightService.highlight(this.lastHighlightedElement, highlightClass);
     },
 
-    leaveHandler(){
+    leaveHandler() {
       const highlightClass = "!bg-sky-500";
       highlightService.unhighlight(this.lastHighlightedElement, highlightClass);
-    }
+    },
   },
 };
 </script>
