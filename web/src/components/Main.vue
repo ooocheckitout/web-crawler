@@ -88,7 +88,7 @@ export default {
                 "/html/body/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[1]",
             },
             {
-              name: "A95+",
+              name: "A95Plus",
               xpath:
                 "/html/body/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[3]",
             },

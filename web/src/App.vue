@@ -27,6 +27,9 @@ Object.defineProperty(Array.prototype, "toMap", {
 
 Object.defineProperty(Array.prototype, "zip", {
   value: function () {
+    if (this.some(x => !x))
+      return;
+
     let arr = this;
     var length = Math.max(...arr.map((a) => a.length));
     return Array(length)
@@ -51,6 +54,9 @@ Object.defineProperty(Array.prototype, "uniqueBy", {
 
 Object.defineProperty(Array.prototype, "compare", {
   value: function (arr) {
+    if (!this || !arr)
+      return;
+
     let lengthComparison = this.length === arr.length;
     let elementComparison = this.every(
       (inner, index) => JSON.stringify(inner) === JSON.stringify(arr[index])
