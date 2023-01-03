@@ -1,12 +1,7 @@
 <template>
   <div class="flex flex-row" v-if="isLoaded">
-    <div class="sticky top-0 flex flex-col w-1/2">
-      <div class="min-h-[50vh]">
-        <Schema :schema="schema" @suggested="suggestionHandler" />
-      </div>
-      <div>
-        <Data :schema="schema" />
-      </div>
+    <div class="w-1/2">
+      <Schema :schema="schema" />
     </div>
     <div class="w-1/2">
       <Viewer :html="html" :schema="schema" @selected="selectHandler" />
@@ -16,7 +11,6 @@
 
 <script>
 import Schema from "./Schema.vue";
-import Data from "./Data.vue";
 import Viewer from "./Viewer.vue";
 
 import xpathService from "../services/xpath";
@@ -24,7 +18,6 @@ import xpathService from "../services/xpath";
 export default {
   components: {
     Schema,
-    Data,
     Viewer,
   },
   data() {
@@ -34,38 +27,32 @@ export default {
       schema: [
         {
           name: "Operator",
-          xpath: "/html/body",
-          suggestedXpath:
+          xpath:
             "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[1]",
         },
         {
           name: "A95+",
-          xpath: "/html/body",
-          suggestedXpath:
+          xpath:
             "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[3]",
         },
         {
           name: "A95",
-          xpath: "/html/body",
-          suggestedXpath:
+          xpath:
             "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[4]",
         },
         {
           name: "A92",
-          xpath: "/html/body",
-          suggestedXpath:
+          xpath:
             "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[5]",
         },
         {
           name: "Disel",
-          xpath: "/html/body",
-          suggestedXpath:
+          xpath:
             "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[6]",
         },
         {
           name: "Gasoline",
-          xpath: "/html/body",
-          suggestedXpath:
+          xpath:
             "/html/body/div/div/div/div[2]/div/main/div/div/div[1]/div/div[1]/article/div[4]/table/tbody/tr/td[7]",
         },
       ],
