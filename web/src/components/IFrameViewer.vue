@@ -23,7 +23,6 @@ export default {
 
   data() {
     return {
-      isLoaded: false,
       lastSelectedElement: null,
     };
   },
@@ -100,13 +99,9 @@ export default {
     },
 
     receiveMessage(event) {
-      if (event.data.type != "viewer.loaded") return;
+      if (event.data.type != "viewer.loaded" || !this.$refs.viewer) return;
 
-      if (!this.$refs.viewer) return;
-
-      this.isLoaded = event.data.isLoaded;
-
-      console.log(event.data);
+      console.log("loaded", event.data);
       this.$emit("loaded", this.$refs.viewer.contentWindow.document);
     },
   },

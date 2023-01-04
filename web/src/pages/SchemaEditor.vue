@@ -17,6 +17,7 @@
       </div>
       <div class="w-1/2 border p-4">
         <IFrameViewer
+          id="viewer"
           :url="viewerUrl"
           :previewElements="suggestedElements"
           :highlightElements="selectedElements"
@@ -62,6 +63,15 @@ export default {
     };
   },
 
+  watch: {
+    properties: {
+      deep: true,
+      handler(current, previous) {
+        this.updateProperties();
+      },
+    },
+  },
+
   methods: {
     applySuggestionHandler(suggestion) {
       suggestion.property.xpath = suggestion.suggestedXpath;
@@ -75,19 +85,20 @@ export default {
       this.suggestedElements = this.suggestedElements.filter(x => !suggestion.suggestedElements.includes(x));
     },
 
-    suggestXpaths(originalXpath) {
-      const matchedXpathIndexes = [...originalXpath.matchAll(/\[.*?\]/g)];
+    selectHandler(element) {
+      let xpath = xpathService.getElementXPath(element);
 
-      var suggestedXpaths = matchedXpathIndexes.map(match => {
-        let before = originalXpath.substring(0, match.index);
-        let after = originalXpath.substring(match.index + match[0].length, originalXpath.length);
-        return before + after;
-      });
-
-      return suggestedXpaths;
+      let property = {
+        name: `Property-${this.properties.length + 1}`,
+        xpath,
+      };
+      this.properties.push(property);
     },
 
     updateProperties() {
+      this.suggestions = [];
+      this.datas = [];
+
       for (const property of this.properties) {
         let originalXpath = property.xpath;
         let originalElements = xpathService.evaluateXPath(this.contextDocument, originalXpath);
@@ -111,16 +122,21 @@ export default {
           values: originalElements.map(x => x.innerText),
         });
       }
+
+      console.log("suggestions", this.suggestions);
+      console.log("datas", this.datas);
     },
 
-    selectHandler(element) {
-      let xpath = xpathService.getElementXPath(element);
+    suggestXpaths(originalXpath) {
+      const matchedXpathIndexes = [...originalXpath.matchAll(/\[.*?\]/g)];
 
-      let property = {
-        name: `Property-${this.properties.length + 1}`,
-        xpath,
-      };
-      this.properties.push(property);
+      var suggestedXpaths = matchedXpathIndexes.map(match => {
+        let before = originalXpath.substring(0, match.index);
+        let after = originalXpath.substring(match.index + match[0].length, originalXpath.length);
+        return before + after;
+      });
+
+      return suggestedXpaths;
     },
 
     loadedHandler(contextDocument) {
