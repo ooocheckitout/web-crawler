@@ -1,11 +1,12 @@
 <template>
-  <table class="table-auto w-full">
+  <table class="w-full table-auto">
     <thead>
       <tr v-if="objects.length == 0">
         No elements.
       </tr>
-      <tr v-else class="bg-stone-100">
+      <tr v-else class="bg-stone-100 hover:bg-slate-200 cursor-copy" @click="copyHandler">
         <th v-for="(key, keyIndex) in keys" :key="keyIndex" class="p-4 text-left">{{ key }}</th>
+        <th>✂️</th>
       </tr>
     </thead>
     <tbody>
@@ -18,7 +19,7 @@
           @mouseout="mouseOutHandler(object)"
           @click="mouseClickHandler(object)"
         >
-          <p>{{ getValue(key, object) }}</p>
+          <p>{{ getValue(object, key) }}</p>
         </td>
       </tr>
     </tbody>
@@ -59,16 +60,25 @@ export default {
   },
 
   methods: {
-    getValue(key, object) {
+    getValue(object, key) {
       return key.split(".").reduce((accumulator, key) => accumulator[key], object);
+    },
+    async copyHandler() {
+      var objects = this.objects.map(object => {
+        return this.keys.map(key => this.getValue(object, key) )
+      })
+      
+      await navigator.clipboard.writeText(JSON.stringify(objects, null, 2))
     },
 
     mouseClickHandler(object) {
       this.$emit("itemClick", object);
     },
+
     mouseOverHandler(object) {
       this.$emit("itemMouseOver", object);
     },
+
     mouseOutHandler(object) {
       this.$emit("itemMouseOut", object);
     },
