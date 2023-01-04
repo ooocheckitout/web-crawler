@@ -3,6 +3,56 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace analytics.console;
 
+class TransformColumn
+{
+    public string Name { get; init; }
+    public string Type { get; init; }
+    public IDictionary<string, string> Replacements { get; init; } = new Dictionary<string, string>();
+}
+
+class TransformSchema : Dictionary<string, IEnumerable<TransformColumn>>
+{
+}
+
+class DynamicMinfinPetrolPricesExample : IExample
+{
+    public void Show(string collectionRoot, SparkSession sparkSession)
+    {
+        var schema = new[]
+        {
+            new TransformColumn { Name = "Operator", Type = "string" },
+            new TransformColumn { Name = "A95Plus", Type = "int", Replacements = new Dictionary<string, string> { { ",", "." } } },
+            new TransformColumn { Name = "A95", Type = "int", Replacements = new Dictionary<string, string> { { ",", "." } } },
+            new TransformColumn { Name = "A92", Type = "int", Replacements = new Dictionary<string, string> { { ",", "." } } },
+            new TransformColumn { Name = "Disel", Type = "int", Replacements = new Dictionary<string, string> { { ",", "." } } },
+            new TransformColumn { Name = "Gasoline", Type = "int", Replacements = new Dictionary<string, string> { { ",", "." } } },
+        };
+
+        var bronze = sparkSession
+            .Read()
+            .Option("multiline", true)
+            .Json($"{collectionRoot}/minfin-petrol-prices/data");
+
+        var columns = schema.Select(x => Col(x.Name));
+        var explodeColumns = schema.Select(x =>
+            x.Replacements
+                .Aggregate(Col($"explode.{x.Name}"), (acc, replacement) => RegexpReplace(acc, replacement.Key, replacement.Value))
+                .Cast(x.Type)
+                .Alias(x.Name));
+
+        var silver = bronze
+            .WithColumn("explode", GroupColumns(columns.ToArray()))
+            .Select(explodeColumns.ToArray());
+
+        silver.Show();
+    }
+
+    static Column GroupColumns(params Column[] columns)
+    {
+        return Explode(ArraysZip(columns));
+    }
+}
+
 class PythonMinfinPetrolPricesExample : IExample
 {
     public void Show(string collectionRoot, SparkSession sparkSession)
@@ -11,6 +61,8 @@ class PythonMinfinPetrolPricesExample : IExample
             .Read()
             .Option("multiline", true)
             .Json($"{collectionRoot}/minfin-petrol-prices/data");
+
+        bronze.Show();
 
         var silver = bronze
             .WithColumn("zipped", ArraysZip(
