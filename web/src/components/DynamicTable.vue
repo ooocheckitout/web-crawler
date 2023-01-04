@@ -1,14 +1,14 @@
 <template>
   <table class="table-auto w-full">
     <thead>
-      <tr class="bg-stone-100">
+      <tr v-if="objects.length == 0">
+        No elements.
+      </tr>
+      <tr v-else class="bg-stone-100">
         <th v-for="(key, keyIndex) in keys" :key="keyIndex" class="p-4 text-left">{{ key }}</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-if="objects.length == 0">
-        No elements.
-      </tr>
       <tr v-for="(object, objectIndex) in objects" :key="objectIndex" class="hover:bg-slate-100">
         <td
           v-for="(key, keyIndex) in keys"
