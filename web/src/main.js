@@ -6,14 +6,14 @@ require('@/assets/style.css')
 
 
 import App from '@/App.vue'
-import Main from '@/components/legacy/Main.vue'
 import Home from '@/pages/Home.vue'
 import Viewer from '@/pages/Viewer.vue'
+import SchemaEditor from '@/pages/SchemaEditor.vue'
 
 const routes = [
-  { path: '/main', component: Main },
   { path: '/', component: Home },
   { path: '/viewer', component: Viewer },
+  { path: '/schema-editor', component: SchemaEditor },
 ]
 
 const router = createRouter({

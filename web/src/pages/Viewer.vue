@@ -18,9 +18,6 @@ export default {
     // notify parent page that viewer finished loading
     window.parent.postMessage({ type: "viewer.loaded", isLoaded: true });
   },
-  updated() {
-    // console.log("viewer updated");
-  },
 };
 </script>
 

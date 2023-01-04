@@ -11,7 +11,16 @@
 import highlightService from "@/services/highlight";
 
 export default {
-  props: ["highlightedElements", "previewElements"],
+  props: {
+    highlightElements: {
+      type: Array,
+      default: [],
+    },
+    previewElements: {
+      type: Array,
+      default: [],
+    },
+  },
   data() {
     return {
       isLoaded: false,
@@ -19,11 +28,19 @@ export default {
     };
   },
   watch: {
-    highlightedElements: {
+    highlightElements: {
       immediate: true,
       deep: true,
-      handler() {
-        for (const element of this.highlightedElements) {
+      handler(current, previous) {
+        if (!previous) previous = [];
+        if (!current) current = [];
+
+        for (const element of previous) {
+          const highlightClass = "!bg-red-500";
+          highlightService.unhighlight(element, highlightClass);
+        }
+
+        for (const element of current) {
           const highlightClass = "!bg-red-500";
           highlightService.highlight(element, highlightClass);
         }
@@ -32,8 +49,16 @@ export default {
     previewElements: {
       immediate: true,
       deep: true,
-      handler() {
-        for (const element of this.previewElements) {
+      handler(current, previous) {
+        if (!previous) previous = [];
+        if (!current) current = [];
+
+        for (const element of previous) {
+          const highlightClass = "!bg-indigo-500";
+          highlightService.unhighlight(element, highlightClass);
+        }
+
+        for (const element of current) {
           const highlightClass = "!bg-indigo-500";
           highlightService.highlight(element, highlightClass);
         }
@@ -68,6 +93,8 @@ export default {
 
     receiveMessage(event) {
       if (event.data.type != "viewer.loaded") return;
+
+      if (!this.$refs.viewer) return;
 
       this.isLoaded = event.data.isLoaded;
 
