@@ -6,6 +6,9 @@
       </tr>
     </thead>
     <tbody>
+      <tr v-if="objects.length == 0">
+        No elements.
+      </tr>
       <tr v-for="(object, index) in objects" :key="index">
         <td
           v-for="key in keys"
@@ -37,8 +40,6 @@ export default {
       deep: true,
       handler(current, previous) {
         if (!current) current = [];
-
-        console.log("dynamic table", this.objects);
         this.keys = this.objects.flatMap(x => Object.keys(x)).uniqueBy(x => x);
       },
     },

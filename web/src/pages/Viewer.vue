@@ -1,7 +1,7 @@
 <template>
   <div v-html="html"></div>
 </template>
-  
+
 <script>
 export default {
   data() {
@@ -22,9 +22,6 @@ export default {
 </script>
 
 <style scoped>
-div :deep() * {
-  display: block !important;
-}
 div :deep() a {
   pointer-events: none;
 }

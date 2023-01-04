@@ -17,6 +17,7 @@
       </div>
       <div class="w-1/2 border p-4">
         <IFrameViewer
+          :url="viewerUrl"
           :previewElements="suggestedElements"
           :highlightElements="selectedElements"
           @selected="selectHandler"
@@ -38,25 +39,19 @@ export default {
     IFrameViewer,
     DynamicTable,
   },
+
   data() {
     return {
+      viewerUrl: null,
       contextDocument: null,
       selectedElements: [],
       suggestedElements: [],
-      properties: [
-        {
-          name: "Property-1",
-          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div[1]/div/div[2]/div[1]",
-        },
-        {
-          name: "Property-2",
-          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div[1]/div/div[2]/div[2]",
-        },
-      ],
+      properties: [],
       suggestions: [],
       datas: [],
     };
   },
+
   watch: {
     properties: {
       deep: true,
@@ -65,6 +60,7 @@ export default {
       },
     },
   },
+
   methods: {
     applySuggestionHandler(suggestion) {
       suggestion.property.xpath = suggestion.suggestedXpath;
@@ -136,12 +132,19 @@ export default {
         xpath,
       };
       this.properties.push(property);
+
+      this.properties = JSON.parse(JSON.stringify(this.properties))
+
     },
 
     loadedHandler(contextDocument) {
       this.contextDocument = contextDocument;
       this.updateProperties();
     },
+  },
+
+  created() {
+    this.viewerUrl = this.$route.query.viewerUrl;
   },
 };
 </script>

@@ -1,10 +1,5 @@
 <template>
-  <iframe
-    ref="viewer"
-    src="/#/viewer?url=https://overwatch.blizzard.com/en-us/career/ezkatka-2874/"
-    class="w-full h-full"
-    frameborder="0"
-  ></iframe>
+  <iframe ref="viewer" :src="viewerUrl" class="w-full h-full" frameborder="0"></iframe>
 </template>
 
 <script>
@@ -12,6 +7,10 @@ import highlightService from "@/services/highlight";
 
 export default {
   props: {
+    url: {
+      type: String,
+      default: null,
+    },
     highlightElements: {
       type: Array,
       default: [],
@@ -21,12 +20,20 @@ export default {
       default: [],
     },
   },
+
   data() {
     return {
       isLoaded: false,
       lastSelectedElement: null,
     };
   },
+
+  computed: {
+    viewerUrl() {
+      return `/#/viewer?url=${this.url}`;
+    },
+  },
+
   watch: {
     highlightElements: {
       immediate: true,
@@ -65,6 +72,7 @@ export default {
       },
     },
   },
+
   methods: {
     highlightHandler(event) {
       let { target, relatedTarget } = event;
@@ -102,6 +110,7 @@ export default {
       this.$emit("loaded", this.$refs.viewer.contentWindow.document);
     },
   },
+
   mounted() {
     window.addEventListener("message", this.receiveMessage);
 
@@ -110,6 +119,7 @@ export default {
     iframeWindow.addEventListener("mouseout", this.unhighlightHandler);
     iframeWindow.addEventListener("click", this.selectHandler);
   },
+
   beforeDestroy() {
     window.removeEventListener("message", this.receiveMessage);
 
