@@ -9,7 +9,7 @@ var spark = SparkSession
     .Config("spark.sql.session.timeZone", "UTC")
     .GetOrCreate();
 
-const string collectionsRoot = @"D:\code\web-crawler\collections";
+const string collectionsRoot = @"D:/code/web-crawler/collections";
 
 var example = new SqlMinfinPetrolPricesExample();
 example.Show(collectionsRoot, spark);

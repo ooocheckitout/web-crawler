@@ -3,30 +3,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace analytics.console;
 
-class SqlMinfinPetrolPricesExample : IExample
-{
-    public void Show(string collectionRoot, SparkSession sparkSession)
-    {
-        sparkSession.Sql("DROP VIEW IF EXISTS bronze;");
-
-        sparkSession.Sql(@$"
-CREATE TEMPORARY VIEW bronze
-USING org.apache.spark.sql.json
-OPTIONS (
-    path ,
-    multiline true
-);
-");
-
-        sparkSession.Sql("SELECT * FROM bronze;").Show();
-
-
-
-        sparkSession.Sql("SELECT * FROM bronze;").Show();
-    }
-}
-
-class MinfinPetrolPricesExample : IExample
+class PythonMinfinPetrolPricesExample : IExample
 {
     public void Show(string collectionRoot, SparkSession sparkSession)
     {
@@ -38,7 +15,7 @@ class MinfinPetrolPricesExample : IExample
         var silver = bronze
             .WithColumn("zipped", ArraysZip(
                     Col("Operator"),
-                    Col("A95+"),
+                    Col("A95Plus"),
                     Col("A95"),
                     Col("A92"),
                     Col("Disel"),
@@ -47,7 +24,7 @@ class MinfinPetrolPricesExample : IExample
             )
             .WithColumn("exploded", Explode(Col("zipped")))
             .WithColumn("Operator", Col("exploded.Operator"))
-            .WithColumn("A95Plus", RegexpReplace(Col("exploded.A95+"), ",", ".").Cast("int"))
+            .WithColumn("A95Plus", RegexpReplace(Col("exploded.A95Plus"), ",", ".").Cast("int"))
             .WithColumn("A95", RegexpReplace(Col("exploded.A95"), ",", ".").Cast("int"))
             .WithColumn("A92", RegexpReplace(Col("exploded.A92"), ",", ".").Cast("int"))
             .WithColumn("Disel", RegexpReplace(Col("exploded.Disel"), ",", ".").Cast("int"))
