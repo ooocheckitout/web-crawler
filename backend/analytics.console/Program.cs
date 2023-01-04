@@ -11,8 +11,11 @@ var spark = SparkSession
 
 const string collectionsRoot = @"D:\code\web-crawler\collections";
 
-var example = new TailwindColorPaletteExample();
+var example = new MinfinPetrolPricesExample();
 example.Show(collectionsRoot, spark);
+
+// var example = new TailwindColorPaletteExample();
+// example.Show(collectionsRoot, spark);
 
 // var exampleTypes = Assembly
 //     .GetExecutingAssembly()

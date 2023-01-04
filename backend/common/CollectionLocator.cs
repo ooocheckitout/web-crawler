@@ -30,6 +30,11 @@
         return $"{_collectionsRoot}/{collection}/content/{hash}.html";
     }
 
+    public string GetDataRootLocation(string collection)
+    {
+        return $"{_collectionsRoot}/{collection}/data";
+    }
+
     public string GetDataLocation(string collection, string url)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
