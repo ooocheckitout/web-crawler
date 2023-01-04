@@ -3,6 +3,29 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace analytics.console;
 
+class SqlMinfinPetrolPricesExample : IExample
+{
+    public void Show(string collectionRoot, SparkSession sparkSession)
+    {
+        sparkSession.Sql("DROP VIEW IF EXISTS bronze;");
+
+        sparkSession.Sql(@$"
+CREATE TEMPORARY VIEW bronze
+USING org.apache.spark.sql.json
+OPTIONS (
+    path ,
+    multiline true
+);
+");
+
+        sparkSession.Sql("SELECT * FROM bronze;").Show();
+
+
+
+        sparkSession.Sql("SELECT * FROM bronze;").Show();
+    }
+}
+
 class MinfinPetrolPricesExample : IExample
 {
     public void Show(string collectionRoot, SparkSession sparkSession)
