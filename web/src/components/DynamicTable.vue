@@ -2,23 +2,23 @@
   <table class="table-auto w-full">
     <thead>
       <tr class="bg-stone-100">
-        <th v-for="key in keys" :key="key" class="p-4 truncate text-left">{{ key }}</th>
+        <th v-for="(key, keyIndex) in keys" :key="keyIndex" class="p-4 text-left">{{ key }}</th>
       </tr>
     </thead>
     <tbody>
       <tr v-if="objects.length == 0">
         No elements.
       </tr>
-      <tr v-for="(object, index) in objects" :key="index">
+      <tr v-for="(object, objectIndex) in objects" :key="objectIndex" class="hover:bg-slate-100">
         <td
-          v-for="key in keys"
-          :key="key"
-          class="p-4 truncate"
+          v-for="(key, keyIndex) in keys"
+          :key="keyIndex"
+          class="p-4"
           @mouseover="mouseOverHandler(object)"
           @mouseout="mouseOutHandler(object)"
           @click="mouseClickHandler(object)"
         >
-          {{ object[key] }}
+          <p>{{ getValue(key, object) }}</p>
         </td>
       </tr>
     </tbody>
@@ -30,21 +30,39 @@ export default {
   props: {
     objects: {
       type: Object,
-      default: [{ test: 1, check: 2 }],
+      default: [],
+    },
+    columns: {
+      type: Object,
+      default: [],
     },
   },
 
+  data() {
+    return {
+      keys: [],
+    };
+  },
+
   watch: {
-    data: {
+    objects: {
       immediate: true,
       deep: true,
       handler(current, previous) {
-        if (!current) current = [];
-        this.keys = this.objects.flatMap(x => Object.keys(x)).uniqueBy(x => x);
+        if (this.columns.length != 0) {
+          this.keys = this.columns;
+        } else {
+          this.keys = this.objects.flatMap(x => Object.keys(x)).uniqueBy(x => x);
+        }
       },
     },
   },
+
   methods: {
+    getValue(key, object) {
+      return key.split(".").reduce((accumulator, key) => accumulator[key], object);
+    },
+
     mouseClickHandler(object) {
       this.$emit("itemClick", object);
     },

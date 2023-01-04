@@ -3,17 +3,17 @@
     <div class="flex flex-row">
       <div class="w-1/2 h-screen border p-4">
         <p class="text-lg font-bold">Schema</p>
-        <DynamicTable :objects="properties" :key="properties" />
+        <DynamicTable :objects="properties" :key="isLoaded" />
         <p class="text-lg font-bold">Suggestions</p>
         <DynamicTable
           :objects="suggestions"
-          :key="suggestions"
+          :columns="['property.name', 'suggestedXpath']"
           @itemMouseOver="highlightSuggestionHandler"
           @itemMouseOut="unhighlightSuggestionHandler"
           @itemClick="applySuggestionHandler"
         />
         <p class="text-lg font-bold">Data</p>
-        <DynamicTable :objects="datas" :key="datas" />
+        <DynamicTable :objects="datas" />
       </div>
       <div class="w-1/2 border p-4">
         <IFrameViewer
@@ -42,23 +42,24 @@ export default {
 
   data() {
     return {
+      isLoaded: true,
       viewerUrl: null,
       contextDocument: null,
       selectedElements: [],
       suggestedElements: [],
-      properties: [],
+      properties: [
+        {
+          name: "Property-1",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div[1]/div/div[2]/div[1]",
+        },
+        {
+          name: "Property-2",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div[1]/div/div[2]/div[2]",
+        },
+      ],
       suggestions: [],
       datas: [],
     };
-  },
-
-  watch: {
-    properties: {
-      deep: true,
-      handler() {
-        this.updateProperties();
-      },
-    },
   },
 
   methods: {
@@ -83,13 +84,10 @@ export default {
         return before + after;
       });
 
-      return suggestedXpaths.uniqueBy(x => x);
+      return suggestedXpaths;
     },
 
     updateProperties() {
-      let suggestions = [];
-      let datas = [];
-
       for (const property of this.properties) {
         let originalXpath = property.xpath;
         let originalElements = xpathService.evaluateXPath(this.contextDocument, originalXpath);
@@ -98,30 +96,21 @@ export default {
         this.selectedElements.push(originalElements);
 
         // suggestions
-        var propertySuggestions = this.suggestXpaths(originalXpath).map(suggestedXpath => {
-          return {
-            property,
-            originalElements,
-            suggestedXpath,
-            suggestedElements: xpathService.evaluateXPath(this.contextDocument, suggestedXpath),
-          };
-        });
+        for (const suggestedXpath of this.suggestXpaths(originalXpath)) {
+          if (this.suggestions.find(x => x.suggestedXpath == suggestedXpath)) continue;
 
-        suggestions.push(...propertySuggestions);
+          let suggestedElements = xpathService.evaluateXPath(this.contextDocument, suggestedXpath);
+          if (suggestedElements.length == 0 || originalElements.compare(suggestedElements)) continue;
+
+          this.suggestions.push({ property, originalElements, suggestedXpath, suggestedElements });
+        }
 
         // data
-        datas.push({
+        this.datas.push({
           property: property.name,
           values: originalElements.map(x => x.innerText),
         });
       }
-
-      this.suggestions = suggestions
-        .filter(x => x.suggestedElements.length > 0)
-        .uniqueBy(x => x.suggestedXpath)
-        .filter(x => !x.suggestedElements.compare(x.originalElements));
-
-      this.datas = datas;
     },
 
     selectHandler(element) {
@@ -132,13 +121,11 @@ export default {
         xpath,
       };
       this.properties.push(property);
-
-      this.properties = JSON.parse(JSON.stringify(this.properties))
-
     },
 
     loadedHandler(contextDocument) {
       this.contextDocument = contextDocument;
+      this.isLoaded = true;
       this.updateProperties();
     },
   },
