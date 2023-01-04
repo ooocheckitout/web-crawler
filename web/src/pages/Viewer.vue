@@ -20,17 +20,19 @@ export default {
   },
 
   updated() {
-    let externalStylesheets = Array.from(document.styleSheets).filter(x => x.href);
-    let rulesThatHideElement = externalStylesheets
-      .flatMap(x => Array.from(x.cssRules))
-      .filter(x => x.styleMap?.get("display") == "none");
+    this.$nextTick(() => {
+      let externalStylesheets = Array.from(document.styleSheets).filter(x => x.href);
+      let rulesThatHideElement = externalStylesheets
+        .flatMap(x => Array.from(x.cssRules))
+        .filter(x => x.styleMap?.get("display") == "none");
 
-    rulesThatHideElement.forEach(x => {
-      let ruleIndex = Array.from(x.parentStyleSheet.cssRules).indexOf(x);
-      x.parentStyleSheet.deleteRule(ruleIndex);
+      rulesThatHideElement.forEach(x => {
+        let ruleIndex = Array.from(x.parentStyleSheet.cssRules).indexOf(x);
+        x.parentStyleSheet.deleteRule(ruleIndex);
+      });
+
+      console.log(`removed ${rulesThatHideElement.length} css rules that hide elements`);
     });
-
-    console.log(`removed ${rulesThatHideElement.length} css rules that hide elements`);
   },
 };
 </script>
