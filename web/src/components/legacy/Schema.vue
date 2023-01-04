@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import xpathService from "../services/xpath";
-import highlightService from "../services/highlight";
+import xpathService from "@/services/xpath";
+import highlightService from "@/services/highlight";
 
 export default {
   props: {

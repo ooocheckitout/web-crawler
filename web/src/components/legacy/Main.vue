@@ -39,10 +39,10 @@
 </template>
 
 <script>
-import Schema from "./Schema.vue";
-import Viewer from "./Viewer.vue";
+import Schema from "@/components/legacy/Schema.vue";
+import Viewer from "@/components/legacy/Viewer.vue";
 
-import xpathService from "../services/xpath";
+import xpathService from "../../services/xpath";
 
 export default {
   components: {
