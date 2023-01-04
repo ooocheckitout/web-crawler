@@ -80,9 +80,9 @@ export default {
 
       for (const property of this.schema) {
         let calculatedXPath = property.xpath.replace(
-              "/html/body",
-              this.rootXPath
-            );
+          "/html/body",
+          this.rootXPath
+        );
 
         const matchedXpathIndexes = [...calculatedXPath.matchAll(/\[.*?\]/g)];
         var propertySuggestions = matchedXpathIndexes
