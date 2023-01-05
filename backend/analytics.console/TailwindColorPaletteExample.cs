@@ -10,7 +10,7 @@ class TailwindColorPaletteExample : IExample
         var bronze = sparkSession
             .Read()
             .Option("multiline", true)
-            .Json($"{collectionRoot}/tailwind-color-palette/data");
+            .Json($"{collectionRoot}/tailwind-color-palette/bronze");
 
         var silver = bronze
             .WithColumn("expColor", Explode(Col("Color")))

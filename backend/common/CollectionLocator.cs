@@ -30,15 +30,15 @@
         return $"{_collectionsRoot}/{collection}/content/{hash}.html";
     }
 
-    public string GetDataRootLocation(string collection)
+    public string GetBronzeLocation(string collection)
     {
-        return $"{_collectionsRoot}/{collection}/data";
+        return $"{_collectionsRoot}/{collection}/bronze";
     }
 
-    public string GetDataLocation(string collection, string url)
+    public string GetBronzeFileLocation(string collection, string url)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        return $"{_collectionsRoot}/{collection}/data/{hash}.json";
+        return $"{_collectionsRoot}/{collection}/bronze/{hash}.json";
     }
 
     public string GetChecksumLocation(string collection, string url)

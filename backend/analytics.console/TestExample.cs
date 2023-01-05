@@ -1,22 +1,16 @@
-﻿using analytics.console;
-using Microsoft.Spark.Sql;
-using static Microsoft.Spark.Sql.Functions;
+﻿using Microsoft.Spark.Sql;
+
+namespace analytics.console;
 
 class TestExample : IExample
 {
     public void Show(string collectionRoot, SparkSession sparkSession)
     {
-        var bronze = sparkSession
+        var silver = sparkSession
             .Read()
             .Option("multiline", true)
-            .Json($"{collectionRoot}/test/data");
+            .Json($"{collectionRoot}/local-data-editor/silver");
 
-        bronze.Show();
-
-        var silver = bronze
-                .WithColumn("schema", SchemaOfJson(bronze.Select("values").Collect().First().Values.First().ToString()))
-            // .WithColumn("explode", Explode(FromJson(Col("values"), SchemaOfJson(Col("values")))))
-            ;
         silver.Show();
     }
 }

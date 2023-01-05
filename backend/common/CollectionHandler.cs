@@ -48,7 +48,7 @@ public class CollectionHandler
 
             var objects = _parser.Parse(htmlContent, collection.Schema);
 
-            string dataLocation = _locator.GetDataLocation(collection.Name, url);
+            string dataLocation = _locator.GetBronzeFileLocation(collection.Name, url);
             await _fileWriter.AsJsonAsync(dataLocation, objects);
 
             await _fileWriter.AsTextAsync(checksumLocation, checksum);

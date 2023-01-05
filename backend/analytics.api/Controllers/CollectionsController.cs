@@ -23,7 +23,7 @@ public class CollectionsController : ControllerBase
         var results = _sparkSession
             .Read()
             .Option("multiline", true)
-            .Json(_locator.GetDataRootLocation(collectionName))
+            .Json(_locator.GetBronzeLocation(collectionName))
             .Collect().ToList();
 
         foreach (var item in results)

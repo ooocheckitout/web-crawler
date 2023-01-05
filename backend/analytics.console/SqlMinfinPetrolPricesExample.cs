@@ -6,7 +6,7 @@ class SqlMinfinPetrolPricesExample : IExample
 {
     public void Show(string collectionRoot, SparkSession sparkSession)
     {
-        var path = @$"{collectionRoot}/minfin-petrol-prices/data";
+        var path = @$"{collectionRoot}/minfin-petrol-prices/bronze";
 
         var sql = @$"
 DROP VIEW IF EXISTS bronze;
