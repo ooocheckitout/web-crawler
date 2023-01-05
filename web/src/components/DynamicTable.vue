@@ -50,11 +50,20 @@ export default {
       immediate: true,
       deep: true,
       handler(current, previous) {
+        let columns = this.objects.flatMap(x => Object.keys(x)).uniqueBy(x => x);
+
         if (this.columns.length != 0) {
-          this.keys = this.columns;
-        } else {
-          this.keys = this.objects.flatMap(x => Object.keys(x)).uniqueBy(x => x);
+          var index = this.columns.indexOf("*");
+          if (index != -1) {
+            this.columns.splice(index, 1);
+            columns = columns.concat(this.columns);
+          }
+          else {
+            columns = this.columns;
+          }
         }
+
+        this.keys = columns;
       },
     },
   },

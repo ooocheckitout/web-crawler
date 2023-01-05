@@ -1,19 +1,19 @@
 <template>
   <div>
     <div class="flex flex-row">
-      <div class="w-1/2 h-screen p-4 border">
+      <div class="w-1/2 p-4 border">
         <p class="text-lg font-bold">Schema</p>
         <DynamicTable :objects="properties" :key="isLoaded" />
         <p class="text-lg font-bold">Suggestions</p>
         <DynamicTable
           :objects="suggestions"
-          :columns="['property.name', 'suggestedXpath']"
+          :columns="['property.name', 'suggestedXpath', 'suggestedElements.length']"
           @itemMouseOver="highlightSuggestionHandler"
           @itemMouseOut="unhighlightSuggestionHandler"
           @itemClick="applySuggestionHandler"
         />
         <p class="text-lg font-bold">Data</p>
-        <DynamicTable :objects="datas" />
+        <DynamicTable :objects="datas" :columns="['*', 'values.length']" />
       </div>
       <div class="w-1/2 p-4 border">
         <IFrameViewer
@@ -50,20 +50,36 @@ export default {
       suggestedElements: [],
       properties: [
         {
-          name: "Property-1",
-          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[1]",
+          name: "Username",
+          xpath: "/html/body/div/div/div/div[1]/blz-section/div/div[1]/div/h1",
         },
         {
-          name: "Property-2",
-          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[2]",
-        },
-        {
-          name: "Property-3",
+          name: "Category",
           xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[1]/select/option",
         },
         {
-          name: "Property-4",
-          xpath: "/html/body/div/div/div/div[1]/blz-section/div/div[1]/div/h1",
+          name: "GameMode",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[1]/blz-button",
+        },
+        {
+          name: "Platform",
+          xpath: "/html/body/div/div/div/div[1]/blz-section/div/div[3]/blz-button",
+        },
+        {
+          name: "QuickPlay_Hero",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div/div/div/div[2]/div[1]",
+        },
+        {
+          name: "QuickPlay_Statistic",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div/div/div/div[2]/div[2]",
+        },
+        {
+          name: "CompetitivePlay_Hero",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[3]/div/div/div/div[2]/div[1]",
+        },
+        {
+          name: "CompetitivePlay_Statistic",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[3]/div/div/div/div[2]/div[2]",
         },
       ],
       suggestions: [],
@@ -94,7 +110,7 @@ export default {
     },
 
     selectHandler(element) {
-      let xpath = xpathService.getElementXPath(element);
+      let xpath = xpathService.getElementTreeXPath(element);
 
       let property = {
         name: `Property-${this.properties.length + 1}`,
@@ -131,9 +147,10 @@ export default {
         }
 
         // data
+        let values = originalElements.map(x => x.innerText);
         this.datas.push({
           property: property.name,
-          values: originalElements.map(x => x.innerText),
+          values: values.length == 1 ? values[0] : values,
         });
       }
 

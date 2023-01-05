@@ -1,27 +1,51 @@
 <template>
-  <div class="flex flex-row space-x-2 p-2">
-    <div class="w-1/3 space-y-2">
-      <p>Properties</p>
-      <div v-for="(property, index) in properties" :key="index" class="p-2 border-2 border-sky-100">
-        {{ property.name }}
-      </div>
-    </div>
-    <div class="w-1/3 space-y-2">
-      <p>Groups</p>
-      <div v-for="(group, index) in groups" :key="index" class="flex flex-col space-y-2">
-        <div class="p-2 ml-2 border-2 border-indigo-400">
-          {{ group.name }}<span v-if="group.over"> partitioned by {{ group.over.name }}</span>
+  <div class="flex flex-col">
+    <div class="flex flex-row p-2 space-x-2">
+      <div class="w-1/2 space-y-2">
+        <p>Properties</p>
+        <div v-for="(property, index) in properties" :key="index" class="p-2 border-2 border-sky-100">
+          {{ property.name }}
         </div>
-        <div class="flex flex-col space-y-2">
-          <div v-for="(property, index) in group.properties" :key="index" class="p-2 ml-4 border-2 border-sky-100">
-            {{ property.name }}
+      </div>
+      <div class="w-1/2 space-y-2">
+        <p>Groups</p>
+        <div v-for="(group, index) in groups" :key="index" class="flex flex-col space-y-2">
+          <div class="p-2 border-2 border-indigo-400">
+            {{ group.name }}<span v-if="group.over"> partitioned by {{ group.over.name }}</span>
+          </div>
+          <div class="flex flex-col space-y-2">
+            <div v-for="(property, index) in group.properties" :key="index" class="p-2 ml-4 border-2 border-sky-200">
+              {{ property.alias }} from {{ property.from.name }}
+            </div>
+          </div>
+          <div
+            class="p-2 ml-4 border-2 border-teal-200"
+            v-for="(mapping, index) in group.mapping"
+            :key="index"
+            title="Mapping field"
+          >
+            {{ mapping.from.name }} at index {{mapping.atIndex }}
+          </div>
+          <div
+            class="p-2 ml-4 border-2 border-orange-200"
+            v-for="(constant, index) in group.constants"
+            :key="index"
+            title="Constant field"
+          >
+            {{ constant.name }} with constant value {{ constant.value }}
           </div>
         </div>
       </div>
     </div>
-    <div class="w-1/3">
-      <p>Preview</p>
-      <pre>{{ preview }}</pre>
+    <div class="flex flex-row p-2 space-x-2">
+      <div class="w-1/2">
+        <p>Original</p>
+        <pre>{{ properties }}</pre>
+      </div>
+      <div class="w-1/2">
+        <p>Preview</p>
+        <pre>{{ preview }}</pre>
+      </div>
     </div>
   </div>
 </template>
@@ -32,7 +56,31 @@ export default {
     return {
       datas: [
         {
-          property: "Hero",
+          property: "Username",
+          values: ["ezkatka"],
+        },
+        {
+          property: "Category",
+          values: [
+            "Time Played",
+            "Games Won",
+            "Weapon Accuracy",
+            "Eliminations per Life",
+            "Critical Hit Accuracy",
+            "Multikill - Best",
+            "Objective Kills",
+          ],
+        },
+        {
+          property: "GameMode",
+          values: ["Quick Play", "Competitive Play"],
+        },
+        {
+          property: "Platform",
+          values: ["PC", "Console"],
+        },
+        {
+          property: "QuickPlay_Hero",
           values: [
             "Mercy",
             "Moira",
@@ -66,8 +114,8 @@ export default {
             "Brigitte",
             "Moira",
             "Mercy",
-            "Sojourn",
             "Zenyatta",
+            "Sojourn",
             "Pharah",
             "Junkrat",
             "Orisa",
@@ -141,8 +189,8 @@ export default {
             "Ana",
             "Doomfist",
             "Sigma",
-            "Zarya",
             "Zenyatta",
+            "Zarya",
             "Tracer",
             "Cassidy",
             "Wrecking Ball",
@@ -247,11 +295,11 @@ export default {
           ],
         },
         {
-          property: "Statistic",
+          property: "QuickPlay_Statistic",
           values: [
-            "04:18:41",
+            "04:22:54",
             "03:48:39",
-            "02:06:07",
+            "02:17:36",
             "54:20",
             "46:35",
             "46:27",
@@ -281,7 +329,7 @@ export default {
             "00:19",
             "15",
             "15",
-            "4",
+            "5",
             "4",
             "3",
             "2",
@@ -356,8 +404,8 @@ export default {
             "1.80",
             "1.69",
             "1.40",
+            "1.36",
             "1.33",
-            "1.28",
             "1.00",
             "1.00",
             "1.00",
@@ -376,7 +424,7 @@ export default {
             "13%",
             "12%",
             "11%",
-            "10%",
+            "11%",
             "10%",
             "10%",
             "9%",
@@ -430,7 +478,7 @@ export default {
             "0",
             "0",
             "178",
-            "53",
+            "62",
             "32",
             "22",
             "20",
@@ -462,86 +510,341 @@ export default {
           ],
         },
         {
-          property: "Category",
+          property: "CompetitivePlay_Hero",
           values: [
-            "Time Played",
-            "Games Won",
-            "Weapon Accuracy",
-            "Eliminations per Life",
-            "Critical Hit Accuracy",
-            "Multikill - Best",
-            "Objective Kills",
+            "Orisa",
+            "Zenyatta",
+            "Mercy",
+            "Moira",
+            "Junkrat",
+            "Symmetra",
+            "Torbjörn",
+            "Zarya",
+            "Lúcio",
+            "Roadhog",
+            "Pharah",
+            "Doomfist",
+            "Ana",
+            "Sigma",
+            "Mercy",
+            "Orisa",
+            "Moira",
+            "Zarya",
+            "Doomfist",
+            "Ana",
+            "Torbjörn",
+            "Pharah",
+            "Symmetra",
+            "Zenyatta",
+            "Roadhog",
+            "Junkrat",
+            "Lúcio",
+            "Sigma",
+            "Ana",
+            "Sigma",
+            "Pharah",
+            "Symmetra",
+            "Zenyatta",
+            "Torbjörn",
+            "Lúcio",
+            "Orisa",
+            "Zarya",
+            "Roadhog",
+            "Junkrat",
+            "Doomfist",
+            "Mercy",
+            "Moira",
+            "Zarya",
+            "Doomfist",
+            "Ana",
+            "Orisa",
+            "Mercy",
+            "Moira",
+            "Torbjörn",
+            "Pharah",
+            "Symmetra",
+            "Zenyatta",
+            "Roadhog",
+            "Junkrat",
+            "Lúcio",
+            "Sigma",
+            "Symmetra",
+            "Torbjörn",
+            "Zarya",
+            "Moira",
+            "Orisa",
+            "Pharah",
+            "Roadhog",
+            "Junkrat",
+            "Lúcio",
+            "Zenyatta",
+            "Mercy",
+            "Doomfist",
+            "Ana",
+            "Sigma",
+            "Doomfist",
+            "Roadhog",
+            "Zenyatta",
+            "Torbjörn",
+            "Lúcio",
+            "Mercy",
+            "Pharah",
+            "Symmetra",
+            "Junkrat",
+            "Zarya",
+            "Ana",
+            "Orisa",
+            "Moira",
+            "Sigma",
+            "Mercy",
+            "Torbjörn",
+            "Pharah",
+            "Symmetra",
+            "Zenyatta",
+            "Roadhog",
+            "Junkrat",
+            "Zarya",
+            "Lúcio",
+            "Doomfist",
+            "Ana",
+            "Orisa",
+            "Moira",
+            "Sigma",
+            "Moira",
+            "Orisa",
+            "Torbjörn",
+            "Junkrat",
+            "Symmetra",
+            "Zarya",
+            "Zenyatta",
+            "Roadhog",
+            "Lúcio",
+            "Mercy",
+            "Pharah",
+            "Doomfist",
+            "Ana",
+            "Sigma",
           ],
         },
         {
-          property: "Username",
-          values: ["ezkatka"],
+          property: "CompetitivePlay_Statistic",
+          values: [
+            "17:25",
+            "16:07",
+            "14:57",
+            "14:22",
+            "08:57",
+            "07:44",
+            "04:17",
+            "03:13",
+            "03:08",
+            "02:06",
+            "01:47",
+            "01:40",
+            "00:31",
+            "00:21",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "67%",
+            "57%",
+            "46%",
+            "30%",
+            "26%",
+            "24%",
+            "23%",
+            "20%",
+            "18%",
+            "17%",
+            "17%",
+            "6%",
+            "0",
+            "0",
+            "100%",
+            "100%",
+            "100%",
+            "37%",
+            "35%",
+            "25%",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "3.25",
+            "3.00",
+            "3.00",
+            "2.44",
+            "2.00",
+            "1.00",
+            "1.00",
+            "0.67",
+            "0.67",
+            "0.18",
+            "0",
+            "0",
+            "0",
+            "0",
+            "31%",
+            "10%",
+            "9%",
+            "5%",
+            "4%",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "13",
+            "10",
+            "4",
+            "4",
+            "2",
+            "2",
+            "1",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+          ],
         },
       ],
       transformed: [],
       properties: [],
       groups: [],
-      preview: []
+      preview: [],
     };
   },
 
   created() {
-    this.properties = this.datas.map(x => { return { name: x.property, values: x.values } })
+    this.properties = this.datas.map(x => {
+      return { name: x.property, values: x.values };
+    });
     this.groups = [
       {
-        name: "HeroStatistics",
-        over: this.properties[2],
-        properties: [this.properties[0], this.properties[1]]
-      }
-    ]
+        name: "PC QuickPlay HeroStatistics",
+        over: this.properties[1],
+        properties: [
+            { from: this.properties[4], alias: "Hero"},
+            { from: this.properties[5], alias: "Statistic"}
+        ],
+        mapping: [
+          { from: this.properties[0], atIndex: 0 },
+          { from: this.properties[2], atIndex: 0 },
+          { from: this.properties[3], atIndex: 0 },
+        ],
+        constants: [
+            { name: "Host", value: "https://overwatch.blizzard.com" }
+        ],
+      },
+      {
+        name: "PC CompetitivePlay HeroStatistics",
+        over: this.properties[1],
+        properties: [
+            { from: this.properties[6], alias: "Hero"},
+            { from: this.properties[7], alias: "Statistic"}
+        ],
+        mapping: [
+          { from: this.properties[0], atIndex: 0 },
+          { from: this.properties[2], atIndex: 1 },
+          { from: this.properties[3], atIndex: 0 },
+        ],
+      },
+    ];
 
-    let results = []
+    let results = [];
     for (const group of this.groups) {
-      let numberOfElements = Math.max(...group.properties.map(x => x.values.length))
+      let numberOfElements = Math.max(...group.properties.map(x => x.from.values.length));
 
-      let objects = []
+      let objects = [];
       for (let index = 0; index < numberOfElements; index++) {
-        let object = {}
+        let object = {};
 
         for (const groupProperty of group.properties) {
-          object[groupProperty.name] = groupProperty.values[index]
+          object[groupProperty.alias ?? groupProperty.from.name] = groupProperty.from.values[index];
         }
 
-        objects.push(object)
+        objects.push(object);
       }
 
       if (group.over) {
-        let partitions = []
-
-        let numberOfObjects = objects.length
-        let numberOfPartitions = group.over.values.length
-        let numberOfElementsInPartition = numberOfObjects / numberOfPartitions
+        let numberOfObjects = objects.length;
+        let numberOfPartitions = group.over.values.length;
+        let numberOfElementsInPartition = numberOfObjects / numberOfPartitions;
 
         for (let index = 0; index < numberOfPartitions; index++) {
           let from = index * numberOfElementsInPartition;
           let to = from + numberOfElementsInPartition;
 
-          partitions.push({
-            partition: group.over.values[index],
-            values: objects.slice(from, to)
-          })
+          for (const partitionedObject of objects.slice(from, to)) {
+            partitionedObject[group.over.name] = group.over.values[index];
+          }
         }
-
-        results.push({ name: group.name, values: partitions })
-        continue;
       }
 
-      results.push({ name: group.name, values: objects })
-    }
-    this.preview = results;
+      if (group.mapping) {
+        for (const mapping of group.mapping) {
+          for (const object of objects) {
+            object[mapping.from.name] = mapping.from.values[mapping.atIndex];
+          }
+        }
+      }
 
-    let groupedProperties = this.properties.reduce((acc, property) => {
-      let lengthKey = property.values.length;
-      let item = acc[lengthKey] ??= [];
-      item.push(property)
-      return acc
-    }, {})
-    console.log(groupedProperties);
+      if (group.constants) {
+        for (const constant of group.constants) {
+          for (const object of objects) {
+            object[constant.name] = constant.value;
+          }
+        }
+      }
+
+      results.push({ name: group.name, values: objects });
+    }
+
+    this.preview = results.flatMap(x => x.values);
+
+    // let groupedProperties = this.properties.reduce((acc, property) => {
+    //   let lengthKey = property.values.length;
+    //   let item = acc[lengthKey] ??= [];
+    //   item.push(property)
+    //   return acc
+    // }, {})
+    // console.log(groupedProperties);
 
     return;
   },
