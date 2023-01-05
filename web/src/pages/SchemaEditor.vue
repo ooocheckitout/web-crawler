@@ -57,6 +57,14 @@ export default {
           name: "Property-2",
           xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[2]",
         },
+        {
+          name: "Property-3",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[1]/select/option",
+        },
+        {
+          name: "Property-4",
+          xpath: "/html/body/div/div/div/div[1]/blz-section/div/div[1]/div/h1",
+        },
       ],
       suggestions: [],
       datas: [],
@@ -106,8 +114,14 @@ export default {
         // selected elements
         this.selectedElements.push(originalElements);
 
-        // suggestions
-        for (const suggestedXpath of this.suggestXpaths(originalXpath)) {
+        // child suggestions
+        let childElements = originalElements.filter(x => x.children.length > 0).flatMap(x => Array.from(x));
+        let childElementsXpaths = childElements.map(x => xpathService.getElementXPath(x));
+        let childrenSuggestedXpaths = childElementsXpaths.flatMap(x => this.suggestXpaths(x));
+
+        // xpath suggestions
+        let originalSuggestedXpaths = this.suggestXpaths(originalXpath);
+        for (const suggestedXpath of originalSuggestedXpaths.concat(childrenSuggestedXpaths)) {
           if (this.suggestions.find(x => x.suggestedXpath == suggestedXpath)) continue;
 
           let suggestedElements = xpathService.evaluateXPath(this.contextDocument, suggestedXpath);

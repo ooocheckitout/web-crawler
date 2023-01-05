@@ -11,7 +11,7 @@ var spark = SparkSession
 
 const string collectionsRoot = @"D:/code/web-crawler/collections";
 
-var example = new SqlMinfinPetrolPricesExample();
+var example = new DynamicMinfinPetrolPricesExample();
 example.Show(collectionsRoot, spark);
 
 // var example = new TailwindColorPaletteExample();
