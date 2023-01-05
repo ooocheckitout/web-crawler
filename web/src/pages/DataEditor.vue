@@ -1,10 +1,27 @@
 <template>
-  <div class="flex flex-row">
-    <div class="w-1/2">
-      <pre>{{ datas }}</pre>
+  <div class="flex flex-row space-x-2 p-2">
+    <div class="w-1/3 space-y-2">
+      <p>Properties</p>
+      <div v-for="(property, index) in properties" :key="index" class="p-2 border-2 border-sky-100">
+        {{ property.name }}
+      </div>
     </div>
-    <div class="w-1/2">
-      <pre>{{ transformed }}</pre>
+    <div class="w-1/3 space-y-2">
+      <p>Groups</p>
+      <div v-for="(group, index) in groups" :key="index" class="flex flex-col space-y-2">
+        <div class="p-2 ml-2 border-2 border-indigo-400">
+          {{ group.name }}<span v-if="group.over"> partitioned by {{ group.over.name }}</span>
+        </div>
+        <div class="flex flex-col space-y-2">
+          <div v-for="(property, index) in group.properties" :key="index" class="p-2 ml-4 border-2 border-sky-100">
+            {{ property.name }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/3">
+      <p>Preview</p>
+      <pre>{{ preview }}</pre>
     </div>
   </div>
 </template>
@@ -15,7 +32,7 @@ export default {
     return {
       datas: [
         {
-          property: "Property-1",
+          property: "Hero",
           values: [
             "Mercy",
             "Moira",
@@ -230,7 +247,7 @@ export default {
           ],
         },
         {
-          property: "Property-2",
+          property: "Statistic",
           values: [
             "04:18:41",
             "03:48:39",
@@ -445,7 +462,7 @@ export default {
           ],
         },
         {
-          property: "Property-3",
+          property: "Category",
           values: [
             "Time Played",
             "Games Won",
@@ -457,93 +474,76 @@ export default {
           ],
         },
         {
-          property: "Property-4",
+          property: "Username",
           values: ["ezkatka"],
         },
       ],
       transformed: [],
+      properties: [],
+      groups: [],
+      preview: []
     };
   },
 
   created() {
-    console.log("datas", this.datas);
-
-    let groupedByArrayLength = this.datas.reduce((acc, data) => {
-      let lengthKey = data.values.length;
-
-      if (!acc[lengthKey]) acc[lengthKey] = [];
-
-      acc[lengthKey].push(data);
-      return acc;
-    }, {});
-
-    console.log("groupedByArrayLength", groupedByArrayLength);
-
-    let sections = [];
-    for (const [key, values] of Object.entries(groupedByArrayLength)) {
-      if (key == 1) continue;
-
-      for (const [innerKey, innerValues] of Object.entries(groupedByArrayLength)) {
-        if (key == innerKey) continue;
-
-        let modulo = innerKey % key;
-        if (modulo != 0) continue;
-
-        console.log("modulo", modulo, innerKey, key);
-
-        let numberOfObjects = innerKey / key;
-        for (let index = 0; index < key; index++) {
-          let from = index * Number(numberOfObjects);
-          let to = index * Number(numberOfObjects) + Number(numberOfObjects);
-
-          let object = {};
-          for (const data of innerValues) {
-            let dataValues = data.values.slice(from, to);
-            console.log(values[0].values[index], data.property, dataValues);
-            object[data.property] = dataValues;
-          }
-          sections.push(object);
-        }
+    this.properties = this.datas.map(x => { return { name: x.property, values: x.values } })
+    this.groups = [
+      {
+        name: "HeroStatistics",
+        over: this.properties[2],
+        properties: [this.properties[0], this.properties[1]]
       }
+    ]
+
+    let results = []
+    for (const group of this.groups) {
+      let numberOfElements = Math.max(...group.properties.map(x => x.values.length))
+
+      let objects = []
+      for (let index = 0; index < numberOfElements; index++) {
+        let object = {}
+
+        for (const groupProperty of group.properties) {
+          object[groupProperty.name] = groupProperty.values[index]
+        }
+
+        objects.push(object)
+      }
+
+      if (group.over) {
+        let partitions = []
+
+        let numberOfObjects = objects.length
+        let numberOfPartitions = group.over.values.length
+        let numberOfElementsInPartition = numberOfObjects / numberOfPartitions
+
+        for (let index = 0; index < numberOfPartitions; index++) {
+          let from = index * numberOfElementsInPartition;
+          let to = from + numberOfElementsInPartition;
+
+          partitions.push({
+            partition: group.over.values[index],
+            values: objects.slice(from, to)
+          })
+        }
+
+        results.push({ name: group.name, values: partitions })
+        continue;
+      }
+
+      results.push({ name: group.name, values: objects })
     }
+    this.preview = results;
 
-    console.log("sections", sections);
+    let groupedProperties = this.properties.reduce((acc, property) => {
+      let lengthKey = property.values.length;
+      let item = acc[lengthKey] ??= [];
+      item.push(property)
+      return acc
+    }, {})
+    console.log(groupedProperties);
 
-    let properties = this.datas.map(x => x.property);
-
-    let objects = Object.keys(groupedByArrayLength)
-      .filter(lengthKey => groupedByArrayLength[lengthKey].length > 1)
-      .map(lengthKey => {
-        let arrays = groupedByArrayLength[lengthKey];
-        let zippedValues = arrays.map(x => x.values).zip();
-
-        return zippedValues.map(value => {
-          return properties.reduce((acc, property, index) => {
-            acc[property] = value[index];
-            return acc;
-          }, {});
-        });
-      });
-
-    console.log("objects", objects);
-
-    // this.transformed = objects;
-
-    // Object.keys(propertiesOfSameLength).map(lengthKey => {
-    //   let arrays = propertiesOfSameLength[lengthKey];
-
-    //   let objects = arrays.map(x => x.values).zip();
-
-    //   for (const object of objects) {
-    //     for (const property of properties) {
-    //         object[property] =
-    //     }
-    //   }
-
-    //   //   objects.map(object =>  )
-
-    //   console.log();
-    // });
+    return;
   },
 };
 </script>
