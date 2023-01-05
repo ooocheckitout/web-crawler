@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-row">
+    <div class="flex flex-row min-h-screen">
       <div class="w-1/2 p-4 border">
         <p class="text-lg font-bold">Schema</p>
         <DynamicTable :objects="properties" :key="isLoaded" />
