@@ -57,8 +57,7 @@ export default {
           if (index != -1) {
             this.columns.splice(index, 1);
             columns = columns.concat(this.columns);
-          }
-          else {
+          } else {
             columns = this.columns;
           }
         }

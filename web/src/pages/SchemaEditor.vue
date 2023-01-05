@@ -48,14 +48,11 @@ export default {
       contextDocument: null,
       selectedElements: [],
       suggestedElements: [],
-      properties: [
+      properties: [],
+      overwatch_properties: [
         {
           name: "Username",
           xpath: "/html/body/div/div/div/div[1]/blz-section/div/div[1]/div/h1",
-        },
-        {
-          name: "Category",
-          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[1]/select/option",
         },
         {
           name: "GameMode",
@@ -66,20 +63,52 @@ export default {
           xpath: "/html/body/div/div/div/div[1]/blz-section/div/div[3]/blz-button",
         },
         {
-          name: "QuickPlay_Hero",
+          name: "TopHero_Category",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[1]/select/option",
+        },
+        {
+          name: "TopHero_QuickPlay_Hero",
           xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div/div/div/div[2]/div[1]",
         },
         {
-          name: "QuickPlay_Statistic",
+          name: "TopHero_QuickPlay_Statistic",
           xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div/div/div/div[2]/div[2]",
         },
         {
-          name: "CompetitivePlay_Hero",
+          name: "TopHero_CompetitivePlay_Hero",
           xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[3]/div/div/div/div[2]/div[1]",
         },
         {
-          name: "CompetitivePlay_Statistic",
+          name: "TopHero_CompetitivePlay_Value",
           xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[3]/div/div/div/div[2]/div[2]",
+        },
+        {
+          name: "CareerStats_Category",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[2]/div[4]/select/option",
+        },
+        {
+          name: "CareerStats_QuickPlay_All_Group",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[1]/p",
+        },
+        {
+          name: "CareerStats_QuickPlay_All_Title",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[@class='stat-item']/p[1]",
+        },
+        {
+          name: "CareerStats_QuickPlay_All_Values",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[@class='stat-item']/p[2]",
+        },
+        {
+          name: "CareerStats_QuickPlay_Ana_Group",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[2]/div/div/div[1]/p",
+        },
+        {
+          name: "CareerStats_QuickPlay_Ana_Title",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[2]/div/div/div[@class='stat-item']/p[1]",
+        },
+        {
+          name: "CareerStats_QuickPlay_Ana_Values",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[2]/div/div/div[@class='stat-item']/p[2]",
         },
       ],
       suggestions: [],
@@ -133,11 +162,18 @@ export default {
         // child suggestions
         let childElements = originalElements.filter(x => x.children.length > 0).flatMap(x => Array.from(x));
         let childElementsXpaths = childElements.map(x => xpathService.getElementXPath(x));
-        let childrenSuggestedXpaths = childElementsXpaths.flatMap(x => this.suggestXpaths(x));
+        let childSuggestedXpaths = childElementsXpaths.flatMap(x => this.suggestXpaths(x));
+
+        // TODO: class suggestions
+        // example: /html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[@class='stat-item']/p[1]
+
+        // TODO: xpath similarity suggestions
+        // example1: /html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[1]/p
+        // example2: /html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[2]/div/div/div[1]/p
 
         // xpath suggestions
         let originalSuggestedXpaths = this.suggestXpaths(originalXpath);
-        for (const suggestedXpath of originalSuggestedXpaths.concat(childrenSuggestedXpaths)) {
+        for (const suggestedXpath of originalSuggestedXpaths.concat(childSuggestedXpaths)) {
           if (this.suggestions.find(x => x.suggestedXpath == suggestedXpath)) continue;
 
           let suggestedElements = xpathService.evaluateXPath(this.contextDocument, suggestedXpath);
@@ -147,10 +183,9 @@ export default {
         }
 
         // data
-        let values = originalElements.map(x => x.innerText);
         this.datas.push({
           property: property.name,
-          values: values.length == 1 ? values[0] : values,
+          values: originalElements.map(x => x.innerText),
         });
       }
 
