@@ -63,12 +63,16 @@ export default {
     getValue(object, key) {
       return key.split(".").reduce((accumulator, key) => accumulator[key], object);
     },
+
     async copyHandler() {
       var objects = this.objects.map(object => {
-        return this.keys.map(key => this.getValue(object, key) )
-      })
-      
-      await navigator.clipboard.writeText(JSON.stringify(objects, null, 2))
+        return this.keys.reduce((acc, key) => {
+          acc[key] = this.getValue(object, key);
+          return acc;
+        }, {});
+      });
+
+      await navigator.clipboard.writeText(JSON.stringify(objects, null, 2));
     },
 
     mouseClickHandler(object) {

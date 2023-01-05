@@ -1,6 +1,7 @@
 <template>
-  <div class="flex flex-col space-2 p-4">
-    <input type="text" v-model="url" class="border-2 rounded p-2">
+  <div class="flex flex-col p-4 space-2">
+    <input type="text" v-model="url" class="p-2 border-2 rounded">
+    <router-link to="/data-editor" class="text-lg font-bold">Data Editor</router-link>
     <router-link :to="schemaEditorUrl" class="text-lg font-bold">Schema Editor</router-link>
     <router-link :to="viewerUrl" class="text-lg font-bold">Viewer</router-link>
   </div>

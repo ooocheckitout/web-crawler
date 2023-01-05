@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex flex-row">
-      <div class="w-1/2 h-screen border p-4">
+      <div class="w-1/2 h-screen p-4 border">
         <p class="text-lg font-bold">Schema</p>
         <DynamicTable :objects="properties" :key="isLoaded" />
         <p class="text-lg font-bold">Suggestions</p>
@@ -15,7 +15,7 @@
         <p class="text-lg font-bold">Data</p>
         <DynamicTable :objects="datas" />
       </div>
-      <div class="w-1/2 border p-4">
+      <div class="w-1/2 p-4 border">
         <IFrameViewer
           id="viewer"
           :url="viewerUrl"
@@ -51,11 +51,11 @@ export default {
       properties: [
         {
           name: "Property-1",
-          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div[1]/div/div[2]/div[1]",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[1]",
         },
         {
           name: "Property-2",
-          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div[1]/div/div[2]/div[2]",
+          xpath: "/html/body/div/div/div/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[2]",
         },
       ],
       suggestions: [],
