@@ -3,7 +3,7 @@
 public class Property
 {
     public string Name { get; init; }
-    public IList<string> Values { get; init; }
+    public List<object> Values { get; init; }
 }
 
 public class TransformProperty : Property

@@ -20,7 +20,7 @@ public class Parser
 
             properties.Add(new Property
             {
-                Name = field.Name, Values = results.Select(x => GetNodeValue(x, field)).ToList()
+                Name = field.Name, Values = results.Select(x => GetNodeValue(x, field)).Cast<object>().ToList()
             });
         }
 

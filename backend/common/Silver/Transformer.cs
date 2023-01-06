@@ -2,7 +2,7 @@
 
 public class Transformer
 {
-    public IEnumerable<IDictionary<string, object>> Transform(Data data, TransformerSchema schema)
+    public IEnumerable<Property> Transform(Data data, TransformerSchema schema)
     {
         var properties = data.Select(x => new Property { Name = x.Name, Values = x.Values }).ToList();
 
@@ -16,7 +16,7 @@ public class Transformer
                     properties.Add(new Property
                     {
                         Name = compute.Alias,
-                        Values = compute.ConstantValues.ToList()
+                        Values = compute.ConstantValues.Cast<object>().ToList()
                     });
                 }
 
@@ -52,7 +52,7 @@ public class Transformer
                     properties.Add(new Property
                     {
                         Name = compute.Alias,
-                        Values = concatenations
+                        Values = concatenations.Cast<object>().ToList()
                     });
                 }
             }
@@ -118,10 +118,7 @@ public class Transformer
             }
 
             // yield
-            foreach (var obj in objects)
-            {
-                yield return obj;
-            }
+            yield return new Property { Name = group.Name, Values = objects.Cast<object>().ToList() };
         }
     }
 }

@@ -38,7 +38,7 @@ public class CollectionRunner
         foreach (string url in collection.Urls)
         {
             string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
-            if (!File.Exists(htmlLocation))
+            if (File.Exists(htmlLocation))
                 continue;
 
             tasks.Add(_downloader.DownloadTextToFileAsync(url, htmlLocation, cancellationToken));

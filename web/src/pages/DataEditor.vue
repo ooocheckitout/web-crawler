@@ -1297,7 +1297,7 @@ export default {
       }
 
       console.log("objects.length", objects.length);
-      results.push(...objects);
+      results.push({ name: group.name, values: objects });
     }
 
     console.log("results.length", results.length);

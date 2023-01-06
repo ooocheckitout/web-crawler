@@ -5,7 +5,7 @@
         <p class="text-lg font-bold">Schema</p>
         <DynamicTable :objects="contextProperties" :key="isLoaded" />
         <p class="text-lg font-bold">Data</p>
-        <DynamicTable :objects="datas" />
+        <DynamicTable :objects="datas" :columns="['*', 'values.length']" />
         <p class="text-lg font-bold">Suggestions</p>
         <DynamicTable
           :objects="suggestions"
