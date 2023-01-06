@@ -1,10 +1,10 @@
 ﻿using HtmlAgilityPack;
 
-namespace common;
+namespace common.Bronze;
 
 public class Parser
 {
-    public IDictionary<string, object> Parse(string htmlContent, Schema schema)
+    public IDictionary<string, object> Parse(string htmlContent, ParserSchema schema)
     {
         var document = new HtmlDocument();
         document.LoadHtml(htmlContent);
@@ -12,19 +12,12 @@ public class Parser
         var dataObject = new Dictionary<string, object>();
         foreach (var field in schema)
         {
-            if (field.IsStatic)
-            {
-                dataObject.Add(field.Name, field.StaticValue);
-                continue;
-            }
-
             var cleanedXPath = $"{field.XPath} | {field.XPath.Replace("tbody", "")}";
             var results = document.DocumentNode.SelectNodes(cleanedXPath);
             if (results is null)
                 throw new InvalidOperationException($"No elements found for {field.Name} field!");
 
-            var values = results.Select(x => GetNodeValue(x, field));
-            dataObject.Add(field.Name, results.Count == 1 ? values.Single() : values);
+            dataObject.Add(field.Name, results.Select(x => GetNodeValue(x, field)));
         }
 
         return dataObject;

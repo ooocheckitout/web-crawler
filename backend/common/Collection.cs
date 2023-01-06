@@ -1,7 +1,11 @@
-﻿public class Collection
+﻿using common.Bronze;
+using common.Silver;
+
+public class Collection
 {
     public string Name { get; init; }
     public IEnumerable<string> Urls { get; init; } = Array.Empty<string>();
-    public Schema Schema { get; init; }
+    public ParserSchema ParserSchema { get; init; }
+    public TransformerSchema TransformerSchema { get; init; }
 }
 

@@ -7,7 +7,7 @@ public class FileReader
 {
     public async Task<T> ReadJsonAsync<T>(string fileLocation)
     {
-        var content = await ReadTextAsync(fileLocation);
+        string content = await ReadTextAsync(fileLocation);
         return JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions
                {
                    PropertyNameCaseInsensitive = true,

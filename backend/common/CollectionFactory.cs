@@ -1,4 +1,8 @@
-﻿public class CollectionFactory
+﻿using common;
+using common.Bronze;
+using common.Silver;
+
+public class CollectionFactory
 {
     readonly CollectionLocator _locator;
     readonly FileReader _fileReader;
@@ -15,7 +19,8 @@
         {
             Name = collectionName,
             Urls = await GetUrlsAsync(collectionName),
-            Schema = await GetSchemasAsync(collectionName)
+            ParserSchema = await GetParserSchemasAsync(collectionName),
+            TransformerSchema = await GetTransformerSchemasAsync(collectionName)
         };
     }
 
@@ -31,9 +36,15 @@
         return _fileReader.ReadJsonAsync<IEnumerable<string>>(location);
     }
 
-    Task<Schema> GetSchemasAsync(string collectionName)
+    Task<ParserSchema> GetParserSchemasAsync(string collectionName)
     {
-        string location = _locator.GetSchemasLocation(collectionName);
-        return _fileReader.ReadJsonAsync<Schema>(location);
+        string location = _locator.GetSchemaLocation(collectionName, Medallion.Bronze);
+        return _fileReader.ReadJsonAsync<ParserSchema>(location);
+    }
+
+    Task<TransformerSchema> GetTransformerSchemasAsync(string collectionName)
+    {
+        string location = _locator.GetSchemaLocation(collectionName, Medallion.Silver);
+        return _fileReader.ReadJsonAsync<TransformerSchema>(location);
     }
 }

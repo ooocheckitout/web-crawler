@@ -1,4 +1,6 @@
-﻿public class QueryField
+﻿namespace common.Bronze;
+
+public class QueryField
 {
     public string Name { get; set; }
     public string XPath { get; set; }

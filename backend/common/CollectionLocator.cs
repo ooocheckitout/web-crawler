@@ -1,4 +1,13 @@
-﻿public class CollectionLocator
+﻿namespace common;
+
+public enum Medallion
+{
+    None = 0,
+    Bronze = 1,
+    Silver = 2,
+}
+
+public class CollectionLocator
 {
     readonly string _collectionsRoot;
     readonly Hasher _hasher;
@@ -14,9 +23,9 @@
         return _collectionsRoot;
     }
 
-    public string GetSchemasLocation(string collection)
+    public string GetSchemaLocation(string collection, Medallion medallion)
     {
-        return $"{_collectionsRoot}/{collection}/schemas.json";
+        return $"{_collectionsRoot}/{collection}/{MedallionToString(medallion)}.json";
     }
 
     public string GetUrlsLocation(string collection)
@@ -30,20 +39,25 @@
         return $"{_collectionsRoot}/{collection}/content/{hash}.html";
     }
 
-    public string GetBronzeLocation(string collection)
+    public string GetDataLocation(string collection, Medallion medallion)
     {
-        return $"{_collectionsRoot}/{collection}/bronze";
+        return $"{_collectionsRoot}/{collection}/{MedallionToString(medallion)}";
     }
 
-    public string GetBronzeFileLocation(string collection, string url)
+    public string GetDataFileLocation(string collection, string url, Medallion medallion)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        return $"{_collectionsRoot}/{collection}/bronze/{hash}.json";
+        return $"{_collectionsRoot}/{collection}/{MedallionToString(medallion)}/{hash}.json";
     }
 
-    public string GetChecksumLocation(string collection, string url)
+    public string GetChecksumLocation(string collection, string url, Medallion medallion)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        return $"{_collectionsRoot}/{collection}/checksum/{hash}.checksum";
+        return $"{_collectionsRoot}/{collection}/checksum/{MedallionToString(medallion)}/{hash}.checksum";
+    }
+
+    string MedallionToString(Medallion medallion)
+    {
+        return medallion.ToString().ToLower();
     }
 }

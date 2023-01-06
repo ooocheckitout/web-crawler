@@ -1,3 +1,4 @@
+using common;
 using Microsoft.Spark.Sql;
 
 var builder = WebApplication.CreateBuilder(args);

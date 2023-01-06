@@ -1,6 +1,6 @@
+using common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 
 namespace analytics.api.Controllers;
 
@@ -23,7 +23,7 @@ public class CollectionsController : ControllerBase
         var results = _sparkSession
             .Read()
             .Option("multiline", true)
-            .Json(_locator.GetBronzeLocation(collectionName))
+            .Json(_locator.GetDataLocation(collectionName, Medallion.Bronze))
             .Collect().ToList();
 
         foreach (var item in results)
