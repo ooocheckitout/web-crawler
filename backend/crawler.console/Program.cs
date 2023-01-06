@@ -12,8 +12,8 @@ var fileWriter = new FileWriter();
 var handler = new CollectionRunner(
     locator, new WebDownloader(new HttpClient(), fileWriter), fileReader, new Parser(), fileWriter, hasher, new Transformer());
 
-foreach (var collection in await factory.GetAllAsync())
+foreach (var collection in await factory.GetAllAsync(CancellationToken.None))
 {
-    await handler.RunLoader(collection);
-    await handler.RunParser(collection);
+    await handler.RunLoader(collection, CancellationToken.None);
+    await handler.RunParser(collection, CancellationToken.None);
 }

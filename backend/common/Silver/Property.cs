@@ -3,6 +3,10 @@
 public class Property
 {
     public string Name { get; init; }
-    public IList<object> Values { get; init; }
-    public string? Alias { get; set; }
+    public IList<string> Values { get; init; }
+}
+
+public class TransformProperty : Property
+{
+    public string? Alias { get; init; }
 }

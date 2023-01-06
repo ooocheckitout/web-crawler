@@ -1,15 +1,16 @@
-﻿using HtmlAgilityPack;
+﻿using common.Silver;
+using HtmlAgilityPack;
 
 namespace common.Bronze;
 
 public class Parser
 {
-    public IDictionary<string, object> Parse(string htmlContent, ParserSchema schema)
+    public IEnumerable<Property> Parse(string htmlContent, ParserSchema schema)
     {
         var document = new HtmlDocument();
         document.LoadHtml(htmlContent);
 
-        var dataObject = new Dictionary<string, object>();
+        var properties = new List<Property>();
         foreach (var field in schema)
         {
             var cleanedXPath = $"{field.XPath} | {field.XPath.Replace("tbody", "")}";
@@ -17,10 +18,13 @@ public class Parser
             if (results is null)
                 throw new InvalidOperationException($"No elements found for {field.Name} field!");
 
-            dataObject.Add(field.Name, results.Select(x => GetNodeValue(x, field)));
+            properties.Add(new Property
+            {
+                Name = field.Name, Values = results.Select(x => GetNodeValue(x, field)).ToList()
+            });
         }
 
-        return dataObject;
+        return properties;
     }
 
     string GetNodeValue(HtmlNode node, QueryField field)

@@ -69,7 +69,10 @@ export default {
 
   methods: {
     getValue(object, key) {
-      return key.split(".").reduce((accumulator, key) => accumulator[key], object);
+      return key.split(".").reduce((accumulator, key) => {
+        if (!accumulator || !accumulator.hasOwnProperty(key)) return null;
+        return accumulator[key];
+      }, object);
     },
 
     async copyHandler() {

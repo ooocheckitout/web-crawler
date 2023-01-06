@@ -9,15 +9,15 @@
         _fileWriter = fileWriter;
     }
 
-    public async Task<string> DownloadTextToFileAsync(string url, string fileLocation)
+    public async Task<string> DownloadTextToFileAsync(string url, string fileLocation, CancellationToken cancellationToken)
     {
         Console.WriteLine($"Downloading text from {url} to {fileLocation}");
 
-        using var response = await _client.GetAsync(url);
+        using var response = await _client.GetAsync(url, cancellationToken);
         using var content = response.Content;
-        string stringContent = await content.ReadAsStringAsync();
+        string stringContent = await content.ReadAsStringAsync(cancellationToken);
 
-        await _fileWriter.AsTextAsync(fileLocation, stringContent);
+        await _fileWriter.AsTextAsync(fileLocation, stringContent, cancellationToken);
 
         return stringContent;
     }

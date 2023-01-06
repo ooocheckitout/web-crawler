@@ -102,7 +102,7 @@ export default {
       if (event.data.type != "viewer.loaded" || !this.$refs.viewer) return;
 
       console.log("loaded", event.data);
-      this.$emit("loaded", this.$refs.viewer.contentWindow.document);
+      this.$emit("loaded", this.$refs.viewer.contentWindow.document, event.data.viewerXpath);
     },
   },
 

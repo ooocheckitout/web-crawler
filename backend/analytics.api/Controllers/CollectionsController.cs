@@ -17,6 +17,7 @@ public class CollectionsController : ControllerBase
         _locator = locator;
     }
 
+    [Route("Bronze")]
     [HttpGet]
     public IEnumerable<object> Bronze(string collectionName)
     {
@@ -24,6 +25,25 @@ public class CollectionsController : ControllerBase
             .Read()
             .Option("multiline", true)
             .Json(_locator.GetDataLocation(collectionName, Medallion.Bronze))
+            .Collect().ToList();
+
+        foreach (var item in results)
+        {
+            for (var j = 0; j < item.Schema.Fields.Count; j++)
+            {
+                yield return new { Name = item.Schema.Fields[j].Name, Value = item.Values[j] };
+            }
+        }
+    }
+
+    [Route("Silver")]
+    [HttpGet]
+    public IEnumerable<object> Silver(string collectionName)
+    {
+        var results = _sparkSession
+            .Read()
+            .Option("multiline", true)
+            .Json(_locator.GetDataLocation(collectionName, Medallion.Silver))
             .Collect().ToList();
 
         foreach (var item in results)

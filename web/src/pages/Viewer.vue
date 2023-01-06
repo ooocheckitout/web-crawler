@@ -1,8 +1,10 @@
 <template>
-  <div v-html="html"></div>
+  <div ref="viewer" v-html="html"></div>
 </template>
 
 <script>
+import xpathService from "@/services/xpath";
+
 export default {
   data() {
     return {
@@ -17,7 +19,11 @@ export default {
     this.html = await response.text();
 
     // notify parent page that viewer finished loading
-    window.parent.postMessage({ type: "viewer.loaded", isLoaded: true });
+    window.parent.postMessage({
+      type: "viewer.loaded",
+      isLoaded: true,
+      viewerXpath: xpathService.getElementXPath(this.$refs.viewer),
+    });
   },
 
   async updated() {

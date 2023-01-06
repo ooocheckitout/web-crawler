@@ -24,7 +24,7 @@
               v-for="(partition, index) in group.partitions"
               :key="index"
               class="p-2 ml-4 border-2 border-red-200"
-              :title="`Partition property from ${partition.from}`"
+              :title="`Partition property from ${partition.ref}`"
             >
               {{ partition.alias }}
             </div>
@@ -35,7 +35,7 @@
               v-for="(property, index) in group.properties"
               :key="index"
               class="p-2 ml-4 border-2 border-sky-200"
-              :title="`Grouping property from ${property.from}`"
+              :title="`Grouping property from ${property.ref}`"
             >
               {{ property.alias }}
             </div>
@@ -43,9 +43,9 @@
 
           <div
             class="p-2 ml-4 border-2 border-teal-200"
-            v-for="(enrichment, index) in group.enrichments"
+            v-for="(enrichment, index) in group.mappings"
             :key="index"
-            :title="`Mapping property from ${enrichment.from} at index ${enrichment.atIndex}`"
+            :title="`Mapping property from ${enrichment.ref} at index ${enrichment.atIndex}`"
           >
             {{ enrichment.alias }}
           </div>
@@ -55,7 +55,10 @@
     <div class="flex flex-row p-2 space-x-2">
       <div class="w-1/2">
         <p>Original</p>
-        <DynamicTable :objects="properties"></DynamicTable>
+        <DynamicTable
+          :objects="properties"
+          :columns="['name', 'values', 'values.length', 'isComputed', 'group.name']"
+        ></DynamicTable>
       </div>
       <div class="w-1/2">
         <p>Preview</p>
@@ -1103,39 +1106,30 @@ export default {
       overwatch_groups: [
         {
           name: "PC QuickPlay TopHero HeroStatistic",
-          computes: [
-            { type: "constant", alias: "Host", constantValue: ["https://overwatch.blizzard.com"] },
-            {
-              type: "concatenate",
-              properties: ["TopHero_QuickPlay_Hero", "TopHero_QuickPlay_Statistic"],
-              separator: " ",
-              alias: "HeroValue",
-            },
-          ],
+          computes: [],
           properties: [
-            { alias: "Hero", from: "TopHero_QuickPlay_Hero" },
-            { alias: "Value", from: "TopHero_QuickPlay_Statistic" },
-            { alias: "HeroValue", from: "HeroValue" },
+            { alias: "Hero", ref: "TopHero_QuickPlay_Hero" },
+            { alias: "Value", ref: "TopHero_QuickPlay_Statistic" },
           ],
-          partitions: [{ alias: "Category", from: "TopHero_Category" }],
-          enrichments: [
-            { alias: "Username", from: "Username", atIndex: 0 },
-            { alias: "Platform", from: "Platform", atIndex: 0 },
-            { alias: "GameMode", from: "GameMode", atIndex: 0 },
+          partitions: [{ alias: "Category", ref: "TopHero_Category" }],
+          mappings: [
+            { alias: "Username", ref: "Username", atIndex: 0 },
+            { alias: "Platform", ref: "Platform", atIndex: 0 },
+            { alias: "GameMode", ref: "GameMode", atIndex: 0 },
           ],
         },
         {
           name: "PC CompetitivePlay TopHero HeroStatistic",
           computes: [],
           properties: [
-            { alias: "Hero", from: "TopHero_CompetitivePlay_Hero" },
-            { alias: "Value", from: "TopHero_CompetitivePlay_Value" },
+            { alias: "Hero", ref: "TopHero_CompetitivePlay_Hero" },
+            { alias: "Value", ref: "TopHero_CompetitivePlay_Value" },
           ],
-          partitions: [{ alias: "Category", from: "TopHero_Category" }],
-          enrichments: [
-            { alias: "Username", from: "Username", atIndex: 0 },
-            { alias: "Platform", from: "Platform", atIndex: 0 },
-            { alias: "GameMode", from: "GameMode", atIndex: 1 },
+          partitions: [{ alias: "Category", ref: "TopHero_Category" }],
+          mappings: [
+            { alias: "Username", ref: "Username", atIndex: 0 },
+            { alias: "Platform", ref: "Platform", atIndex: 0 },
+            { alias: "GameMode", ref: "GameMode", atIndex: 1 },
           ],
         },
       ],
@@ -1155,11 +1149,75 @@ export default {
   },
 
   created() {
-    // this.datas = this.overwatch_datas;
-    // this.groups = this.overwatch_groups;
+    this.datas = this.overwatch_datas;
+    this.groups = this.overwatch_groups;
+
+    this.datas = [
+      {
+        name: "Property-1",
+        values: [
+          "/product/182877/",
+          "/product/125797/",
+          "/product/10727/",
+          "/product/39673/",
+          "/product/767170/",
+          "/product/169721/",
+          "/product/585177/",
+          "/product/473809/",
+          "/product/329757/",
+          "/product/202309/",
+          "/product/650949/",
+          "/product/730515/",
+          "/product/185823/",
+          "/product/10731/",
+          "/product/790444/",
+          "/product/202341/",
+          "/product/383629/",
+          "/product/202445/",
+          "/product/185851/",
+          "/product/152877/",
+          "/product/185411/",
+          "/product/100194/",
+          "/product/11097/",
+          "/product/34319/",
+          "/product/824829/",
+          "/product/270709/",
+          "/product/182875/",
+          "/product/185827/",
+          "/product/124289/",
+          "/product/130015/",
+          "/product/470169/",
+          "/product/202313/",
+          "/product/13111/",
+          "/product/1137945/",
+          "/product/974371/",
+          "/product/677413/",
+        ],
+      },
+    ];
+
+    this.groups = [
+      {
+        name: "DetailUrls",
+        computes: [
+          { type: "constant", alias: "Host", constantValues: ["https://makeup.com.ua"] },
+          {
+            type: "concatenate",
+            properties: ["Host", "Property-1"],
+            separator: "",
+            alias: "AbsoluteUrl",
+          },
+        ],
+        properties: [{ alias: "Url", ref: "AbsoluteUrl" }],
+        partitions: [],
+        mappings: [],
+      },
+    ];
+
+    console.log(this.groups);
 
     this.properties = this.datas.map(x => {
-      return { name: x.property, values: x.values };
+      return { name: x.name, values: x.values };
     });
 
     if (this.properties.length == 0) return;
@@ -1169,7 +1227,7 @@ export default {
       // computes
       for (const compute of group.computes) {
         if (compute.type == "constant") {
-          this.properties.push({ name: compute.alias, values: compute.constantValue, isComputed: true, group });
+          this.properties.push({ name: compute.alias, values: compute.constantValues, isComputed: true, group });
         }
 
         if (compute.type == "concatenate") {
@@ -1191,10 +1249,10 @@ export default {
         }
       }
 
-      let objects = [];
       // grouping
+      let objects = [];
       var groupProperties = group.properties.map(x => {
-        var property = this.properties.find(y => y.name == x.from);
+        var property = this.properties.find(y => y.name == x.ref);
         return { name: property.name, values: property.values, alias: x.alias };
       });
       if (groupProperties.some(x => !x)) return;
@@ -1210,7 +1268,7 @@ export default {
 
       // partitions
       var partitionProperties = group.partitions.map(x => {
-        var property = this.properties.find(y => y.name == x.from);
+        var property = this.properties.find(y => y.name == x.ref);
         return { name: property.name, values: property.values, alias: x.alias };
       });
       for (const property of partitionProperties) {
@@ -1228,9 +1286,9 @@ export default {
         }
       }
 
-      // enrichment
-      for (const enrichment of group.enrichments) {
-        var property = this.properties.find(y => y.name == enrichment.from);
+      // mappigns
+      for (const enrichment of group.mappings) {
+        var property = this.properties.find(y => y.name == enrichment.ref);
         var enrichmentProperty = { name: property.name, values: property.values, alias: enrichment.alias };
 
         for (const object of objects) {

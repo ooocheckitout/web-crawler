@@ -3,9 +3,9 @@
     <div class="flex flex-row min-h-screen">
       <div class="w-1/2 p-4 border">
         <p class="text-lg font-bold">Schema</p>
-        <DynamicTable :objects="properties" :key="isLoaded" />
+        <DynamicTable :objects="contextProperties" :key="isLoaded" />
         <p class="text-lg font-bold">Data</p>
-        <DynamicTable :objects="datas" :columns="['*', 'values.length']" />
+        <DynamicTable :objects="datas" />
         <p class="text-lg font-bold">Suggestions</p>
         <DynamicTable
           :objects="suggestions"
@@ -45,9 +45,11 @@ export default {
       isLoaded: true,
       viewerUrl: null,
       contextDocument: null,
+      contextElementXPath: null,
       selectedElements: [],
       suggestedElements: [],
       properties: [],
+      contextProperties: [],
       overwatch_properties: [
         {
           name: "Username",
@@ -120,6 +122,14 @@ export default {
       deep: true,
       handler(current, previous) {
         this.updateProperties();
+
+        this.contextProperties = this.properties.map(x => {
+          return {
+            name: x.name,
+            xpath: x.xpath.replace(this.contextElementXPath, "/html/body"),
+            attribute: x.attribute,
+          };
+        });
       },
     },
   },
@@ -140,7 +150,6 @@ export default {
 
     selectHandler(element) {
       let xpath = xpathService.getElementTreeXPath(element);
-
       let property = {
         name: `Property-${this.properties.length + 1}`,
         xpath,
@@ -155,6 +164,7 @@ export default {
       for (const property of this.properties) {
         let originalXpath = property.xpath;
         let originalElements = xpathService.evaluateXPath(this.contextDocument, originalXpath);
+        console.log(originalElements);
 
         // selected elements
         this.selectedElements = originalElements;
@@ -165,7 +175,10 @@ export default {
         let childSuggestedXpaths = childElementsXpaths.flatMap(x => this.suggestXpaths(x));
 
         // TODO: parent suggestions
-        // example: /html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[@class='stat-item']/p[1]
+        // example:
+
+        // TODO: attribute suggestions
+        // example:
 
         // TODO: text suggestions
         // example: /html/body/div/div/div/div[1]/div[1]/div/div/div[2]/div[1]/div/div[3]/div[1]/div[2]/div[1]/text()[2]
@@ -195,7 +208,7 @@ export default {
 
         // data
         this.datas.push({
-          property: property.name,
+          name: property.name,
           values: property.attribute
             ? originalElements.map(x => x.attributes[property.attribute].value)
             : originalElements.map(x => x.innerText),
@@ -218,9 +231,21 @@ export default {
       return suggestedXpaths;
     },
 
-    loadedHandler(contextDocument) {
+    loadedHandler(contextDocument, viewerXpath) {
+      this.contextElementXPath = viewerXpath;
       this.contextDocument = contextDocument;
+
       this.isLoaded = true;
+
+      // this.properties = this.overwatch_properties;
+      this.properties = [
+        {
+          name: "Property-1",
+          xpath: "/html/body/div/div/div/div/div[1]/div/div/div[2]/div[1]/div[1]/div/div[9]/ul/li/div[2]/a",
+          attribute: "href",
+        },
+      ];
+
       this.updateProperties();
     },
   },

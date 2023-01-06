@@ -13,38 +13,38 @@ public class CollectionFactory
         _fileReader = fileReader;
     }
 
-    public async Task<Collection> GetSingleAsync(string collectionName)
+    public async Task<Collection> GetSingleAsync(string collectionName, CancellationToken cancellationToken)
     {
         return new Collection
         {
             Name = collectionName,
-            Urls = await GetUrlsAsync(collectionName),
-            ParserSchema = await GetParserSchemasAsync(collectionName),
-            TransformerSchema = await GetTransformerSchemasAsync(collectionName)
+            Urls = await GetUrlsAsync(collectionName, cancellationToken),
+            ParserSchema = await GetParserSchemasAsync(collectionName, cancellationToken),
+            TransformerSchema = await GetTransformerSchemasAsync(collectionName, cancellationToken)
         };
     }
 
-    public Task<Collection[]> GetAllAsync()
+    public Task<Collection[]> GetAllAsync(CancellationToken cancellationToken)
     {
         var collections = Directory.EnumerateDirectories(_locator.GetRoot()).Select(x => Path.GetFileName(x)!);
-        return Task.WhenAll(collections.Select(GetSingleAsync));
+        return Task.WhenAll(collections.Select(x => GetSingleAsync(x, cancellationToken)));
     }
 
-    Task<IEnumerable<string>> GetUrlsAsync(string collectionName)
+    Task<IEnumerable<string>> GetUrlsAsync(string collectionName, CancellationToken cancellationToken)
     {
         string location = _locator.GetUrlsLocation(collectionName);
-        return _fileReader.ReadJsonAsync<IEnumerable<string>>(location);
+        return _fileReader.ReadJsonAsync<IEnumerable<string>>(location, cancellationToken);
     }
 
-    Task<ParserSchema> GetParserSchemasAsync(string collectionName)
+    Task<ParserSchema> GetParserSchemasAsync(string collectionName, CancellationToken cancellationToken)
     {
         string location = _locator.GetSchemaLocation(collectionName, Medallion.Bronze);
-        return _fileReader.ReadJsonAsync<ParserSchema>(location);
+        return _fileReader.ReadJsonAsync<ParserSchema>(location, cancellationToken);
     }
 
-    Task<TransformerSchema> GetTransformerSchemasAsync(string collectionName)
+    Task<TransformerSchema> GetTransformerSchemasAsync(string collectionName, CancellationToken cancellationToken)
     {
         string location = _locator.GetSchemaLocation(collectionName, Medallion.Silver);
-        return _fileReader.ReadJsonAsync<TransformerSchema>(location);
+        return _fileReader.ReadJsonAsync<TransformerSchema>(location, cancellationToken);
     }
 }

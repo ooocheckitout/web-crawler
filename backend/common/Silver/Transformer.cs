@@ -4,66 +4,120 @@ public class Transformer
 {
     public IEnumerable<IDictionary<string, object>> Transform(Data data, TransformerSchema schema)
     {
-        var properties = data.Select(item => new Property
-        {
-            Name = item.Key,
-            Values = item.Value.ToList()
-        }).ToList();
+        var properties = data.Select(x => new Property { Name = x.Name, Values = x.Values }).ToList();
 
         foreach (var group in schema)
         {
-            int numberOfElements = group.Properties
-                .SelectMany(p => properties.Where(y => y.Name == p))
-                .Max(x => x.Values.Count);
+            // computes
+            foreach (var compute in group.Computes)
+            {
+                if (compute.Type == "constant")
+                {
+                    properties.Add(new Property
+                    {
+                        Name = compute.Alias,
+                        Values = compute.ConstantValues.ToList()
+                    });
+                }
 
+                if (compute.Type == "concatenate")
+                {
+                    var computeProperties = compute.Properties.Select(x =>
+                    {
+                        var property = properties.Single(y => y.Name == x);
+                        return new TransformProperty { Name = property.Name, Values = property.Values, Alias = compute.Alias };
+                    }).ToList();
+
+                    int maxLength = computeProperties.Max(x => x.Values.Count);
+
+                    var filledProperties = new List<Property>();
+                    foreach (var property in computeProperties)
+                    {
+                        if (property.Values.Count == 1)
+                        {
+                            filledProperties.Add(new Property { Name = property.Name, Values = Enumerable.Repeat(property.Values[0], maxLength).ToList() });
+                            continue;
+                        }
+
+                        filledProperties.Add(property);
+                    }
+
+                    var concatenations = new List<string>();
+                    for (var concatIndex = 0; concatIndex < maxLength; concatIndex++)
+                    {
+                        var values = filledProperties.Select(property => property.Values[concatIndex]).ToList();
+                        concatenations.Add(string.Join(compute.Separator, values));
+                    }
+
+                    properties.Add(new Property
+                    {
+                        Name = compute.Alias,
+                        Values = concatenations
+                    });
+                }
+            }
+
+
+            // groupings
             var objects = new List<IDictionary<string, object>>();
-            for (var objectIndex = 0; objectIndex < numberOfElements; objectIndex++)
+            var groupProperties = group.Properties.Select(x =>
+            {
+                var property = properties.Single(y => y.Name == x.Ref);
+                return new TransformProperty { Name = property.Name, Values = property.Values, Alias = x.Alias };
+            }).ToList();
+
+            if (!groupProperties.Any()) continue;
+
+            int numberOfElements = groupProperties.Max(x => x.Values.Count);
+
+            for (var index = 0; index < numberOfElements; index++)
             {
                 var obj = new Dictionary<string, object>();
-                foreach (var property in group.Properties.SelectMany(p => properties.Where(y => y.Name == p)))
+                foreach (var property in groupProperties)
                 {
-                    obj[property.Alias ?? property.Name] = property.Values[objectIndex];
+                    obj[property.Alias!] = property.Values[index];
                 }
 
                 objects.Add(obj);
             }
 
-            if (group.PartitionBy is not null)
+            // partitions
+            var partitionProperties = group.Partitions.Select(x =>
             {
-                var property = properties.Single(y => y.Name == group.PartitionBy);
+                var property = properties.Single(y => y.Name == x.Ref);
+                return new TransformProperty { Name = property.Name, Values = property.Values, Alias = x.Alias };
+            });
+            foreach (var property in partitionProperties)
+            {
                 int numberOfObjects = objects.Count;
                 int numberOfPartitions = property.Values.Count;
                 int numberOfElementsInPartition = numberOfObjects / numberOfPartitions;
 
-                for (var partitionIndex = 0; partitionIndex < numberOfPartitions; partitionIndex++)
+                for (var index = 0; index < numberOfPartitions; index++)
                 {
-                    int from = partitionIndex * numberOfElementsInPartition;
+                    int from = index * numberOfElementsInPartition;
                     int to = from + numberOfElementsInPartition;
 
                     foreach (var obj in objects.Take(new Range(from, to)))
                     {
-                        obj[property.Name] = property.Values[partitionIndex];
+                        obj[property.Alias!] = property.Values[index];
                     }
                 }
             }
 
-            foreach (var map in group.Enrichments)
+            // mappigns
+            foreach (var mapping in group.Mappings)
             {
-                var property = properties.Single(y => y.Name == map.From);
+                var property = properties.Single(y => y.Name == mapping.Ref);
+                var enrichmentProperty = new TransformProperty { Name = property.Name, Values = property.Values, Alias = mapping.Alias };
+
                 foreach (var obj in objects)
                 {
-                    obj[property.Name] = property.Values[map.AtIndex];
+                    obj[enrichmentProperty.Alias] = enrichmentProperty.Values[mapping.AtIndex];
                 }
             }
 
-            foreach (var constant in group.Constants)
-            {
-                foreach (var obj in objects)
-                {
-                    obj[constant.Name] = constant.Value;
-                }
-            }
-
+            // yield
             foreach (var obj in objects)
             {
                 yield return obj;
