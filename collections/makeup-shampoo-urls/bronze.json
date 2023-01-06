@@ -1,0 +1,12 @@
+[
+  {
+    "name": "RelativeUrl",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[9]/ul/li/div[2]/a",
+    "attribute": "href"
+  },
+  {
+    "name": "Host",
+    "staticValue": "https://makeup.com.ua",
+    "isStatic": true
+  }
+]
