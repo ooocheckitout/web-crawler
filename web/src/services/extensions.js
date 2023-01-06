@@ -44,7 +44,7 @@ Object.defineProperty(Array.prototype, "compare", {
 
     let lengthComparison = this.length === arr.length;
     let elementComparison = this.every(
-      (inner, index) => JSON.stringify(inner) === JSON.stringify(arr[index])
+      (inner, index) => inner === arr[index]
     );
 
     return lengthComparison && elementComparison

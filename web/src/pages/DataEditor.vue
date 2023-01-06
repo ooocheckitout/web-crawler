@@ -3,7 +3,12 @@
     <div class="flex flex-row p-2 space-x-2">
       <div class="w-1/2 space-y-2">
         <p>Properties</p>
-        <div v-for="(property, index) in properties" :key="index" class="p-2 border-2 border-sky-100">
+        <div
+          v-for="(property, index) in properties"
+          :key="index"
+          class="p-2 border-2"
+          :class="{ 'border-sky-100': !property.isComputed, 'border-stone-400': property.isComputed }"
+        >
           {{ property.name }}
         </div>
       </div>
@@ -11,28 +16,38 @@
         <p>Groups</p>
         <div v-for="(group, index) in groups" :key="index" class="flex flex-col space-y-2">
           <div class="p-2 border-2 border-indigo-400">
-            {{ group.name }}<span v-if="group.over"> partitioned by {{ group.over.name }}</span>
+            {{ group.name }}
           </div>
+
           <div class="flex flex-col space-y-2">
-            <div v-for="(property, index) in group.properties" :key="index" class="p-2 ml-4 border-2 border-sky-200">
-              {{ property.alias }} from {{ property.from.name }}
+            <div
+              v-for="(partition, index) in group.partitions"
+              :key="index"
+              class="p-2 ml-4 border-2 border-red-200"
+              :title="`Partition property from ${partition.from}`"
+            >
+              {{ partition.alias }}
             </div>
           </div>
+
+          <div class="flex flex-col space-y-2">
+            <div
+              v-for="(property, index) in group.properties"
+              :key="index"
+              class="p-2 ml-4 border-2 border-sky-200"
+              :title="`Grouping property from ${property.from}`"
+            >
+              {{ property.alias }}
+            </div>
+          </div>
+
           <div
             class="p-2 ml-4 border-2 border-teal-200"
-            v-for="(mapping, index) in group.mapping"
+            v-for="(enrichment, index) in group.enrichments"
             :key="index"
-            title="Mapping field"
+            :title="`Mapping property from ${enrichment.from} at index ${enrichment.atIndex}`"
           >
-            {{ mapping.from.name }} at index {{ mapping.atIndex }}
-          </div>
-          <div
-            class="p-2 ml-4 border-2 border-orange-200"
-            v-for="(constant, index) in group.constants"
-            :key="index"
-            title="Constant field"
-          >
-            {{ constant.name }} with constant value {{ constant.value }}
+            {{ enrichment.alias }}
           </div>
         </div>
       </div>
@@ -40,18 +55,24 @@
     <div class="flex flex-row p-2 space-x-2">
       <div class="w-1/2">
         <p>Original</p>
-        <pre>{{ properties }}</pre>
+        <DynamicTable :objects="properties"></DynamicTable>
       </div>
       <div class="w-1/2">
         <p>Preview</p>
-        <pre>{{ preview }}</pre>
+        <DynamicTable :objects="preview"></DynamicTable>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import DynamicTable from "@/components/DynamicTable.vue";
+
 export default {
+  components: {
+    DynamicTable,
+  },
+
   data() {
     return {
       datas: [],
@@ -1078,124 +1099,150 @@ export default {
           "values.length": 74,
         },
       ],
-      transformed: [],
-      properties: [],
       groups: [],
+      overwatch_groups: [
+        {
+          name: "PC QuickPlay TopHero HeroStatistic",
+          computes: [
+            { type: "constant", alias: "Host", constantValue: ["https://overwatch.blizzard.com"] },
+            {
+              type: "concatenate",
+              properties: ["TopHero_QuickPlay_Hero", "TopHero_QuickPlay_Statistic"],
+              separator: " ",
+              alias: "HeroValue",
+            },
+          ],
+          properties: [
+            { alias: "Hero", from: "TopHero_QuickPlay_Hero" },
+            { alias: "Value", from: "TopHero_QuickPlay_Statistic" },
+            { alias: "HeroValue", from: "HeroValue" },
+          ],
+          partitions: [{ alias: "Category", from: "TopHero_Category" }],
+          enrichments: [
+            { alias: "Username", from: "Username", atIndex: 0 },
+            { alias: "Platform", from: "Platform", atIndex: 0 },
+            { alias: "GameMode", from: "GameMode", atIndex: 0 },
+          ],
+        },
+        {
+          name: "PC CompetitivePlay TopHero HeroStatistic",
+          computes: [],
+          properties: [
+            { alias: "Hero", from: "TopHero_CompetitivePlay_Hero" },
+            { alias: "Value", from: "TopHero_CompetitivePlay_Value" },
+          ],
+          partitions: [{ alias: "Category", from: "TopHero_Category" }],
+          enrichments: [
+            { alias: "Username", from: "Username", atIndex: 0 },
+            { alias: "Platform", from: "Platform", atIndex: 0 },
+            { alias: "GameMode", from: "GameMode", atIndex: 1 },
+          ],
+        },
+      ],
+      properties: [],
       preview: [],
     };
   },
 
+  methods: {
+    fillValues(property, length) {
+      let values = property.values;
+
+      if (values.length == 1) values = Array(length).fill(values[0]);
+
+      return { name: property.name, values: values };
+    },
+  },
+
   created() {
+    // this.datas = this.overwatch_datas;
+    // this.groups = this.overwatch_groups;
+
     this.properties = this.datas.map(x => {
       return { name: x.property, values: x.values };
     });
 
     if (this.properties.length == 0) return;
 
-    let groupedProperties = this.properties.reduce((acc, property) => {
-      let lengthKey = property.values.length;
-      let item = (acc[lengthKey] ??= []);
-      item.push(property);
-      return acc;
-    }, {});
-
-    console.log("groupedProperties", groupedProperties);
-
-    this.overwatch_groups = [
-      {
-        name: "PC QuickPlay HeroStatistics",
-        over: this.properties.find(x => x.name == "TopHero_Category"),
-        properties: [
-          { from: this.properties.find(x => x.name == "TopHero_QuickPlay_Hero"), alias: "Hero" },
-          { from: this.properties.find(x => x.name == "TopHero_QuickPlay_Statistic"), alias: "Statistic" },
-        ],
-        mapping: [
-          { from: this.properties.find(x => x.name == "GameMode"), atIndex: 0 },
-          { from: this.properties.find(x => x.name == "Platform"), atIndex: 0 },
-          { from: this.properties.find(x => x.name == "Username"), atIndex: 0 },
-        ],
-        constants: [{ name: "Host", value: "https://overwatch.blizzard.com" }],
-      },
-      {
-        name: "PC CompetitivePlay HeroStatistics",
-        over: this.properties.find(x => x.name == "TopHero_Category"),
-        properties: [
-          { from: this.properties.find(x => x.name == "TopHero_CompetitivePlay_Hero"), alias: "Hero" },
-          { from: this.properties.find(x => x.name == "TopHero_CompetitivePlay_Value"), alias: "Statistic" },
-        ],
-        mapping: [
-          { from: this.properties.find(x => x.name == "GameMode"), atIndex: 0 },
-          { from: this.properties.find(x => x.name == "Platform"), atIndex: 0 },
-          { from: this.properties.find(x => x.name == "Username"), atIndex: 0 },
-        ],
-      },
-      {
-        name: "PC QuickPlay CareerStatistics All",
-        properties: [
-          { from: this.properties.find(x => x.name == "CareerStats_QuickPlay_All_Title"), alias: "Hero" },
-          { from: this.properties.find(x => x.name == "CareerStats_QuickPlay_All_Values"), alias: "Statistic" },
-        ],
-      },
-      {
-        name: "PC QuickPlay CareerStatistics Ana",
-        properties: [
-          { from: this.properties.find(x => x.name == "CareerStats_QuickPlay_Ana_Title"), alias: "Hero" },
-          { from: this.properties.find(x => x.name == "CareerStats_QuickPlay_Ana_Values"), alias: "Statistic" },
-        ],
-      },
-    ];
-
-    this.groups = [];
-
     let results = [];
     for (const group of this.groups) {
-      let numberOfElements = Math.max(...group.properties.map(x => x.from.values.length));
-
-      let objects = [];
-      for (let index = 0; index < numberOfElements; index++) {
-        let object = {};
-
-        for (const groupProperty of group.properties) {
-          object[groupProperty.alias ?? groupProperty.from.name] = groupProperty.from.values[index];
+      // computes
+      for (const compute of group.computes) {
+        if (compute.type == "constant") {
+          this.properties.push({ name: compute.alias, values: compute.constantValue, isComputed: true, group });
         }
 
+        if (compute.type == "concatenate") {
+          let computeProperties = compute.properties.map(x => this.properties.find(y => y.name == x));
+
+          var maxLength = Math.max(...computeProperties.map(x => x.values.length));
+          var filledProperties = computeProperties.map(x => this.fillValues(x, maxLength));
+
+          let concatenations = [];
+          for (let index = 0; index < maxLength; index++) {
+            let values = [];
+            for (const property of filledProperties) {
+              values.push(property.values[index]);
+            }
+            concatenations.push(values.join(compute.separator));
+          }
+
+          this.properties.push({ name: compute.alias, values: concatenations, isComputed: true, group });
+        }
+      }
+
+      let objects = [];
+      // grouping
+      var groupProperties = group.properties.map(x => {
+        var property = this.properties.find(y => y.name == x.from);
+        return { name: property.name, values: property.values, alias: x.alias };
+      });
+      if (groupProperties.some(x => !x)) return;
+      let numberOfElements = Math.max(...groupProperties.map(x => x.values.length));
+
+      for (let index = 0; index < numberOfElements; index++) {
+        let object = {};
+        for (const property of groupProperties) {
+          object[property.alias] = property.values[index];
+        }
         objects.push(object);
       }
 
-      if (group.over) {
+      // partitions
+      var partitionProperties = group.partitions.map(x => {
+        var property = this.properties.find(y => y.name == x.from);
+        return { name: property.name, values: property.values, alias: x.alias };
+      });
+      for (const property of partitionProperties) {
         let numberOfObjects = objects.length;
-        let numberOfPartitions = group.over.values.length;
+        let numberOfPartitions = property.values.length;
         let numberOfElementsInPartition = numberOfObjects / numberOfPartitions;
 
         for (let index = 0; index < numberOfPartitions; index++) {
           let from = index * numberOfElementsInPartition;
           let to = from + numberOfElementsInPartition;
 
-          for (const partitionedObject of objects.slice(from, to)) {
-            partitionedObject[group.over.name] = group.over.values[index];
+          for (const object of objects.slice(from, to)) {
+            object[property.alias] = property.values[index];
           }
         }
       }
 
-      if (group.mapping) {
-        for (const mapping of group.mapping) {
-          for (const object of objects) {
-            object[mapping.from.name] = mapping.from.values[mapping.atIndex];
-          }
+      // enrichment
+      for (const enrichment of group.enrichments) {
+        var property = this.properties.find(y => y.name == enrichment.from);
+        var enrichmentProperty = { name: property.name, values: property.values, alias: enrichment.alias };
+
+        for (const object of objects) {
+          object[enrichmentProperty.alias] = enrichmentProperty.values[enrichment.atIndex];
         }
       }
 
-      if (group.constants) {
-        for (const constant of group.constants) {
-          for (const object of objects) {
-            object[constant.name] = constant.value;
-          }
-        }
-      }
-
-      results.push({ name: group.name, values: objects });
+      console.log("objects.length", objects.length);
+      results.push(...objects);
     }
 
+    console.log("results.length", results.length);
     this.preview = results;
   },
 };

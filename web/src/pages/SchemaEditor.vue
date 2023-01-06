@@ -4,6 +4,8 @@
       <div class="w-1/2 p-4 border">
         <p class="text-lg font-bold">Schema</p>
         <DynamicTable :objects="properties" :key="isLoaded" />
+        <p class="text-lg font-bold">Data</p>
+        <DynamicTable :objects="datas" :columns="['*', 'values.length']" />
         <p class="text-lg font-bold">Suggestions</p>
         <DynamicTable
           :objects="suggestions"
@@ -12,8 +14,6 @@
           @itemMouseOut="unhighlightSuggestionHandler"
           @itemClick="applySuggestionHandler"
         />
-        <p class="text-lg font-bold">Data</p>
-        <DynamicTable :objects="datas" :columns="['*', 'values.length']" />
       </div>
       <div class="w-1/2 p-4 border">
         <IFrameViewer
@@ -31,7 +31,6 @@
 
 <script>
 import DynamicTable from "@/components/DynamicTable.vue";
-
 import IFrameViewer from "@/components/IFrameViewer.vue";
 import xpathService from "@/services/xpath";
 
@@ -128,6 +127,7 @@ export default {
   methods: {
     applySuggestionHandler(suggestion) {
       suggestion.property.xpath = suggestion.suggestedXpath;
+      this.unhighlightSuggestionHandler(suggestion);
     },
 
     highlightSuggestionHandler(suggestion) {
@@ -157,12 +157,18 @@ export default {
         let originalElements = xpathService.evaluateXPath(this.contextDocument, originalXpath);
 
         // selected elements
-        this.selectedElements.push(originalElements);
+        this.selectedElements = originalElements;
 
         // child suggestions
-        let childElements = originalElements.filter(x => x.children.length > 0).flatMap(x => Array.from(x));
+        let childElements = originalElements.filter(x => x.children.length > 0).flatMap(x => Array.from(x.children));
         let childElementsXpaths = childElements.map(x => xpathService.getElementXPath(x));
         let childSuggestedXpaths = childElementsXpaths.flatMap(x => this.suggestXpaths(x));
+
+        // TODO: parent suggestions
+        // example: /html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[@class='stat-item']/p[1]
+
+        // TODO: text suggestions
+        // example: /html/body/div/div/div/div[1]/div[1]/div/div/div[2]/div[1]/div/div[3]/div[1]/div[2]/div[1]/text()[2]
 
         // TODO: class suggestions
         // example: /html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[@class='stat-item']/p[1]
@@ -174,10 +180,15 @@ export default {
         // xpath suggestions
         let originalSuggestedXpaths = this.suggestXpaths(originalXpath);
         for (const suggestedXpath of originalSuggestedXpaths.concat(childSuggestedXpaths)) {
-          if (this.suggestions.find(x => x.suggestedXpath == suggestedXpath)) continue;
+          if (this.suggestions.find(x => x.suggestedXpath == suggestedXpath)) continue; // same suggested xpath
 
           let suggestedElements = xpathService.evaluateXPath(this.contextDocument, suggestedXpath);
-          if (suggestedElements.length == 0 || originalElements.compare(suggestedElements)) continue;
+
+          if (originalElements.compare(suggestedElements)) continue; // same elements as original
+
+          if (this.suggestions.find(x => x.suggestedElements.compare(suggestedElements))) continue; // same elements
+
+          if (suggestedElements.length == 0 || suggestedElements.length > 1000) continue; // too little or too many results
 
           this.suggestions.push({ property, originalElements, suggestedXpath, suggestedElements });
         }
@@ -185,7 +196,9 @@ export default {
         // data
         this.datas.push({
           property: property.name,
-          values: originalElements.map(x => x.innerText),
+          values: property.attribute
+            ? originalElements.map(x => x.attributes[property.attribute].value)
+            : originalElements.map(x => x.innerText),
         });
       }
 
