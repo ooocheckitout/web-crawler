@@ -38,36 +38,19 @@ export default {
       immediate: true,
       deep: true,
       handler(current, previous) {
-        if (!previous) previous = [];
-        if (!current) current = [];
-
-        for (const element of previous) {
-          const highlightClass = "!bg-red-500";
-          highlightService.unhighlight(element, highlightClass);
-        }
-
-        for (const element of current) {
-          const highlightClass = "!bg-red-500";
-          highlightService.highlight(element, highlightClass);
-        }
+        const highlightClass = "!bg-red-500";
+        highlightService.unhighlight(previous, highlightClass);
+        highlightService.highlight(current, highlightClass);
       },
     },
+
     previewElements: {
       immediate: true,
       deep: true,
       handler(current, previous) {
-        if (!previous) previous = [];
-        if (!current) current = [];
-
-        for (const element of previous) {
-          const highlightClass = "!bg-indigo-500";
-          highlightService.unhighlight(element, highlightClass);
-        }
-
-        for (const element of current) {
-          const highlightClass = "!bg-indigo-500";
-          highlightService.highlight(element, highlightClass);
-        }
+        const highlightClass = "!bg-indigo-500";
+        highlightService.unhighlight(previous, highlightClass);
+        highlightService.highlight(current, highlightClass);
       },
     },
   },

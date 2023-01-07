@@ -9,7 +9,7 @@
         <p class="text-lg font-bold">Suggestions</p>
         <DynamicTable
           :objects="suggestions"
-          :columns="['property.name', 'suggestedXpath', 'suggestedElements.length']"
+          :columns="['property.name', 'suggestedXpath', 'suggestedElements.length', 'from']"
           @itemMouseOver="highlightSuggestionHandler"
           @itemMouseOut="unhighlightSuggestionHandler"
           @itemClick="applySuggestionHandler"
@@ -33,6 +33,7 @@
 import DynamicTable from "@/components/DynamicTable.vue";
 import IFrameViewer from "@/components/IFrameViewer.vue";
 import xpathService from "@/services/xpath";
+import suggestionService from "@/services/suggestions";
 
 export default {
   components: {
@@ -160,53 +161,45 @@ export default {
     updateProperties() {
       this.suggestions = [];
       this.datas = [];
+      this.selectedElements = [];
 
       for (const property of this.properties) {
         let originalXpath = property.xpath;
         let originalElements = xpathService.evaluateXPath(this.contextDocument, originalXpath);
-        console.log(originalElements);
 
-        // selected elements
-        this.selectedElements = originalElements;
+        this.selectedElements.push(...originalElements);
 
-        // child suggestions
-        let childElements = originalElements.filter(x => x.children.length > 0).flatMap(x => Array.from(x.children));
-        let childElementsXpaths = childElements.map(x => xpathService.getElementXPath(x));
-        let childSuggestedXpaths = childElementsXpaths.flatMap(x => this.suggestXpaths(x));
+        let suggestions = [
+          { type: "attribute", xpaths: suggestionService.suggestAttribute(originalXpath) },
+          { type: "text", xpaths: suggestionService.suggestText(originalXpath) },
+          { type: "parent", xpaths: suggestionService.suggestParent(originalXpath, this.contextDocument) },
+          { type: "children", xpaths: suggestionService.suggestChildren(originalXpath, this.contextDocument) },
+          { type: "changeIndex", xpaths: suggestionService.suggestChangeIndex(originalXpath) },
+          { type: "removeIndex", xpaths: suggestionService.suggestRemoveIndex(originalXpath) },
+        ];
 
-        // TODO: parent suggestions
-        // example:
+        for (const suggestion of suggestions) {
+          for (const suggestedXpath of suggestion.xpaths) {
+            if (this.suggestions.find(x => x.suggestedXpath == suggestedXpath)) continue; // was already suggested
 
-        // TODO: attribute suggestions
-        // example:
+            let suggestedElements = xpathService.evaluateXPath(this.contextDocument, suggestedXpath);
 
-        // TODO: text suggestions
-        // example: /html/body/div/div/div/div[1]/div[1]/div/div/div[2]/div[1]/div/div[3]/div[1]/div[2]/div[1]/text()[2]
+            if (originalElements.compare(suggestedElements)) continue; // same results as the original xpath
 
-        // TODO: class suggestions
-        // example: /html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[@class='stat-item']/p[1]
+            if (this.suggestions.find(x => x.suggestedElements.compare(suggestedElements))) continue; // results were already suggested
 
-        // TODO: xpath similarity suggestions
-        // example1: /html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[1]/div/div/div[1]/p
-        // example2: /html/body/div/div/div/div[1]/div[1]/blz-section[2]/span[2]/div/div/div[1]/p
+            if (suggestedElements.length == 0 || suggestedElements.length > 1000) continue; // too little or too many results
 
-        // xpath suggestions
-        let originalSuggestedXpaths = this.suggestXpaths(originalXpath);
-        for (const suggestedXpath of originalSuggestedXpaths.concat(childSuggestedXpaths)) {
-          if (this.suggestions.find(x => x.suggestedXpath == suggestedXpath)) continue; // same suggested xpath
-
-          let suggestedElements = xpathService.evaluateXPath(this.contextDocument, suggestedXpath);
-
-          if (originalElements.compare(suggestedElements)) continue; // same elements as original
-
-          if (this.suggestions.find(x => x.suggestedElements.compare(suggestedElements))) continue; // same elements
-
-          if (suggestedElements.length == 0 || suggestedElements.length > 1000) continue; // too little or too many results
-
-          this.suggestions.push({ property, originalElements, suggestedXpath, suggestedElements });
+            this.suggestions.push({
+              property,
+              originalElements,
+              suggestedXpath,
+              suggestedElements,
+              from: suggestion.type,
+            });
+          }
         }
 
-        // data
         this.datas.push({
           name: property.name,
           values: property.attribute
@@ -217,18 +210,6 @@ export default {
 
       console.log("suggestions", this.suggestions);
       console.log("datas", this.datas);
-    },
-
-    suggestXpaths(originalXpath) {
-      const matchedXpathIndexes = [...originalXpath.matchAll(/\[.*?\]/g)];
-
-      var suggestedXpaths = matchedXpathIndexes.map(match => {
-        let before = originalXpath.substring(0, match.index);
-        let after = originalXpath.substring(match.index + match[0].length, originalXpath.length);
-        return before + after;
-      });
-
-      return suggestedXpaths;
     },
 
     loadedHandler(contextDocument, viewerXpath) {
