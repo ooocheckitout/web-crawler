@@ -1,27 +1,30 @@
 <template>
   <table class="w-full table-auto">
+    <caption>{{ caption }}</caption>
     <thead>
       <tr v-if="objects.length == 0">
         No elements.
       </tr>
       <tr v-else class="bg-stone-100 hover:bg-slate-200 cursor-copy" @click="copyHandler">
-        <th v-for="(key, keyIndex) in keys" :key="keyIndex" class="p-4 text-left">{{ key }}</th>
+        <th v-for="(key, keyIndex) in displayColumns" :key="keyIndex" class="p-4 text-left">{{ key }}</th>
         <th>✂️</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(object, objectIndex) in objects" :key="objectIndex" class="hover:bg-slate-100">
+      <tr v-for="(object, objectIndex) in displayObjects" :key="objectIndex" class="hover:bg-slate-100">
         <td
-          v-for="(key, keyIndex) in keys"
+          v-for="(key, keyIndex) in displayColumns"
           :key="keyIndex"
           class="p-4"
           @mouseover="mouseOverHandler(object)"
           @mouseout="mouseOutHandler(object)"
           @click="mouseClickHandler(object)"
         >
-          <p>{{ getValue(object, key) }}</p>
+          {{ getValue(object, key) }}
         </td>
+        <td></td>
       </tr>
+      <tr v-if="objects.length > limit" >Showing only {{ limit }} results...</tr>
     </tbody>
   </table>
 </template>
@@ -37,11 +40,20 @@ export default {
       type: Object,
       default: [],
     },
+    limit: {
+      type: Number,
+      default: 100,
+    },
+    caption: {
+      type: String,
+      default: null,
+    },
   },
 
   data() {
     return {
-      keys: [],
+      displayColumns: [],
+      displayObjects: [],
     };
   },
 
@@ -50,19 +62,18 @@ export default {
       immediate: true,
       deep: true,
       handler(current, previous) {
-        let columns = this.objects.flatMap(x => Object.keys(x)).uniqueBy(x => x);
+        let displayColumns = this.objects.flatMap(x => Object.keys(x)).uniqueBy(x => x);
 
-        if (this.columns.length != 0) {
-          var index = this.columns.indexOf("*");
-          if (index != -1) {
-            this.columns.splice(index, 1);
-            columns = columns.concat(this.columns);
-          } else {
-            columns = this.columns;
-          }
+        var asterixIndex = this.columns.indexOf("*");
+        if (this.columns.length > 0 && asterixIndex == -1) {
+          this.displayColumns = this.columns;
         }
-
-        this.keys = columns;
+        else {
+          this.columns.splice(asterixIndex, 1);
+          this.displayColumns = displayColumns.concat(this.columns);
+        }
+        
+        this.displayObjects = this.objects.slice(0, this.limit);
       },
     },
   },

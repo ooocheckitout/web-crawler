@@ -54,15 +54,20 @@
     </div>
     <div class="flex flex-row p-2 space-x-2">
       <div class="w-1/2">
-        <p>Original</p>
         <DynamicTable
           :objects="properties"
           :columns="['name', 'values', 'values.length', 'isComputed', 'group.name']"
-        ></DynamicTable>
+          caption="Properties"
+        />
       </div>
       <div class="w-1/2">
-        <p>Preview</p>
-        <DynamicTable :objects="preview"></DynamicTable>
+        <DynamicTable
+          v-for="(preview, index) in previews"
+          :key="index"
+          :objects="preview.values"
+          :caption="preview.name"
+          :limit="5"
+        />
       </div>
     </div>
   </div>
@@ -1135,7 +1140,7 @@ export default {
         },
       ],
       properties: [],
-      preview: [],
+      previews: [],
     };
   },
 
@@ -1184,7 +1189,7 @@ export default {
 
       var groupProperties = group.properties.map(x => {
         var property = this.properties.find(y => y.name == x.ref);
-        if (!property) throw `property for ${x.ref} not found`
+        if (!property) throw `property for ${x.ref} not found`;
 
         return { name: x.alias, values: property.values };
       });
@@ -1217,7 +1222,7 @@ export default {
     }
 
     console.log("results.length", results.length);
-    this.preview = results;
+    this.previews = results;
   },
 };
 </script>
