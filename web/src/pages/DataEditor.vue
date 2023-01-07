@@ -70,6 +70,7 @@
 
 <script>
 import DynamicTable from "@/components/DynamicTable.vue";
+import analyticsService from "@/services/analytics";
 
 export default {
   components: {
@@ -81,22 +82,22 @@ export default {
       datas: [],
       overwatch_datas: [
         {
-          property: "Username",
+          name: "Username",
           values: ["ezkatka"],
           "values.length": 1,
         },
         {
-          property: "GameMode",
+          name: "GameMode",
           values: ["Quick Play", "Competitive Play"],
           "values.length": 2,
         },
         {
-          property: "Platform",
+          name: "Platform",
           values: ["PC", "Console"],
           "values.length": 2,
         },
         {
-          property: "TopHero_Category",
+          name: "TopHero_Category",
           values: [
             "Time Played",
             "Games Won",
@@ -109,7 +110,7 @@ export default {
           "values.length": 7,
         },
         {
-          property: "TopHero_QuickPlay_Hero",
+          name: "TopHero_QuickPlay_Hero",
           values: [
             "MERCY",
             "MOIRA",
@@ -325,7 +326,7 @@ export default {
           "values.length": 210,
         },
         {
-          property: "TopHero_QuickPlay_Statistic",
+          name: "TopHero_QuickPlay_Statistic",
           values: [
             "04:22:54",
             "03:48:39",
@@ -541,7 +542,7 @@ export default {
           "values.length": 210,
         },
         {
-          property: "TopHero_CompetitivePlay_Hero",
+          name: "TopHero_CompetitivePlay_Hero",
           values: [
             "Orisa",
             "Zenyatta",
@@ -659,7 +660,7 @@ export default {
           "values.length": 112,
         },
         {
-          property: "TopHero_CompetitivePlay_Value",
+          name: "TopHero_CompetitivePlay_Value",
           values: [
             "17:25",
             "16:07",
@@ -777,7 +778,7 @@ export default {
           "values.length": 112,
         },
         {
-          property: "CareerStats_Category",
+          name: "CareerStats_Category",
           values: [
             "ALL HEROES",
             "Ana",
@@ -814,12 +815,12 @@ export default {
           "values.length": 31,
         },
         {
-          property: "CareerStats_QuickPlay_All_Group",
+          name: "CareerStats_QuickPlay_All_Group",
           values: ["Best", "Average", "Game", "Combat", "Assists"],
           "values.length": 5,
         },
         {
-          property: "CareerStats_QuickPlay_All_Title",
+          name: "CareerStats_QuickPlay_All_Title",
           values: [
             "Eliminations - Most in Game",
             "Final Blows - Most in Game",
@@ -878,7 +879,7 @@ export default {
           "values.length": 53,
         },
         {
-          property: "CareerStats_QuickPlay_All_Values",
+          name: "CareerStats_QuickPlay_All_Values",
           values: [
             "36",
             "16",
@@ -937,12 +938,12 @@ export default {
           "values.length": 53,
         },
         {
-          property: "CareerStats_QuickPlay_Ana_Group",
+          name: "CareerStats_QuickPlay_Ana_Group",
           values: ["Hero Specific", "Best", "Average", "Game", "Combat", "Assists"],
           "values.length": 6,
         },
         {
-          property: "CareerStats_QuickPlay_Ana_Title",
+          name: "CareerStats_QuickPlay_Ana_Title",
           values: [
             "Scoped Accuracy - Best in Game",
             "Self Healing",
@@ -1022,7 +1023,7 @@ export default {
           "values.length": 74,
         },
         {
-          property: "CareerStats_QuickPlay_Ana_Values",
+          name: "CareerStats_QuickPlay_Ana_Values",
           values: [
             "100%",
             "211",
@@ -1149,76 +1150,8 @@ export default {
   },
 
   created() {
-    this.datas = this.overwatch_datas;
+    this.properties = this.overwatch_datas;
     this.groups = this.overwatch_groups;
-
-    this.datas = [
-      {
-        name: "Property-1",
-        values: [
-          "/product/182877/",
-          "/product/125797/",
-          "/product/10727/",
-          "/product/39673/",
-          "/product/767170/",
-          "/product/169721/",
-          "/product/585177/",
-          "/product/473809/",
-          "/product/329757/",
-          "/product/202309/",
-          "/product/650949/",
-          "/product/730515/",
-          "/product/185823/",
-          "/product/10731/",
-          "/product/790444/",
-          "/product/202341/",
-          "/product/383629/",
-          "/product/202445/",
-          "/product/185851/",
-          "/product/152877/",
-          "/product/185411/",
-          "/product/100194/",
-          "/product/11097/",
-          "/product/34319/",
-          "/product/824829/",
-          "/product/270709/",
-          "/product/182875/",
-          "/product/185827/",
-          "/product/124289/",
-          "/product/130015/",
-          "/product/470169/",
-          "/product/202313/",
-          "/product/13111/",
-          "/product/1137945/",
-          "/product/974371/",
-          "/product/677413/",
-        ],
-      },
-    ];
-
-    this.groups = [
-      {
-        name: "DetailUrls",
-        computes: [
-          { type: "constant", alias: "Host", constantValues: ["https://makeup.com.ua"] },
-          {
-            type: "concatenate",
-            properties: ["Host", "Property-1"],
-            separator: "",
-            alias: "AbsoluteUrl",
-          },
-        ],
-        properties: [{ alias: "Url", ref: "AbsoluteUrl" }],
-        partitions: [],
-        mappings: [],
-      },
-    ];
-
-    console.log(this.groups);
-
-    this.properties = this.datas.map(x => {
-      return { name: x.name, values: x.values };
-    });
 
     if (this.properties.length == 0) return;
 
@@ -1249,50 +1182,33 @@ export default {
         }
       }
 
-      // grouping
-      let objects = [];
       var groupProperties = group.properties.map(x => {
         var property = this.properties.find(y => y.name == x.ref);
-        return { name: property.name, values: property.values, alias: x.alias };
+        if (!property) throw `property for ${x.ref} not found`
+
+        return { name: x.alias, values: property.values };
       });
-      if (groupProperties.some(x => !x)) return;
-      let numberOfElements = Math.max(...groupProperties.map(x => x.values.length));
 
-      for (let index = 0; index < numberOfElements; index++) {
-        let object = {};
-        for (const property of groupProperties) {
-          object[property.alias] = property.values[index];
-        }
-        objects.push(object);
-      }
+      let objects = analyticsService.group(groupProperties);
 
-      // partitions
       var partitionProperties = group.partitions.map(x => {
         var property = this.properties.find(y => y.name == x.ref);
-        return { name: property.name, values: property.values, alias: x.alias };
+        return { name: x.alias, values: property.values };
       });
-      for (const property of partitionProperties) {
-        let numberOfObjects = objects.length;
-        let numberOfPartitions = property.values.length;
-        let numberOfElementsInPartition = numberOfObjects / numberOfPartitions;
 
-        for (let index = 0; index < numberOfPartitions; index++) {
-          let from = index * numberOfElementsInPartition;
-          let to = from + numberOfElementsInPartition;
-
-          for (const object of objects.slice(from, to)) {
-            object[property.alias] = property.values[index];
-          }
+      let partitions = partitionProperties.flatMap(x => analyticsService.partition(objects, x));
+      for (const partition of partitions) {
+        for (const object of partition.objects) {
+          object[partition.key] = partition.value;
         }
       }
 
-      // mappigns
       for (const enrichment of group.mappings) {
         var property = this.properties.find(y => y.name == enrichment.ref);
-        var enrichmentProperty = { name: property.name, values: property.values, alias: enrichment.alias };
+        var enrichmentProperty = { name: enrichment.alias, values: property.values };
 
         for (const object of objects) {
-          object[enrichmentProperty.alias] = enrichmentProperty.values[enrichment.atIndex];
+          object[enrichmentProperty.name] = enrichmentProperty.values[enrichment.atIndex];
         }
       }
 
