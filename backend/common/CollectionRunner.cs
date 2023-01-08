@@ -39,7 +39,7 @@ public class CollectionRunner
         foreach (var urls in collection.Urls.Batch(10))
         {
             var tasks = new List<Task>();
-            foreach (string url in collection.Urls)
+            foreach (string url in urls)
             {
                 string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
                 if (File.Exists(htmlLocation))
