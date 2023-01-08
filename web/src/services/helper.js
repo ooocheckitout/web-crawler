@@ -5,9 +5,16 @@ export default {
 
     async waitAction(booleanAction, delayMs = 1000) {
         const triggerMeAgainIfNeeded = function (resolve) {
-            setTimeout(function () { booleanAction() ? resolve() : triggerMeAgainIfNeeded(); }, delayMs);
+            setTimeout(function () {
+                if (booleanAction()) {
+                    resolve()
+                }
+                else {
+                    console.log("still waiting");
+                    triggerMeAgainIfNeeded();
+                }
+            }, delayMs);
         }
-
 
         await (new Promise((resolve, _) => triggerMeAgainIfNeeded(resolve)))
     },

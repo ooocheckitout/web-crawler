@@ -84,13 +84,6 @@ export default {
   },
 
   async mounted() {
-    let iframeWindow = this.$refs.viewer.contentWindow;
-    iframeWindow.addEventListener("mouseover", this.highlightHandler);
-    iframeWindow.addEventListener("mouseout", this.unhighlightHandler);
-    iframeWindow.addEventListener("click", this.selectHandler);
-
-    await helperService.waitEvent(this.$refs.viewer, "load")
-
     let initialLength = this.$refs.viewer.contentWindow.document.styleSheets.length
     await helperService.waitAction(() => {
       return this.$refs.viewer.contentWindow.document.styleSheets.length > initialLength
@@ -107,6 +100,11 @@ export default {
     console.log(`transfered ${currentLastStylesheet.cssRules.length} rules`);
 
     this.$emit("loaded", this.$refs.viewer.contentWindow.document);
+    
+    let iframeWindow = this.$refs.viewer.contentWindow;
+    iframeWindow.addEventListener("mouseover", this.highlightHandler);
+    iframeWindow.addEventListener("mouseout", this.unhighlightHandler);
+    iframeWindow.addEventListener("click", this.selectHandler);
   },
 };
 </script>
