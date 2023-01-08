@@ -1,9 +1,10 @@
 <template>
-  <iframe ref="viewer" :src="viewerUrl" class="w-full h-full" frameborder="0"></iframe>
+  <iframe ref="viewer" :src="url" class="w-full h-full" frameborder="0"></iframe>
 </template>
 
 <script>
 import highlightService from "@/services/highlight";
+import helperService from "@/services/helper";
 
 export default {
   props: {
@@ -89,13 +90,40 @@ export default {
     },
   },
 
-  mounted() {
+  async mounted() {
     window.addEventListener("message", this.receiveMessage);
 
     let iframeWindow = this.$refs.viewer.contentWindow;
     iframeWindow.addEventListener("mouseover", this.highlightHandler);
     iframeWindow.addEventListener("mouseout", this.unhighlightHandler);
     iframeWindow.addEventListener("click", this.selectHandler);
+    iframeWindow.addEventListener("load", (ev) => console.log("1111", ev));
+    iframeWindow.addEventListener("DOMContentLoaded", (ev) => console.log("1111", ev));
+
+    let viewerDocument = iframeWindow.document
+    await helperService.waitForLoadAsync(iframeWindow)
+    await helperService.waitStylesheetsAsync(document);
+    await helperService.waitStylesheetsAsync(viewerDocument);
+
+    console.log(document.styleSheets);
+    console.log(viewerDocument.styleSheets);
+
+    let length = viewerDocument.styleSheets.length;
+    // while (viewerDocument.styleSheets.length === length) {
+    //   console.log(viewerDocument.styleSheets);
+    // }
+
+    console.log("changed", viewerDocument.styleSheets.length);
+
+    let currentLastStylesheet = document.styleSheets[document.styleSheets.length - 1]
+    let iframeLastStylesheet = viewerDocument.styleSheets[viewerDocument.styleSheets.length - 1]
+
+    for (const [index, cssRule] of Array.from(currentLastStylesheet.cssRules).entries()) {
+      iframeLastStylesheet.insertRule(cssRule.cssText, index)
+      console.log(cssRule.cssText, index);
+    }
+
+    console.log(iframeLastStylesheet, viewerDocument.styleSheets.length - 1);
   },
 
   beforeDestroy() {

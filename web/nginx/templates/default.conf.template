@@ -1,18 +1,27 @@
 server {
   listen ${NGINX_PORT};
-  server_name localhost;
+  server_name makeup.localhost;
 
-  location / {
-    proxy_pass http://host.docker.internal:8080/;
+   location / {
+    proxy_pass https://makeup.com.ua/;
+    proxy_hide_header X-Frame-Options;
   }
 
-  location /overwatch {
+  location /crawler {
+    proxy_pass http://host.docker.internal:8080/crawler;
+  }
+}
+
+server {
+  listen ${NGINX_PORT};
+  server_name overwatch.localhost;
+
+  location / {
     proxy_pass https://overwatch.blizzard.com/;
     proxy_hide_header X-Frame-Options;
   }
 
-   location /makeup {
-    proxy_pass https://makeup.com.ua/;
-    proxy_hide_header X-Frame-Options;
+  location /crawler {
+    proxy_pass http://host.docker.internal:8080/crawler;
   }
 }
