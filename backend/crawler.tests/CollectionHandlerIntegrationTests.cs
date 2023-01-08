@@ -1,6 +1,7 @@
 ﻿using common;
 using common.Bronze;
 using common.Silver;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace crawler.tests;
@@ -23,7 +24,8 @@ public class CollectionHandlerIntegrationTests
         var factory = new CollectionFactory(locator, fileReader);
         var fileWriter = new FileWriter();
         using var downloader = new SeleniumDownloader();
-        var handler = new CollectionRunner(locator, downloader, fileReader, new Parser(), fileWriter, hasher, new Transformer());
+        var loggerFactory = new LoggerFactory();
+        var handler = new CollectionRunner(locator, downloader, fileReader, new Parser(), fileWriter, hasher, new Transformer(), loggerFactory.CreateLogger<CollectionRunner>());
 
         var collection = await factory.GetSingleAsync(collectionName, CancellationToken.None);
         await handler.RunLoader(collection, CancellationToken.None);

@@ -4,7 +4,7 @@ public class Transformer
 {
     public IEnumerable<Property> Transform(Data data, TransformerSchema schema)
     {
-        var properties = data.Select(x => new Property { Name = x.Name, Values = x.Values }).Where(x => x.Values.Count > 0).ToList();
+        var properties = data.Select(x => new Property { Name = x.Name, Values = x.Values }).ToList();
 
         foreach (var group in schema)
         {
@@ -27,7 +27,7 @@ public class Transformer
                         var property = properties.Single(y => y.Name == x);
                         return new TransformProperty { Name = property.Name, Values = property.Values, Alias = compute.Alias };
                     }).ToList();
-
+                    
                     int maxLength = computeProperties.Max(x => x.Values.Count);
 
                     var filledProperties = new List<Property>();
@@ -45,7 +45,14 @@ public class Transformer
                     var concatenations = new List<string>();
                     for (var concatIndex = 0; concatIndex < maxLength; concatIndex++)
                     {
-                        var values = filledProperties.Select(property => property.Values[concatIndex]).ToList();
+                        var values = new List<object>();
+                        foreach (var property in filledProperties)
+                        {
+                            if (property.Values.Count == 0) continue;
+
+                            values.Add(property.Values[concatIndex]);
+                        }
+
                         concatenations.Add(string.Join(compute.Separator, values));
                     }
 

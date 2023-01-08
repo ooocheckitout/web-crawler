@@ -2,6 +2,7 @@
 using common.Bronze;
 using common.Silver;
 using crawler.tests;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
 
 namespace common;
@@ -15,6 +16,7 @@ public class CollectionRunner
     readonly FileWriter _fileWriter;
     readonly Hasher _hasher;
     readonly Transformer _transformer;
+    readonly ILogger _logger;
 
     public CollectionRunner(
         CollectionLocator locator,
@@ -23,7 +25,8 @@ public class CollectionRunner
         Parser parser,
         FileWriter fileWriter,
         Hasher hasher,
-        Transformer transformer)
+        Transformer transformer,
+        ILogger logger)
     {
         _locator = locator;
         _downloader = downloader;
@@ -32,6 +35,7 @@ public class CollectionRunner
         _fileWriter = fileWriter;
         _hasher = hasher;
         _transformer = transformer;
+        _logger = logger;
     }
 
     public async Task RunLoader(Collection collection, CancellationToken cancellationToken)
@@ -54,6 +58,7 @@ public class CollectionRunner
 
     async Task DownloadAndSave(string url, string htmlLocation, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Downloading from {url} to {htmlLocation}", url, htmlLocation);
         string htmlContent = await _downloader.DownloadAsTextAsync(url, cancellationToken);
         await _fileWriter.AsTextAsync(htmlLocation, htmlContent, cancellationToken);
     }
@@ -64,15 +69,22 @@ public class CollectionRunner
         {
             string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
 
-            if (!File.Exists(htmlLocation)) continue;
+            if (!File.Exists(htmlLocation)){
+                _logger.LogInformation("File {htmlLocation} does not exist. Skipping...", htmlLocation);
+                continue;
+            } 
 
             string htmlContent = await _fileReader.ReadTextAsync(htmlLocation, cancellationToken);
 
             string checksum = CalculateChecksum(htmlContent, collection.TransformerSchema);
             string checksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Bronze);
             if (checksum == await GetChecksumAsync(checksumLocation, cancellationToken))
+            {
+                _logger.LogInformation("Checksum for {htmlLocation} match. Skipping...", htmlLocation);
                 continue;
+            }
 
+            _logger.LogInformation("Parsing {htmlLocation}", htmlLocation);
             var properties = _parser.Parse(htmlContent, collection.ParserSchema);
 
             string bronzeFileLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Bronze);
