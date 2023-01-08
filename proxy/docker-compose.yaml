@@ -3,7 +3,7 @@ services:
   proxy:
     image: nginx
     volumes:
-      - ./nginx/templates:/etc/nginx/templates
+      - ./templates:/etc/nginx/templates
     ports:
       - "8181:80"
     environment:

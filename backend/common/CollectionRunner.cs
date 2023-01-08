@@ -1,13 +1,15 @@
 ﻿using System.Text.Json;
 using common.Bronze;
 using common.Silver;
+using crawler.tests;
+using MoreLinq;
 
 namespace common;
 
 public class CollectionRunner
 {
     readonly CollectionLocator _locator;
-    readonly WebDownloader _downloader;
+    readonly SeleniumDownloader _downloader;
     readonly FileReader _fileReader;
     readonly Parser _parser;
     readonly FileWriter _fileWriter;
@@ -16,7 +18,7 @@ public class CollectionRunner
 
     public CollectionRunner(
         CollectionLocator locator,
-        WebDownloader downloader,
+        SeleniumDownloader downloader,
         FileReader fileReader,
         Parser parser,
         FileWriter fileWriter,
@@ -32,19 +34,28 @@ public class CollectionRunner
         _transformer = transformer;
     }
 
-    public Task RunLoader(Collection collection, CancellationToken cancellationToken)
+    public async Task RunLoader(Collection collection, CancellationToken cancellationToken)
     {
-        var tasks = new List<Task>();
-        foreach (string url in collection.Urls)
+        foreach (var urls in collection.Urls.Batch(10))
         {
-            string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
-            if (File.Exists(htmlLocation))
-                continue;
+            var tasks = new List<Task>();
+            foreach (string url in collection.Urls)
+            {
+                string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
+                if (File.Exists(htmlLocation))
+                    continue;
 
-            tasks.Add(_downloader.DownloadTextToFileAsync(url, htmlLocation, cancellationToken));
+                tasks.Add(Task.Run(() => DownloadAndSave(url, htmlLocation, cancellationToken), cancellationToken));
+            }
+
+            await Task.WhenAll(tasks);
         }
+    }
 
-        return Task.WhenAll(tasks);
+    async Task DownloadAndSave(string url, string htmlLocation, CancellationToken cancellationToken)
+    {
+        string htmlContent = await _downloader.DownloadAsTextAsync(url, cancellationToken);
+        await _fileWriter.AsTextAsync(htmlLocation, htmlContent, cancellationToken);
     }
 
     public async Task RunParser(Collection collection, CancellationToken cancellationToken)
@@ -52,6 +63,9 @@ public class CollectionRunner
         foreach (string url in collection.Urls)
         {
             string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
+
+            if (!File.Exists(htmlLocation)) continue;
+
             string htmlContent = await _fileReader.ReadTextAsync(htmlLocation, cancellationToken);
 
             string checksum = CalculateChecksum(htmlContent, collection.TransformerSchema);
@@ -72,6 +86,8 @@ public class CollectionRunner
         foreach (string url in collection.Urls)
         {
             string bronzeFileLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Bronze);
+
+            if (!File.Exists(bronzeFileLocation)) continue;
 
             var bronze = await _fileReader.ReadJsonAsync<Data>(bronzeFileLocation, cancellationToken);
 

@@ -1,15 +1,14 @@
 using System.Text.Json.Serialization;
 using common;
-using Microsoft.Spark.Sql;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var spark = SparkSession
-    .Builder()
-    .Config("spark.sql.session.timeZone", "UTC")
-    .GetOrCreate();
-builder.Services.AddSingleton(spark);
+// var spark = SparkSession
+//     .Builder()
+//     .Config("spark.sql.session.timeZone", "UTC")
+//     .GetOrCreate();
+// builder.Services.AddSingleton(spark);
 
 const string collectionsRoot = @"D:\code\web-crawler\collections";
 var collectionLocator = new CollectionLocator(collectionsRoot, new Hasher());

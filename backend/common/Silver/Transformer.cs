@@ -4,7 +4,7 @@ public class Transformer
 {
     public IEnumerable<Property> Transform(Data data, TransformerSchema schema)
     {
-        var properties = data.Select(x => new Property { Name = x.Name, Values = x.Values }).ToList();
+        var properties = data.Select(x => new Property { Name = x.Name, Values = x.Values }).Where(x => x.Values.Count > 0).ToList();
 
         foreach (var group in schema)
         {
@@ -75,6 +75,9 @@ public class Transformer
                 var obj = new Dictionary<string, object>();
                 foreach (var property in groupProperties)
                 {
+                    if (property.Values.Count == 0)
+                        continue;
+
                     obj[property.Alias!] = property.Values[index];
                 }
 
@@ -113,7 +116,14 @@ public class Transformer
 
                 foreach (var obj in objects)
                 {
-                    obj[enrichmentProperty.Alias] = enrichmentProperty.Values[mapping.AtIndex];
+                    if (mapping.AtIndex is null)
+                    {
+                        obj[enrichmentProperty.Alias] = enrichmentProperty.Values;
+                    }
+                    else
+                    {
+                        obj[enrichmentProperty.Alias] = enrichmentProperty.Values[mapping.AtIndex.Value];
+                    }
                 }
             }
 

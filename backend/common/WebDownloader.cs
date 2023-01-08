@@ -1,23 +1,19 @@
 ﻿public class WebDownloader
 {
     readonly HttpClient _client;
-    readonly FileWriter _fileWriter;
 
-    public WebDownloader(HttpClient client, FileWriter fileWriter)
+    public WebDownloader(HttpClient client)
     {
         _client = client;
-        _fileWriter = fileWriter;
     }
 
-    public async Task<string> DownloadTextToFileAsync(string url, string fileLocation, CancellationToken cancellationToken)
+    public async Task<string> DownloadAsTextAsync(string url, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Downloading text from {url} to {fileLocation}");
+        Console.WriteLine($"Downloading text from {url}");
 
         using var response = await _client.GetAsync(url, cancellationToken);
         using var content = response.Content;
         string stringContent = await content.ReadAsStringAsync(cancellationToken);
-
-        await _fileWriter.AsTextAsync(fileLocation, stringContent, cancellationToken);
 
         return stringContent;
     }

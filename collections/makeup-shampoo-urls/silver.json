@@ -9,7 +9,7 @@
       },
       {
         "type": "concatenate",
-        "properties": ["Host", "Property-1"],
+        "properties": ["Host", "RelativeUrl"],
         "separator": "",
         "alias": "AbsoluteUrl"
       }

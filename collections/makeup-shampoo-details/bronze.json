@@ -1,1 +1,52 @@
-[]
+[
+  {
+    "name": "Title",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[2]/h1/span[1]",
+    "attribute": null
+  },
+  {
+    "name": "Category",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[2]/h1/span[2]",
+    "attribute": null
+  },
+  {
+    "name": "LocalDelivery",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[3]/div[2]/div[contains(@class, 'green')]/span[2]",
+    "attribute": null
+  },
+  {
+    "name": "RemoveDelivery",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[3]/div[2]/div[contains(@class, 'blue')]/span[1]",
+    "attribute": null
+  },
+  {
+    "name": "Price",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[3]",
+    "attribute": "data-price"
+  },
+  {
+    "name": "Currency",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[3]/div[1]/div[1]/span[2]/div/meta[@itemprop='priceCurrency']",
+    "attribute": "content"
+  },
+  {
+    "name": "Volume",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[3]/div[1]/div[2]/div/label/span",
+    "attribute": null
+  },
+  {
+    "name": "Images",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[1]/div/div[2]/div[1]/ul/li/label/img",
+    "attribute": "src"
+  },
+  {
+    "name": "Brand",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[2]/a[1]/span",
+    "attribute": null
+  },
+  {
+    "name": "Series",
+    "xpath": "/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div/div[2]/a[2]",
+    "attribute": null
+  }
+]

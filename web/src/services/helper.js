@@ -11,7 +11,7 @@ export default {
                 }
                 else {
                     console.log("still waiting");
-                    triggerMeAgainIfNeeded();
+                    triggerMeAgainIfNeeded(resolve);
                 }
             }, delayMs);
         }

@@ -7,14 +7,23 @@
         <p class="text-lg font-bold">Data</p>
         <DynamicTable :objects="datas" :columns="['*', 'values.length']" />
         <p class="text-lg font-bold">Suggestions</p>
-        <DynamicTable :objects="suggestions"
+        <DynamicTable
+          :objects="suggestions"
           :columns="['property.name', 'suggestedXpath', 'suggestedElements.length', 'from']"
-          @itemMouseOver="highlightSuggestionHandler" @itemMouseOut="unhighlightSuggestionHandler"
-          @itemClick="applySuggestionHandler" />
+          @itemMouseOver="highlightSuggestionHandler"
+          @itemMouseOut="unhighlightSuggestionHandler"
+          @itemClick="applySuggestionHandler"
+        />
       </div>
       <div class="w-1/2 p-4 border">
-        <IFrameViewer id="viewer" :url="viewerUrl" :previewElements="suggestedElements"
-          :highlightElements="selectedElements" @selected="selectHandler" @loaded="loadedHandler" />
+        <IFrameViewer
+          id="viewer"
+          :url="viewerUrl"
+          :previewElements="suggestedElements"
+          :highlightElements="selectedElements"
+          @selected="selectHandler"
+          @loaded="loadedHandler"
+        />
       </div>
     </div>
   </div>
@@ -43,73 +52,73 @@ export default {
       contextProperties: [],
       overwatch_properties: [
         {
-          "name": "TopHero_QuickPlay_TimePlayed_Hero",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[1]"
+          name: "TopHero_QuickPlay_TimePlayed_Hero",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[1]",
         },
         {
-          "name": "TopHero_QuickPlay_TimePlayed_Statistic",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[2]"
+          name: "TopHero_QuickPlay_TimePlayed_Statistic",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[2]/div/div/div[2]/div[2]",
         },
         {
-          "name": "TopHero_QuickPlay_GamesWon_Hero",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[3]/div/div/div[2]/div[1]"
+          name: "TopHero_QuickPlay_GamesWon_Hero",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[3]/div/div/div[2]/div[1]",
         },
         {
-          "name": "TopHero_QuickPlay_GamesWon_Statistic",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[3]/div/div/div[2]/div[2]"
+          name: "TopHero_QuickPlay_GamesWon_Statistic",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[3]/div/div/div[2]/div[2]",
         },
         {
-          "name": "TopHero_QuickPlay_WeaponAccuracy_Hero",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[4]/div/div/div[2]/div[1]"
+          name: "TopHero_QuickPlay_WeaponAccuracy_Hero",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[4]/div/div/div[2]/div[1]",
         },
         {
-          "name": "TopHero_QuickPlay_WeaponAccuracy_Statistic",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[4]/div/div/div[2]/div[2]"
+          name: "TopHero_QuickPlay_WeaponAccuracy_Statistic",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[4]/div/div/div[2]/div[2]",
         },
         {
-          "name": "TopHero_QuickPlay_EliminationsPerLife_Hero",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[5]/div/div/div[2]/div[1]"
+          name: "TopHero_QuickPlay_EliminationsPerLife_Hero",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[5]/div/div/div[2]/div[1]",
         },
         {
-          "name": "TopHero_QuickPlay_EliminationsPerLife_Statistic",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[5]/div/div/div[2]/div[2]"
+          name: "TopHero_QuickPlay_EliminationsPerLife_Statistic",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[5]/div/div/div[2]/div[2]",
         },
         {
-          "name": "TopHero_QuickPlay_CriticalHitAccuracy_Hero",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[6]/div/div/div[2]/div[1]"
+          name: "TopHero_QuickPlay_CriticalHitAccuracy_Hero",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[6]/div/div/div[2]/div[1]",
         },
         {
-          "name": "TopHero_QuickPlay_CriticalHitAccuracy_Statistic",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[6]/div/div/div[2]/div[2]"
+          name: "TopHero_QuickPlay_CriticalHitAccuracy_Statistic",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[6]/div/div/div[2]/div[2]",
         },
         {
-          "name": "TopHero_QuickPlay_MultikillBest_Hero",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[7]/div/div/div[2]/div[1]"
+          name: "TopHero_QuickPlay_MultikillBest_Hero",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[7]/div/div/div[2]/div[1]",
         },
         {
-          "name": "TopHero_QuickPlay_MultikillBest_Statistic",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[7]/div/div/div[2]/div[2]"
+          name: "TopHero_QuickPlay_MultikillBest_Statistic",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[7]/div/div/div[2]/div[2]",
         },
         {
-          "name": "TopHero_QuickPlay_ObjectiveKills_Hero",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[8]/div/div/div[2]/div[1]"
+          name: "TopHero_QuickPlay_ObjectiveKills_Hero",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[8]/div/div/div[2]/div[1]",
         },
         {
-          "name": "TopHero_QuickPlay_ObjectiveKills_Statistic",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[8]/div/div/div[2]/div[2]"
+          name: "TopHero_QuickPlay_ObjectiveKills_Statistic",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[2]/div[8]/div/div/div[2]/div[2]",
         },
         {
-          "name": "Username",
-          "xpath": "/html/body/div[1]/blz-section/div/div[1]/div/h1"
+          name: "Username",
+          xpath: "/html/body/div[1]/blz-section/div/div[1]/div/h1",
         },
         {
-          "name": "Platform",
-          "xpath": "/html/body/div[1]/blz-section/div/div[3]/blz-button"
+          name: "Platform",
+          xpath: "/html/body/div[1]/blz-section/div/div[3]/blz-button",
         },
         {
-          "name": "GameMode",
-          "xpath": "/html/body/div[1]/div[1]/blz-section[1]/div[1]/blz-button"
-        }
+          name: "GameMode",
+          xpath: "/html/body/div[1]/div[1]/blz-section[1]/div[1]/blz-button",
+        },
       ],
       suggestions: [],
       datas: [],
@@ -127,8 +136,8 @@ export default {
 
   methods: {
     removePropertyHandler(property) {
-      let index = this.properties.indexOf(property)
-      this.properties.splice(index, 1)
+      let index = this.properties.indexOf(property);
+      this.properties.splice(index, 1);
     },
 
     applySuggestionHandler(suggestion) {
@@ -212,7 +221,14 @@ export default {
 
       this.isLoaded = true;
 
-      // this.properties = this.overwatch_properties;
+      this.properties = this.overwatch_properties;
+      this.properties = [
+        {
+          name: "Property-1",
+          xpath: "/html/body/div/div[1]/div/div/div[2]/div[1]/div[1]/div/div[9]/ul/li/div[2]/a",
+          attribute: "href",
+        },
+      ];
 
       this.updateProperties();
     },

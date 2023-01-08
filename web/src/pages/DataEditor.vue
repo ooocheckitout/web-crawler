@@ -3,8 +3,12 @@
     <div class="flex flex-row p-2 space-x-2">
       <div class="w-1/2 space-y-2">
         <p>Properties</p>
-        <div v-for="(property, index) in properties" :key="index" class="p-2 border-2"
-          :class="{ 'border-sky-100': !property.isComputed, 'border-stone-400': property.isComputed }">
+        <div
+          v-for="(property, index) in properties"
+          :key="index"
+          class="p-2 border-2"
+          :class="{ 'border-sky-100': !property.isComputed, 'border-stone-400': property.isComputed }"
+        >
           {{ property.name }}
         </div>
       </div>
@@ -16,21 +20,33 @@
           </div>
 
           <div class="flex flex-col space-y-2">
-            <div v-for="(partition, index) in group.partitions" :key="index" class="p-2 ml-4 border-2 border-red-200"
-              :title="`Partition property from ${partition.ref}`">
+            <div
+              v-for="(partition, index) in group.partitions"
+              :key="index"
+              class="p-2 ml-4 border-2 border-red-200"
+              :title="`Partition property from ${partition.ref}`"
+            >
               {{ partition.alias }}
             </div>
           </div>
 
           <div class="flex flex-col space-y-2">
-            <div v-for="(property, index) in group.properties" :key="index" class="p-2 ml-4 border-2 border-sky-200"
-              :title="`Grouping property from ${property.ref}`">
+            <div
+              v-for="(property, index) in group.properties"
+              :key="index"
+              class="p-2 ml-4 border-2 border-sky-200"
+              :title="`Grouping property from ${property.ref}`"
+            >
               {{ property.alias }}
             </div>
           </div>
 
-          <div class="p-2 ml-4 border-2 border-teal-200" v-for="(enrichment, index) in group.mappings" :key="index"
-            :title="`Mapping property from ${enrichment.ref} at index ${enrichment.atIndex}`">
+          <div
+            class="p-2 ml-4 border-2 border-teal-200"
+            v-for="(enrichment, index) in group.mappings"
+            :key="index"
+            :title="`Mapping property from ${enrichment.ref} at index ${enrichment.atIndex}`"
+          >
             {{ enrichment.alias }}
           </div>
         </div>
@@ -38,12 +54,20 @@
     </div>
     <div class="flex flex-row p-2 space-x-2">
       <div class="w-1/2">
-        <DynamicTable :objects="properties" :columns="['name', 'values', 'values.length', 'isComputed', 'group.name']"
-          caption="Properties" />
+        <DynamicTable
+          :objects="properties"
+          :columns="['name', 'values', 'values.length', 'isComputed', 'group.name']"
+          caption="Properties"
+        />
       </div>
       <div class="w-1/2">
-        <DynamicTable v-for="(preview, index) in previews" :key="index" :objects="preview.values"
-          :caption="preview.name" :limit="5" />
+        <DynamicTable
+          v-for="(preview, index) in previews"
+          :key="index"
+          :objects="preview.values"
+          :caption="preview.name"
+          :limit="5"
+        />
       </div>
     </div>
   </div>
@@ -1134,6 +1158,92 @@ export default {
     // this.properties = this.overwatch_datas;
     // this.groups = this.overwatch_groups;
 
+    this.properties = [
+      {
+        name: "Title",
+        values: ["Сухой шампунь"],
+        "values.length": 1,
+      },
+      {
+        name: "Category",
+        values: ["Batiste Dry Shampoo Clean and Classic Original"],
+        "values.length": 1,
+      },
+      {
+        name: "LocalDelivery",
+        values: [],
+        "values.length": 0,
+      },
+      {
+        name: "RemoveDelivery",
+        values: ["Доставка из ЕС, 3-5 раб. дней!"],
+        "values.length": 1,
+      },
+      {
+        name: "Price",
+        values: ["204"],
+        "values.length": 1,
+      },
+      {
+        name: "Currency",
+        values: ["UAH"],
+        "values.length": 1,
+      },
+      {
+        name: "Volume",
+        values: ["    200ml"],
+        "values.length": 1,
+      },
+      {
+        name: "Images",
+        values: [
+          "https://u.makeup.com.ua/n/nk/nk0sjzssnhcw.jpg",
+          "https://u.makeup.com.ua/7/7b/7be1jeko4u7x.jpg",
+          "https://u.makeup.com.ua/z/z2/z2ehuppzywif.jpg",
+          "https://u.makeup.com.ua/m/mr/mryczddpsefq.jpg",
+          "https://u.makeup.com.ua/1/1k/1klnw4lxqvgy.jpg",
+          "https://u.makeup.com.ua/m/mx/mxsq3rsc0pkk.jpg",
+          "https://u.makeup.com.ua/a/ak/akjev6lebexv.png",
+          "https://u.makeup.com.ua/l/lx/lxu4y6e4ozfm.png",
+          "https://u.makeup.com.ua/q/qd/qduolnnzlrvt.jpg",
+          "https://u.makeup.com.ua/d/dr/drix9h2b7sza.jpg",
+          "https://u.makeup.com.ua/8/8p/8pns5yv0gn4a.jpg",
+          "https://u.makeup.com.ua/r/rw/rwvwnam6cila.jpg",
+        ],
+        "values.length": 12,
+      },
+      {
+        name: "Brand",
+        values: ["Batiste"],
+        "values.length": 1,
+      },
+      {
+        name: "Series",
+        values: ["Hair Care"],
+        "values.length": 1,
+      },
+    ];
+
+    this.groups = [
+      {
+        name: "Objects",
+        computes: [],
+        properties: [
+          { alias: "Title", ref: "Title" },
+          { alias: "Category", ref: "Category" },
+          { alias: "LocalDelivery", ref: "LocalDelivery" },
+          { alias: "RemoveDelivery", ref: "RemoveDelivery" },
+          { alias: "Price", ref: "Price" },
+          { alias: "Currency", ref: "Currency" },
+          { alias: "Volume", ref: "Volume" },
+          { alias: "Brand", ref: "Brand" },
+          { alias: "Series", ref: "Series" },
+        ],
+        partitions: [],
+        mappings: [{ alias: "Images", ref: "Images" }],
+      },
+    ];
+
     if (this.properties.length == 0) return;
 
     let results = [];
@@ -1189,7 +1299,11 @@ export default {
         var enrichmentProperty = { name: enrichment.alias, values: property.values };
 
         for (const object of objects) {
-          object[enrichmentProperty.name] = enrichmentProperty.values[enrichment.atIndex];
+          if (enrichment.atIndex) {
+            object[enrichmentProperty.name] = enrichmentProperty.values[enrichment.atIndex];
+          } else {
+            object[enrichmentProperty.name] = enrichmentProperty.values;
+          }
         }
       }
 

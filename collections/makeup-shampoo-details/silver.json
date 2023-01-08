@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "name": "Objects",
+    "computes": [],
+    "properties": [
+      { "alias": "Title", "ref": "Title" },
+      { "alias": "Category", "ref": "Category" },
+      { "alias": "LocalDelivery", "ref": "LocalDelivery" },
+      { "alias": "RemoveDelivery", "ref": "RemoveDelivery" },
+      { "alias": "Price", "ref": "Price" },
+      { "alias": "Currency", "ref": "Currency" },
+      { "alias": "Volume", "ref": "Volume" },
+      { "alias": "Brand", "ref": "Brand" },
+      { "alias": "Series", "ref": "Series" }
+    ],
+    "partitions": [],
+    "mappings": [{ "alias": "Images", "ref": "Images" }]
+  }
+]

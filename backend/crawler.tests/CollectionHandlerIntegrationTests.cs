@@ -12,7 +12,8 @@ public class CollectionHandlerIntegrationTests
     // [InlineData("minfin-petrol-prices")]
     // [InlineData("tailwind-color-palette")]
     [InlineData("makeup-shampoo-urls")]
-    [InlineData("makeup-shampoo-variants")]
+    // [InlineData("makeup-shampoo-variants")]
+    // [InlineData("makeup-shampoo-details")]
     public async Task CollectionHandler_ShouldHandleCollections(string collectionName)
     {
         const string collectionsRoot = @"D:\code\web-crawler\collections";
@@ -21,8 +22,7 @@ public class CollectionHandlerIntegrationTests
         var fileReader = new FileReader();
         var factory = new CollectionFactory(locator, fileReader);
         var fileWriter = new FileWriter();
-        var handler = new CollectionRunner(
-            locator, new WebDownloader(new HttpClient(), fileWriter), fileReader, new Parser(), fileWriter, hasher, new Transformer());
+        var handler = new CollectionRunner(locator, new SeleniumDownloader(), fileReader, new Parser(), fileWriter, hasher, new Transformer());
 
         var collection = await factory.GetSingleAsync(collectionName, CancellationToken.None);
         await handler.RunLoader(collection, CancellationToken.None);

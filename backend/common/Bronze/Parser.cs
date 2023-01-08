@@ -15,13 +15,23 @@ public class Parser
         {
             var cleanedXPath = $"{field.XPath} | {field.XPath.Replace("tbody", "")}";
             var results = document.DocumentNode.SelectNodes(cleanedXPath);
-            if (results is null)
-                throw new InvalidOperationException($"No elements found for {field.Name} field!");
+            // if (results is null)
+            //     throw new InvalidOperationException($"No elements found for {field.Name} field!");
 
-            properties.Add(new Property
+            if (results is null)
             {
-                Name = field.Name, Values = results.Select(x => GetNodeValue(x, field)).Cast<object>().ToList()
-            });
+                properties.Add(new Property
+                {
+                    Name = field.Name, Values = new List<object>()
+                });
+            }
+            else
+            {
+                properties.Add(new Property
+                {
+                    Name = field.Name, Values = results.Select(x => GetNodeValue(x, field)).Cast<object>().ToList()
+                });
+            }
         }
 
         return properties;

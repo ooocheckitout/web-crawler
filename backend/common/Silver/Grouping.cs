@@ -8,7 +8,7 @@ public class PropertyReference
 
 public class PropertyEnrichment : PropertyReference
 {
-    public int AtIndex { get; set; }
+    public int? AtIndex { get; set; }
 }
 
 public class ComputedProperty
