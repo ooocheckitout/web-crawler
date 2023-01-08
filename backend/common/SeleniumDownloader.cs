@@ -10,8 +10,9 @@ public class SeleniumDownloader : IDisposable
     {
         var chromeOptions = new ChromeOptions();
         chromeOptions.AddArguments("headless");
+        chromeOptions.AddArgument("no-sandbox");
         
-        _browser = new ChromeDriver(ChromeDriverService.CreateDefaultService(), chromeOptions, TimeSpan.FromSeconds(10));
+        _browser = new ChromeDriver(ChromeDriverService.CreateDefaultService(), chromeOptions, TimeSpan.FromSeconds(30));
     }
 
     public Task<string> DownloadAsTextAsync(string url, CancellationToken cancellationToken)

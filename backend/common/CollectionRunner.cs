@@ -36,7 +36,7 @@ public class CollectionRunner
 
     public async Task RunLoader(Collection collection, CancellationToken cancellationToken)
     {
-        foreach (var urls in collection.Urls.Batch(10))
+        foreach (var urls in collection.Urls.Batch(50))
         {
             var tasks = new List<Task>();
             foreach (string url in urls)
