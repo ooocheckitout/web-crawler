@@ -6,9 +6,9 @@ public class Hasher
     public string GetSha256HashAsHex(string original)
     {
         using var sha256 = SHA256.Create();
-        var secretBytes = Encoding.Unicode.GetBytes(original);
-        var secretHash = sha256.ComputeHash(secretBytes);
-        var hash = Convert.ToHexString(secretHash);
+        byte[] secretBytes = Encoding.Unicode.GetBytes(original);
+        byte[] secretHash = sha256.ComputeHash(secretBytes);
+        string hash = Convert.ToHexString(secretHash);
 
         return hash;
     }

@@ -39,7 +39,7 @@ public class CollectionRunner
 
     public async Task RunLoader(Collection collection, CancellationToken cancellationToken)
     {
-        foreach (var urls in collection.Urls.Batch(50))
+        foreach (var urls in collection.Urls.Distinct().Batch(50))
         {
             var tasks = new List<Task>();
             foreach (string url in urls)
@@ -66,7 +66,7 @@ public class CollectionRunner
 
     public async Task RunParser(Collection collection, CancellationToken cancellationToken)
     {
-        foreach (string url in collection.Urls)
+        foreach (string url in collection.Urls.Distinct())
         {
             string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
 
@@ -96,7 +96,7 @@ public class CollectionRunner
 
     public async Task RunTransformer(Collection collection, CancellationToken cancellationToken)
     {
-        foreach (string url in collection.Urls)
+        foreach (string url in collection.Urls.Distinct())
         {
             string bronzeFileLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Bronze);
 
