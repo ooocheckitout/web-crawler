@@ -97,33 +97,23 @@ export default {
     iframeWindow.addEventListener("mouseover", this.highlightHandler);
     iframeWindow.addEventListener("mouseout", this.unhighlightHandler);
     iframeWindow.addEventListener("click", this.selectHandler);
-    iframeWindow.addEventListener("load", (ev) => console.log("1111", ev));
-    iframeWindow.addEventListener("DOMContentLoaded", (ev) => console.log("1111", ev));
 
-    let viewerDocument = iframeWindow.document
-    await helperService.waitForLoadAsync(iframeWindow)
-    await helperService.waitStylesheetsAsync(document);
-    await helperService.waitStylesheetsAsync(viewerDocument);
+    await helperService.waitEvent(this.$refs.viewer, "load")
 
-    console.log(document.styleSheets);
-    console.log(viewerDocument.styleSheets);
+    let initialLength = this.$refs.viewer.contentWindow.document.styleSheets.length
+    await helperService.waitAction(() => {
+      return this.$refs.viewer.contentWindow.document.styleSheets.length > initialLength
+    })
 
-    let length = viewerDocument.styleSheets.length;
-    // while (viewerDocument.styleSheets.length === length) {
-    //   console.log(viewerDocument.styleSheets);
-    // }
-
-    console.log("changed", viewerDocument.styleSheets.length);
-
+    let viewerDocument = this.$refs.viewer.contentWindow.document
     let currentLastStylesheet = document.styleSheets[document.styleSheets.length - 1]
     let iframeLastStylesheet = viewerDocument.styleSheets[viewerDocument.styleSheets.length - 1]
 
     for (const [index, cssRule] of Array.from(currentLastStylesheet.cssRules).entries()) {
       iframeLastStylesheet.insertRule(cssRule.cssText, index)
-      console.log(cssRule.cssText, index);
     }
 
-    console.log(iframeLastStylesheet, viewerDocument.styleSheets.length - 1);
+    console.log(`transfered ${currentLastStylesheet.cssRules.length} rules`);
   },
 
   beforeDestroy() {

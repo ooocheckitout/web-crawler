@@ -1,15 +1,20 @@
 export default {
-    async waitForLoadAsync(contextWindow) {
-        console.log("before");
-        await Promise.all([new Promise((resolve, _) => { contextWindow.addEventListener("load", resolve); })]);
-        console.log("after");
+    async waitEvent(context, eventName) {
+        await (new Promise((resolve, _) => context.addEventListener(eventName, resolve)))
+    },
+
+    async waitAction(booleanAction, delayMs = 1000) {
+        const triggerMeAgainIfNeeded = function (resolve) {
+            setTimeout(function () { booleanAction() ? resolve() : triggerMeAgainIfNeeded(); }, delayMs);
+        }
+
+
+        await (new Promise((resolve, _) => triggerMeAgainIfNeeded(resolve)))
     },
 
     async waitStylesheetsAsync(contextDocument) {
         let linkElements = Array.from(contextDocument.querySelectorAll("link[rel=stylesheet]"));
-        let onloadPromises = linkElements.map(element => {
-            return new Promise((resolve, _) => { element.addEventListener("load", resolve); });
-        });
+        let onloadPromises = linkElements.map(element => this.waitEvent(element, "load"));
 
         await Promise.all(onloadPromises);
 
