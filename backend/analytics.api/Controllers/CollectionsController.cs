@@ -18,7 +18,7 @@ public class CollectionsController : ControllerBase
     }
 
     [HttpGet]
-    [Route("/{collection}/{medallion}")]
+    [Route("{collection}/{medallion}")]
     public async Task<IEnumerable<Property>> GetAsync(string collection, Medallion medallion, CancellationToken cancellationToken, int take = 100)
     {
         string dataLocation = _locator.GetDataLocation(collection, medallion);
