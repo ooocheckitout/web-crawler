@@ -88,7 +88,7 @@ export default {
 
     async copyHandler() {
       var objects = this.objects.map(object => {
-        return this.keys.reduce((acc, key) => {
+        return this.displayColumns.reduce((acc, key) => {
           acc[key] = this.getValue(object, key);
           return acc;
         }, {});

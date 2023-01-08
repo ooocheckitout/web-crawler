@@ -81,18 +81,9 @@ export default {
 
       this.$emit("selected", this.lastSelectedElement);
     },
-
-    receiveMessage(event) {
-      if (event.data.type != "viewer.loaded" || !this.$refs.viewer) return;
-
-      console.log("loaded", event.data);
-      this.$emit("loaded", this.$refs.viewer.contentWindow.document, event.data.viewerXpath);
-    },
   },
 
   async mounted() {
-    window.addEventListener("message", this.receiveMessage);
-
     let iframeWindow = this.$refs.viewer.contentWindow;
     iframeWindow.addEventListener("mouseover", this.highlightHandler);
     iframeWindow.addEventListener("mouseout", this.unhighlightHandler);
@@ -114,15 +105,8 @@ export default {
     }
 
     console.log(`transfered ${currentLastStylesheet.cssRules.length} rules`);
-  },
 
-  beforeDestroy() {
-    window.removeEventListener("message", this.receiveMessage);
-
-    let iframeWindow = this.$refs.viewer.contentWindow;
-    iframeWindow.removeEventListener("mouseover", this.highlightHandler);
-    iframeWindow.removeEventListener("mouseout", this.unhighlightHandler);
-    iframeWindow.removeEventListener("click", this.selectHandler);
+    this.$emit("loaded", this.$refs.viewer.contentWindow.document);
   },
 };
 </script>

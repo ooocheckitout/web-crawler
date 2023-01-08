@@ -3,12 +3,8 @@
     <div class="flex flex-row p-2 space-x-2">
       <div class="w-1/2 space-y-2">
         <p>Properties</p>
-        <div
-          v-for="(property, index) in properties"
-          :key="index"
-          class="p-2 border-2"
-          :class="{ 'border-sky-100': !property.isComputed, 'border-stone-400': property.isComputed }"
-        >
+        <div v-for="(property, index) in properties" :key="index" class="p-2 border-2"
+          :class="{ 'border-sky-100': !property.isComputed, 'border-stone-400': property.isComputed }">
           {{ property.name }}
         </div>
       </div>
@@ -20,33 +16,21 @@
           </div>
 
           <div class="flex flex-col space-y-2">
-            <div
-              v-for="(partition, index) in group.partitions"
-              :key="index"
-              class="p-2 ml-4 border-2 border-red-200"
-              :title="`Partition property from ${partition.ref}`"
-            >
+            <div v-for="(partition, index) in group.partitions" :key="index" class="p-2 ml-4 border-2 border-red-200"
+              :title="`Partition property from ${partition.ref}`">
               {{ partition.alias }}
             </div>
           </div>
 
           <div class="flex flex-col space-y-2">
-            <div
-              v-for="(property, index) in group.properties"
-              :key="index"
-              class="p-2 ml-4 border-2 border-sky-200"
-              :title="`Grouping property from ${property.ref}`"
-            >
+            <div v-for="(property, index) in group.properties" :key="index" class="p-2 ml-4 border-2 border-sky-200"
+              :title="`Grouping property from ${property.ref}`">
               {{ property.alias }}
             </div>
           </div>
 
-          <div
-            class="p-2 ml-4 border-2 border-teal-200"
-            v-for="(enrichment, index) in group.mappings"
-            :key="index"
-            :title="`Mapping property from ${enrichment.ref} at index ${enrichment.atIndex}`"
-          >
+          <div class="p-2 ml-4 border-2 border-teal-200" v-for="(enrichment, index) in group.mappings" :key="index"
+            :title="`Mapping property from ${enrichment.ref} at index ${enrichment.atIndex}`">
             {{ enrichment.alias }}
           </div>
         </div>
@@ -54,20 +38,12 @@
     </div>
     <div class="flex flex-row p-2 space-x-2">
       <div class="w-1/2">
-        <DynamicTable
-          :objects="properties"
-          :columns="['name', 'values', 'values.length', 'isComputed', 'group.name']"
-          caption="Properties"
-        />
+        <DynamicTable :objects="properties" :columns="['name', 'values', 'values.length', 'isComputed', 'group.name']"
+          caption="Properties" />
       </div>
       <div class="w-1/2">
-        <DynamicTable
-          v-for="(preview, index) in previews"
-          :key="index"
-          :objects="preview.values"
-          :caption="preview.name"
-          :limit="5"
-        />
+        <DynamicTable v-for="(preview, index) in previews" :key="index" :objects="preview.values"
+          :caption="preview.name" :limit="5" />
       </div>
     </div>
   </div>
@@ -1155,8 +1131,8 @@ export default {
   },
 
   created() {
-    this.properties = this.overwatch_datas;
-    this.groups = this.overwatch_groups;
+    // this.properties = this.overwatch_datas;
+    // this.groups = this.overwatch_groups;
 
     if (this.properties.length == 0) return;
 
