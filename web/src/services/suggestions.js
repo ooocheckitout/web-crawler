@@ -1,9 +1,8 @@
 import xpathService from "@/services/xpath";
 
 export default {
-    suggestAttribute(xpath) {
-        // class, href, src
-
+    suggestAttribute(xpath, contextDocument) {
+        // class
         return []
     },
 
@@ -21,7 +20,7 @@ export default {
         let elements = xpathService.evaluateXPath(contextDocument, xpath)
         if (elements.length !== 1) return []
         let childElements = elements
-            .filter(x => x.children.length > 0)
+            .filter(x => x.children?.length > 0)
             .flatMap(x => Array.from(x.children));
 
         return childElements.map(x => xpathService.getElementTreeXPath(x));

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "DetailUrls",
+    "computes": [
+      {
+        "type": "constant",
+        "alias": "Host",
+        "constantValues": ["https://makeup.com.ua"]
+      },
+      {
+        "type": "concatenate",
+        "properties": ["Host", "VariantRelativeUrl"],
+        "separator": "",
+        "alias": "AbsoluteUrl"
+      }
+    ],
+    "properties": [
+      {
+        "alias": "Url",
+        "ref": "AbsoluteUrl"
+      }
+    ],
+    "partitions": [],
+    "mappings": []
+  }
+]

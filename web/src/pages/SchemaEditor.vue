@@ -165,7 +165,7 @@ export default {
         this.selectedElements.push(...originalElements);
 
         let suggestions = [
-          { type: "attribute", xpaths: suggestionService.suggestAttribute(originalXpath) },
+          { type: "attribute", xpaths: suggestionService.suggestAttribute(originalXpath, this.contextDocument) },
           { type: "text", xpaths: suggestionService.suggestText(originalXpath) },
           { type: "parent", xpaths: suggestionService.suggestParent(originalXpath, this.contextDocument) },
           { type: "children", xpaths: suggestionService.suggestChildren(originalXpath, this.contextDocument) },

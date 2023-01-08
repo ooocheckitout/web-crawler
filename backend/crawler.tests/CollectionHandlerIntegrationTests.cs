@@ -12,7 +12,7 @@ public class CollectionHandlerIntegrationTests
     // [InlineData("minfin-petrol-prices")]
     // [InlineData("tailwind-color-palette")]
     [InlineData("makeup-shampoo-urls")]
-    // [InlineData("makeup-shampoo-details")]
+    [InlineData("makeup-shampoo-variants")]
     public async Task CollectionHandler_ShouldHandleCollections(string collectionName)
     {
         const string collectionsRoot = @"D:\code\web-crawler\collections";

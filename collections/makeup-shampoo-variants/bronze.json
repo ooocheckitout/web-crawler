@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Variants",
+    "xpath": "/html/body/div/div[1]/div/div/div[2]/div[1]/div/div[3]/div[1]/div[2]/div/div/div",
+    "attribute": "title"
+  },
+  {
+    "name": "VariantPrices",
+    "xpath": "/html/body/div/div[1]/div/div/div[2]/div[1]/div/div[3]/div[1]/div[2]/div/div/div",
+    "attribute": "data-price"
+  },
+  {
+    "name": "VariantRelativeUrl",
+    "xpath": "/html/body/div/div[1]/div/div/div[2]/div[1]/div/div[3]/div[1]/div[2]/div/div/div/meta[@itemprop='url']",
+    "attribute": "content"
+  }
+]
