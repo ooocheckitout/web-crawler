@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Reflection;
+using System.Text;
 
 public static class Extensions
 {
@@ -11,5 +13,17 @@ public static class Extensions
             Console.WriteLine(obj);
 
         return obj;
+    }
+
+    public static string Print(this object obj)
+    {
+        var sb = new StringBuilder();
+        var properties = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        foreach (var property in properties)
+        {
+            sb.Append($"{property.Name}: {property.GetValue(obj)} {Environment.NewLine}");
+        }
+
+        return sb.ToString();
     }
 }

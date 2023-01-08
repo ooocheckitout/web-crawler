@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using common.Bronze;
+﻿using common.Bronze;
 using common.Silver;
 using crawler.tests;
 using Microsoft.Extensions.Logging;
@@ -46,8 +45,10 @@ public class CollectionRunner
             foreach (string url in urls)
             {
                 string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
-                if (File.Exists(htmlLocation))
+                if (File.Exists(htmlLocation)){
+                    _logger.LogInformation("File {htmlLocation} already exist. Skipping...", htmlLocation);
                     continue;
+                }
 
                 tasks.Add(Task.Run(() => DownloadAndSave(url, htmlLocation, cancellationToken), cancellationToken));
             }
@@ -72,11 +73,11 @@ public class CollectionRunner
             if (!File.Exists(htmlLocation)){
                 _logger.LogInformation("File {htmlLocation} does not exist. Skipping...", htmlLocation);
                 continue;
-            } 
+            }
 
             string htmlContent = await _fileReader.ReadTextAsync(htmlLocation, cancellationToken);
 
-            string checksum = CalculateChecksum(htmlContent, collection.TransformerSchema);
+            string checksum = CalculateChecksum(htmlContent, collection.ParserSchema.ToString());
             string checksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Bronze);
             if (checksum == await GetChecksumAsync(checksumLocation, cancellationToken))
             {
@@ -103,7 +104,7 @@ public class CollectionRunner
 
             var bronze = await _fileReader.ReadJsonAsync<Data>(bronzeFileLocation, cancellationToken);
 
-            string checksum = CalculateChecksum(bronze, collection.TransformerSchema);
+            string checksum = CalculateChecksum(bronze.ToString(), collection.TransformerSchema.ToString());
             string checksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Silver);
             if (checksum == await GetChecksumAsync(checksumLocation, cancellationToken))
                 continue;
@@ -123,9 +124,9 @@ public class CollectionRunner
             : string.Empty;
     }
 
-    string CalculateChecksum(params object[] objects)
+    string CalculateChecksum(params string[] strings)
     {
-        var hashes = objects.Select(x => _hasher.GetSha256HashAsHex(JsonSerializer.Serialize(x)));
+        var hashes = strings.Select(x => _hasher.GetSha256HashAsHex(x));
         return _hasher.GetSha256HashAsHex(string.Join("", hashes));
     }
 }
