@@ -1,6 +1,8 @@
 ﻿using common.Bronze;
 using common.Silver;
 
+namespace common;
+
 public class Collection
 {
     public string Name { get; init; }
@@ -8,4 +10,3 @@ public class Collection
     public ParserSchema ParserSchema { get; init; }
     public TransformerSchema TransformerSchema { get; init; }
 }
-

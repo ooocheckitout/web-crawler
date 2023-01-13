@@ -1,4 +1,6 @@
-﻿public class WebDownloader
+﻿namespace common;
+
+public class WebDownloader
 {
     readonly HttpClient _client;
 

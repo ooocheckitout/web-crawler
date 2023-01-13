@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
+namespace common;
+
 public class FileWriter
 {
     public Task AsJsonAsync(string fileLocation, object obj, CancellationToken cancellationToken)

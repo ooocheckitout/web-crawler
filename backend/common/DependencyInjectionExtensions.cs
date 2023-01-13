@@ -1,8 +1,8 @@
-﻿using common;
-using common.Bronze;
+﻿using common.Bronze;
 using common.Silver;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+
+namespace common;
 
 public static class DependencyInjectionExtensions
 {
@@ -19,6 +19,9 @@ public static class DependencyInjectionExtensions
         builder.AddTransient(provider => new CollectionLocator(collectionsRoot, provider.GetRequiredService<Hasher>()));
         builder.AddTransient<CollectionFactory>();
         builder.AddTransient<CollectionRunner>();
+        builder.AddTransient<LoadExecutor>();
+        builder.AddTransient<ParseExecutor>();
+        builder.AddTransient<TransformExecutor>();
         builder.AddTransient<ParallelCollectionRunner>();
 
         return builder;

@@ -1,6 +1,7 @@
-﻿using common;
-using common.Bronze;
+﻿using common.Bronze;
 using common.Silver;
+
+namespace common;
 
 public class CollectionFactory
 {

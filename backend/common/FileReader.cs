@@ -3,6 +3,8 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
 
+namespace common;
+
 public class FileReader
 {
     public async Task<T> ReadJsonAsync<T>(string fileLocation, CancellationToken cancellationToken)
@@ -18,7 +20,6 @@ public class FileReader
 
     public async Task<string> ReadTextAsync(string fileLocation, CancellationToken cancellationToken)
     {
-        // Console.WriteLine($"Reading content from file {fileLocation}");
         return await File.ReadAllTextAsync(fileLocation, Encoding.UTF8, cancellationToken);
     }
 }

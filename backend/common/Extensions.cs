@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Reflection;
 using System.Text;
-using System.Linq;
+
+namespace common;
 
 public static class Extensions
 {
@@ -42,5 +43,11 @@ public static class Extensions
         }
 
         return sb.ToString();
+    }
+
+    public static IEnumerable<(T Item, int Index)> WithIndex<T>(this IEnumerable<T> enumerable)
+    {
+        var index = 0;
+        return enumerable.Select(x => (x, index++));
     }
 }
