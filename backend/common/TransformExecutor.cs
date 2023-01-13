@@ -21,21 +21,18 @@ public class TransformExecutor
     }
 
 
-    public async Task<IEnumerable<Property>> TransformAsync(
-        string collectionName, string url, TransformerSchema schema, ICollection<Property> bronze, CancellationToken cancellationToken)
+    public async Task TransformAsync(string bronzeLocation, string dataLocation, string checksumLocation, TransformerSchema schema,
+        CancellationToken cancellationToken)
     {
+        var bronze = (await _fileReader.ReadJsonAsync<IEnumerable<Property>>(bronzeLocation, cancellationToken)).ToList();
         string checksum = _checksumCalculator.GetTransformerChecksum(schema, bronze);
-        string checksumLocation = _locator.GetChecksumLocation(collectionName, url, Medallion.Silver);
 
-        string dataFileLocation = _locator.GetDataFileLocation(collectionName, url, Medallion.Silver);
         if (checksum == await ReadChecksum(checksumLocation, cancellationToken))
-            return await _fileReader.ReadJsonAsync<IEnumerable<Property>>(dataFileLocation, cancellationToken);
+            return;
 
         var silver = _transformer.Transform(bronze, schema);
-        await _fileWriter.AsJsonAsync(dataFileLocation, silver, cancellationToken);
+        await _fileWriter.AsJsonAsync(dataLocation, silver, cancellationToken);
         await _fileWriter.AsTextAsync(checksumLocation, checksum, cancellationToken);
-
-        return silver;
     }
 
     async Task<string> ReadChecksum(string checksumLocation, CancellationToken cancellationToken)

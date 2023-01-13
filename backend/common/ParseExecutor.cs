@@ -20,21 +20,17 @@ public class ParseExecutor
         _fileWriter = fileWriter;
     }
 
-    public async Task<IEnumerable<Property>> ParseAsync(string collectionName, string url, ParserSchema schema, string htmlContent,
-        CancellationToken cancellationToken)
+    public async Task ParseAsync(string htmlLocation, string dataLocation, string checksumLocation, ParserSchema schema, CancellationToken cancellationToken)
     {
-        string checksum = _checksumCalculator.GetParserChecksum(schema, htmlContent);
-        string checksumLocation = _locator.GetChecksumLocation(collectionName, url, Medallion.Bronze);
+        string htmlContent = await _fileReader.ReadTextAsync(htmlLocation, cancellationToken);
 
-        string dataFileLocation = _locator.GetDataFileLocation(collectionName, url, Medallion.Bronze);
+        string checksum = _checksumCalculator.GetParserChecksum(schema, htmlContent);
         if (checksum == await ReadChecksum(checksumLocation, cancellationToken))
-            return await _fileReader.ReadJsonAsync<IEnumerable<Property>>(dataFileLocation, cancellationToken);
+            return;
 
         var bronze = _parser.Parse(htmlContent, schema);
-        await _fileWriter.AsJsonAsync(dataFileLocation, bronze, cancellationToken);
+        await _fileWriter.AsJsonAsync(dataLocation, bronze, cancellationToken);
         await _fileWriter.AsTextAsync(checksumLocation, checksum, cancellationToken);
-
-        return bronze;
     }
 
     async Task<string> ReadChecksum(string checksumLocation, CancellationToken cancellationToken)

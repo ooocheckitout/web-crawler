@@ -19,20 +19,23 @@ public class CollectionsController : ControllerBase
 
     [HttpGet]
     [Route("{collection}/{medallion}")]
-    public async Task<IEnumerable<Property>> GetAsync(string collection, Medallion medallion, CancellationToken cancellationToken, int take = 100)
+    public async Task<IEnumerable<Property>> GetAsync(string collection, Medallion medallion, CancellationToken cancellationToken, int limit = 100)
     {
         string dataLocation = _locator.GetDataLocation(collection, medallion);
 
-        var propertyTasks = Directory
-            .EnumerateFiles(dataLocation)
-            .Select(fileLocation => _fileReader.ReadJsonAsync<IEnumerable<Property>>(fileLocation, cancellationToken));
+        var properties = new List<Property>();
+        foreach (string fileLocation in Directory.EnumerateFiles(dataLocation))
+        {
+            if (properties.Count >= limit) break;
+            if (!System.IO.File.Exists(fileLocation)) continue;
 
-        var properties = await Task.WhenAll(propertyTasks);
+            properties.AddRange(await _fileReader.ReadJsonAsync<IEnumerable<Property>>(fileLocation, cancellationToken));
+        }
 
         var grouped = properties
-            .SelectMany(x => x)
             .GroupBy(x => x.Name)
-            .Select(x => new Property { Name = x.Key, Values = x.SelectMany(y => y.Values).ToList() });
+            .Select(x => new Property { Name = x.Key, Values = x.SelectMany(y => y.Values).ToList() })
+            .Take(limit);
 
         return grouped;
 
@@ -42,7 +45,7 @@ public class CollectionsController : ControllerBase
             return self.indexOf(value) === index;
         }
 
-        let response = await fetch("https://localhost:7087/collections/makeup-shampoo-urls/Silver?take=1000000")
+        let response = await fetch("https://localhost:7087/collections/makeup-shampoo-urls/Silver?limit=1000000")
         let data = await response.json()
         let detailUrls = data.flatMap(x => x.values).map(x => x.Url).filter(onlyUnique)
 

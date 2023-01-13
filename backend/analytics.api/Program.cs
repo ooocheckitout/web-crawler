@@ -2,19 +2,8 @@ using System.Text.Json.Serialization;
 using common;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-// var spark = SparkSession
-//     .Builder()
-//     .Config("spark.sql.session.timeZone", "UTC")
-//     .GetOrCreate();
-// builder.Services.AddSingleton(spark);
-
-const string collectionsRoot = @"D:\code\web-crawler\collections";
-var collectionLocator = new CollectionLocator(collectionsRoot, new Hasher());
-builder.Services.AddSingleton(collectionLocator);
-builder.Services.AddSingleton<FileReader>();
-
+builder.Services.AddLogging(x => x.AddConsole());
+builder.Services.AddCrawler();
 builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>

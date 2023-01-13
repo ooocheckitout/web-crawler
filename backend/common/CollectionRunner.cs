@@ -1,4 +1,3 @@
-﻿using System.Runtime.CompilerServices;
 ﻿using System.Text;
 using common.Bronze;
 using common.Silver;
@@ -17,7 +16,7 @@ public class CollectionRunner
     readonly Hasher _hasher;
     readonly Transformer _transformer;
     readonly ChecksumCalculator _checksumCalculator;
-    readonly ILogger _logger;
+    readonly ILogger<CollectionRunner> _logger;
 
     public CollectionRunner(
         CollectionLocator locator,
@@ -28,7 +27,7 @@ public class CollectionRunner
         Hasher hasher,
         Transformer transformer,
         ChecksumCalculator checksumCalculator,
-        ILogger logger)
+        ILogger<CollectionRunner> logger)
     {
         _locator = locator;
         _downloader = downloader;

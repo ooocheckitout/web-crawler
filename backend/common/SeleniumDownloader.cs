@@ -4,7 +4,7 @@ namespace common;
 
 public class SeleniumDownloader
 {
-    readonly TimeSpan _afterLoadDelay = TimeSpan.FromSeconds(3);
+    readonly TimeSpan _afterLoadDelay = TimeSpan.FromSeconds(1);
 
     public async Task<string> DownloadAsTextAsync(string url, CancellationToken cancellationToken)
     {

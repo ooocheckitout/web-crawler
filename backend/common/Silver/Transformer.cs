@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace common.Silver;
+﻿namespace common.Silver;
 
 public class Transformer
 {

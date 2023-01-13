@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using common;
-using common.Bronze;
+﻿using common;
 using common.Silver;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -41,7 +39,7 @@ public class CollectionHandlerIntegrationTests
 
     [Theory]
     [InlineData("makeup-shampoo-urls")]
-    // [InlineData("makeup-shampoo-variants")]
+    [InlineData("makeup-shampoo-variants")]
     public async Task ParallelCollectionRunner_ShouldHandleCollections(string collectionName)
     {
         var builder = new ServiceCollection()
@@ -61,13 +59,13 @@ public class CollectionHandlerIntegrationTests
     {
         var chromeOptions = new ChromeOptions();
 
-        using var abrowser = new ChromeDriver(ChromeDriverService.CreateDefaultService(), chromeOptions, TimeSpan.FromSeconds(30));
+        using var abrowser = new ChromeDriver(chromeOptions);
         abrowser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806/#offset=0");
 
-        using var bbrowser = new ChromeDriver(ChromeDriverService.CreateDefaultService(), chromeOptions, TimeSpan.FromSeconds(30));
+        using var bbrowser = new ChromeDriver(chromeOptions);
         bbrowser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806/#offset=36");
 
-        using var cbrowser = new ChromeDriver(ChromeDriverService.CreateDefaultService(), chromeOptions, TimeSpan.FromSeconds(30));
+        using var cbrowser = new ChromeDriver(chromeOptions);
         cbrowser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806/#offset=72");
     }
 
@@ -87,7 +85,7 @@ public class CollectionHandlerIntegrationTests
     }
 
     [Fact]
-    public void Do()
+    public void Grouping()
     {
         var properties = new List<Property>
         {
@@ -96,11 +94,21 @@ public class CollectionHandlerIntegrationTests
             new() { Name = "Test2", Values = new[] { 3 }.Cast<object>().ToList() },
         };
 
-
         var grouped = properties
             .GroupBy(x => x.Name)
             .Select(x => new Property { Name = x.Key, Values = x.Select(y => y.Values).Cast<object>().ToList() });
 
         _testOutputHelper.WriteLine(grouped.Dump());
+    }
+
+    [Fact]
+    public async Task DependencyInjection()
+    {
+        var builder = new ServiceCollection()
+            .AddLogging()
+            .AddCrawler();
+        await using var services = builder.BuildServiceProvider();
+
+        services.GetRequiredService<ParallelCollectionRunner>();
     }
 }
