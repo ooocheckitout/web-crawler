@@ -19,8 +19,6 @@ public class FileWriter
 
     public async Task AsTextAsync(string fileLocation, string content, CancellationToken cancellationToken)
     {
-        // Console.WriteLine($"Writing content to file {fileLocation}");
-
         Directory.CreateDirectory(Path.GetDirectoryName(fileLocation)!);
         await File.WriteAllTextAsync(fileLocation, content, Encoding.UTF8, cancellationToken);
     }

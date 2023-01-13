@@ -56,6 +56,11 @@ public class CollectionLocator
         return $"{_collectionsRoot}/{collection}/checksum/{MedallionToString(medallion)}/{hash}.checksum";
     }
 
+    public string GetComponentsFileLocation(string collection)
+    {
+        return $"{_collectionsRoot}/{collection}/checksum/components.txt";
+    }
+
     string MedallionToString(Medallion medallion)
     {
         return medallion.ToString().ToLower();
