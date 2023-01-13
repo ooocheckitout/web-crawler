@@ -11,6 +11,7 @@ public class SeleniumDownloader
         var chromeOptions = new ChromeOptions();
         chromeOptions.AddArguments("headless");
         chromeOptions.AddArgument("no-sandbox");
+        chromeOptions.AddArgument("--disable-logging");
 
         using var browser = new ChromeDriver(chromeOptions);
         browser.Navigate().GoToUrl(url);
