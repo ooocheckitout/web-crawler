@@ -1,27 +1,44 @@
 ﻿using System.Collections;
 using System.Reflection;
 using System.Text;
+using System.Linq;
 
 public static class Extensions
 {
-    public static T Dump<T>(this T obj)
+    public static string? Dump<T>(this T obj)
     {
-        if (obj is IEnumerable asEnumerable and not string)
-            foreach (var item in asEnumerable)
-                Dump(item);
-        else
-            Console.WriteLine(obj);
+        if (obj is null) return null;
 
-        return obj;
+        if (obj is IEnumerable asEnumerable and not string)
+        {
+            var sb = new StringBuilder();
+            foreach (object? item in asEnumerable)
+            {
+                sb.Append(Dump(item));
+            }
+            return sb.ToString();
+        }
+
+        var objString = obj.ToString();
+        var typeString = obj.GetType().ToString();
+
+        return objString == typeString ? obj.PrintPublicProperties() : objString;
     }
 
-    public static string Print(this object obj)
+    public static string PrintPublicProperties(this object obj)
     {
         var sb = new StringBuilder();
         var properties = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
         foreach (var property in properties)
         {
-            sb.Append($"{property.Name}: {property.GetValue(obj)} {Environment.NewLine}");
+            object? value = property.GetValue(obj);
+            if (value is IEnumerable asEnumerable and not string)
+            {
+                value = $"[Count: {asEnumerable.Cast<object>().Count()}]";
+            }
+
+
+            sb.Append($"{property.Name}: {value} {Environment.NewLine}");
         }
 
         return sb.ToString();

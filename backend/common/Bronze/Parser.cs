@@ -15,8 +15,6 @@ public class Parser
         {
             var cleanedXPath = $"{field.XPath} | {field.XPath.Replace("tbody", "")}";
             var results = document.DocumentNode.SelectNodes(cleanedXPath);
-            // if (results is null)
-            //     throw new InvalidOperationException($"No elements found for {field.Name} field!");
 
             if (results is null)
             {

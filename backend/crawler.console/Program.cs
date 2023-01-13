@@ -1,22 +1,15 @@
 ﻿using common;
-using common.Bronze;
-using common.Silver;
-using crawler.tests;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.Options;
 
-const string collectionsRoot = @"D:\code\web-crawler\collections";
 
-var hasher = new Hasher();
-var locator = new CollectionLocator(collectionsRoot, hasher);
-var fileReader = new FileReader();
-var factory = new CollectionFactory(locator, fileReader);
-var fileWriter = new FileWriter();
-using var downloader = new SeleniumDownloader();
-var loggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
-var handler = new CollectionRunner(locator, downloader, fileReader, new Parser(), fileWriter, hasher, new Transformer(),
-    loggerFactory.CreateLogger<CollectionRunner>());
+var builder = new ServiceCollection()
+    .AddLogging(x => x.AddConsole())
+    .AddCrawler();
+var services = builder.BuildServiceProvider();
+
+var factory = services.GetRequiredService<CollectionFactory>();
+var handler = services.GetRequiredService<CollectionRunner>();
 
 // foreach (var collection in await factory.GetAllAsync(CancellationToken.None))
 {

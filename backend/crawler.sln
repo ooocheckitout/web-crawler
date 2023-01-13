@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "analytics.console", "analyt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "analytics.api", "analytics.api\analytics.api.csproj", "{7800E1E5-6514-4804-AFF9-1DA95DCAAB53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "benchmark.console", "benchmark.console\benchmark.console.csproj", "{681AE8FF-7B27-42C9-9768-12F0F04D655C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{7800E1E5-6514-4804-AFF9-1DA95DCAAB53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7800E1E5-6514-4804-AFF9-1DA95DCAAB53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7800E1E5-6514-4804-AFF9-1DA95DCAAB53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{681AE8FF-7B27-42C9-9768-12F0F04D655C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{681AE8FF-7B27-42C9-9768-12F0F04D655C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{681AE8FF-7B27-42C9-9768-12F0F04D655C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{681AE8FF-7B27-42C9-9768-12F0F04D655C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

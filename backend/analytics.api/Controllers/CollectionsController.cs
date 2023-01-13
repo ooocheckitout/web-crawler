@@ -27,16 +27,22 @@ public class CollectionsController : ControllerBase
             .EnumerateFiles(dataLocation)
             .Select(fileLocation => _fileReader.ReadJsonAsync<IEnumerable<Property>>(fileLocation, cancellationToken));
 
-        var awaited = await Task.WhenAll(propertyTasks);
+        var properties = await Task.WhenAll(propertyTasks);
 
-        return awaited.SelectMany(x => x).Take(take);
+        var grouped = properties
+            .SelectMany(x => x)
+            .GroupBy(x => x.Name)
+            .Select(x => new Property { Name = x.Key, Values = x.SelectMany(y => y.Values).ToList() });
+
+        return grouped;
 
         /*
+
         function onlyUnique(value, index, self) {
             return self.indexOf(value) === index;
         }
 
-        let response = await fetch("https://localhost:7087/makeup-shampoo-urls/Silver?take=1000000")
+        let response = await fetch("https://localhost:7087/collections/makeup-shampoo-urls/Silver?take=1000000")
         let data = await response.json()
         let detailUrls = data.flatMap(x => x.values).map(x => x.Url).filter(onlyUnique)
 

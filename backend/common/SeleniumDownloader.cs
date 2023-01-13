@@ -1,28 +1,18 @@
 ﻿using OpenQA.Selenium.Chrome;
 
-namespace crawler.tests;
+namespace common;
 
-public class SeleniumDownloader : IDisposable
+public class SeleniumDownloader
 {
-    private readonly ChromeDriver _browser;
-
-    public SeleniumDownloader()
+    public Task<string> DownloadAsTextAsync(string url, CancellationToken cancellationToken)
     {
         var chromeOptions = new ChromeOptions();
         chromeOptions.AddArguments("headless");
         chromeOptions.AddArgument("no-sandbox");
-        
-        _browser = new ChromeDriver(ChromeDriverService.CreateDefaultService(), chromeOptions, TimeSpan.FromSeconds(30));
-    }
 
-    public Task<string> DownloadAsTextAsync(string url, CancellationToken cancellationToken)
-    {
-        _browser.Navigate().GoToUrl(url);
-        return Task.FromResult(_browser.PageSource);
-    }
-
-    public void Dispose()
-    {
-        _browser.Dispose();
+        using var browser = new ChromeDriver(ChromeDriverService.CreateDefaultService(), chromeOptions, TimeSpan.FromSeconds(30));
+        browser.Navigate().GoToUrl(url);
+        string? pageSource = browser.PageSource;
+        return Task.FromResult(pageSource);
     }
 }

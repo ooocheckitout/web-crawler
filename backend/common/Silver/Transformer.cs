@@ -2,7 +2,7 @@
 
 public class Transformer
 {
-    public IEnumerable<Property> Transform(Data data, TransformerSchema schema)
+    public IEnumerable<Property> Transform(IEnumerable<Property> data, TransformerSchema schema)
     {
         var properties = data.Select(x => new Property { Name = x.Name, Values = x.Values }).ToList();
 
@@ -27,7 +27,7 @@ public class Transformer
                         var property = properties.Single(y => y.Name == x);
                         return new TransformProperty { Name = property.Name, Values = property.Values, Alias = compute.Alias };
                     }).ToList();
-                    
+
                     int maxLength = computeProperties.Max(x => x.Values.Count);
 
                     var filledProperties = new List<Property>();

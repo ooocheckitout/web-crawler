@@ -5,7 +5,7 @@ namespace crawler.tests;
 
 public class XunitLoggerProvider : ILoggerProvider
 {
-    private readonly ITestOutputHelper _testOutputHelper;
+    readonly ITestOutputHelper _testOutputHelper;
 
     public XunitLoggerProvider(ITestOutputHelper testOutputHelper)
     {

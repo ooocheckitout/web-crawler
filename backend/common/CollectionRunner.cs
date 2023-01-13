@@ -1,6 +1,6 @@
-﻿using common.Bronze;
+﻿using System.Runtime.CompilerServices;
+using common.Bronze;
 using common.Silver;
-using crawler.tests;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 
@@ -15,6 +15,7 @@ public class CollectionRunner
     readonly FileWriter _fileWriter;
     readonly Hasher _hasher;
     readonly Transformer _transformer;
+    readonly ChecksumCalculator _checksumCalculator;
     readonly ILogger _logger;
 
     public CollectionRunner(
@@ -25,6 +26,7 @@ public class CollectionRunner
         FileWriter fileWriter,
         Hasher hasher,
         Transformer transformer,
+        ChecksumCalculator checksumCalculator,
         ILogger logger)
     {
         _locator = locator;
@@ -34,6 +36,7 @@ public class CollectionRunner
         _fileWriter = fileWriter;
         _hasher = hasher;
         _transformer = transformer;
+        _checksumCalculator = checksumCalculator;
         _logger = logger;
     }
 
@@ -45,7 +48,8 @@ public class CollectionRunner
             foreach (string url in urls)
             {
                 string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
-                if (File.Exists(htmlLocation)){
+                if (File.Exists(htmlLocation))
+                {
                     _logger.LogInformation("File {htmlLocation} already exist. Skipping...", htmlLocation);
                     continue;
                 }
@@ -70,14 +74,15 @@ public class CollectionRunner
         {
             string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
 
-            if (!File.Exists(htmlLocation)){
+            if (!File.Exists(htmlLocation))
+            {
                 _logger.LogInformation("File {htmlLocation} does not exist. Skipping...", htmlLocation);
                 continue;
             }
 
             string htmlContent = await _fileReader.ReadTextAsync(htmlLocation, cancellationToken);
 
-            string checksum = CalculateChecksum(htmlContent, collection.ParserSchema.ToString());
+            string checksum = _checksumCalculator.GetParserChecksum(collection.ParserSchema, htmlContent);
             string checksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Bronze);
             if (checksum == await GetChecksumAsync(checksumLocation, cancellationToken))
             {
@@ -104,7 +109,7 @@ public class CollectionRunner
 
             var bronze = await _fileReader.ReadJsonAsync<Data>(bronzeFileLocation, cancellationToken);
 
-            string checksum = CalculateChecksum(bronze.ToString(), collection.TransformerSchema.ToString());
+            string checksum = _checksumCalculator.GetTransformerChecksum(collection.TransformerSchema, bronze);
             string checksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Silver);
             if (checksum == await GetChecksumAsync(checksumLocation, cancellationToken))
                 continue;
@@ -122,11 +127,5 @@ public class CollectionRunner
         return File.Exists(checksumLocation)
             ? await _fileReader.ReadTextAsync(checksumLocation, cancellationToken)
             : string.Empty;
-    }
-
-    string CalculateChecksum(params string[] strings)
-    {
-        var hashes = strings.Select(x => _hasher.GetSha256HashAsHex(x));
-        return _hasher.GetSha256HashAsHex(string.Join("", hashes));
     }
 }
