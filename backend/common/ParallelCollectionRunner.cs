@@ -54,8 +54,6 @@ public class ParallelCollectionRunner
                 await _transformExecutor.TransformAsync(bronzeLocation, silverLocation, silverChecksumLocation, collection.TransformerSchema, token);
             });
 
-            await Task.Delay(1000, cancellationToken);
-
             foreach (string url in itemWithIndex.Item)
             {
                 sb.Append($"{_hasher.GetSha256HashAsHex(url)} {url} {Environment.NewLine}");
