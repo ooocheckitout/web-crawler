@@ -70,7 +70,7 @@ public class CollectionRunner
     async Task DownloadAndSave(string url, string htmlLocation, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Downloading from {url} to {htmlLocation}", url, htmlLocation);
-        string htmlContent = await _downloader.DownloadAsText(url, cancellationToken);
+        string htmlContent = await _downloader.DownloadAsTextAsync(url, cancellationToken);
         await _fileWriter.AsTextAsync(htmlLocation, htmlContent, cancellationToken);
     }
 
