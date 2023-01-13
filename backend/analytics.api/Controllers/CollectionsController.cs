@@ -36,7 +36,7 @@ public class CollectionsController : ControllerBase
             return self.indexOf(value) === index;
         }
 
-        let response = await fetch("https://localhost:7087/makeup-shampoo-urls/Silver?take=1000000")
+        let response = await fetch("https://localhost:7087/collections/makeup-shampoo-urls/Silver?take=1000000")
         let data = await response.json()
         let detailUrls = data.flatMap(x => x.values).map(x => x.Url).filter(onlyUnique)
 

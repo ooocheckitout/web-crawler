@@ -1,4 +1,5 @@
-﻿using common.Bronze;
+﻿using System.Text;
+using common.Bronze;
 using common.Silver;
 using crawler.tests;
 using Microsoft.Extensions.Logging;
@@ -39,13 +40,17 @@ public class CollectionRunner
 
     public async Task RunLoader(Collection collection, CancellationToken cancellationToken)
     {
-        foreach (var urls in collection.Urls.Distinct().Batch(50))
+        var sb = new StringBuilder();
+        foreach (var urls in collection.Urls.Distinct().Batch(10))
         {
             var tasks = new List<Task>();
             foreach (string url in urls)
             {
                 string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
-                if (File.Exists(htmlLocation)){
+                sb.Append($"{url} {htmlLocation} {Environment.NewLine}");
+
+                if (File.Exists(htmlLocation))
+                {
                     _logger.LogInformation("File {htmlLocation} already exist. Skipping...", htmlLocation);
                     continue;
                 }
@@ -54,13 +59,15 @@ public class CollectionRunner
             }
 
             await Task.WhenAll(tasks);
+
+            await _fileWriter.AsTextAsync(_locator.GetComponentsFileLocation(collection.Name), sb.ToString(), cancellationToken);
         }
     }
 
     async Task DownloadAndSave(string url, string htmlLocation, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Downloading from {url} to {htmlLocation}", url, htmlLocation);
-        string htmlContent = await _downloader.DownloadAsTextAsync(url, cancellationToken);
+        string htmlContent = await _downloader.DownloadAsText(url, cancellationToken);
         await _fileWriter.AsTextAsync(htmlLocation, htmlContent, cancellationToken);
     }
 
@@ -70,7 +77,8 @@ public class CollectionRunner
         {
             string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
 
-            if (!File.Exists(htmlLocation)){
+            if (!File.Exists(htmlLocation))
+            {
                 _logger.LogInformation("File {htmlLocation} does not exist. Skipping...", htmlLocation);
                 continue;
             }
