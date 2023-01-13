@@ -168,4 +168,24 @@ public class CollectionHandlerIntegrationTests
 
         services.GetRequiredService<ParallelCollectionRunner>();
     }
+
+    [Fact]
+    public void Pool()
+    {
+        var pool = new Pool<int>(new[] {1, 2, 3}, TimeSpan.FromSeconds(5));
+
+        using var item1 = pool.GetAvailableOrWait();
+        _testOutputHelper.WriteLine(item1.ToString());
+
+        using var item2 = pool.GetAvailableOrWait();
+        _testOutputHelper.WriteLine(item2.ToString());
+
+        using (var item3 = pool.GetAvailableOrWait())
+        {
+            _testOutputHelper.WriteLine(item3.ToString());
+        }
+
+        using var item4 = pool.GetAvailableOrWait();
+        _testOutputHelper.WriteLine(item4.ToString());
+    }
 }

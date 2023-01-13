@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 
@@ -38,6 +39,7 @@ public class ParallelCollectionRunner
         var sb = new StringBuilder();
         foreach (var itemWithIndex in collection.Urls.Batch(BatchSize).WithIndex())
         {
+            var sw = Stopwatch.StartNew();
             await Parallel.ForEachAsync(itemWithIndex.Item, cancellationToken, async (url, token) =>
             {
                 using var _ = _logger.BeginScope(url);
@@ -62,7 +64,8 @@ public class ParallelCollectionRunner
             string componentsLocation = _locator.GetComponentsFileLocation(collection.Name);
             await _fileWriter.AsTextAsync(componentsLocation, sb.ToString(), cancellationToken);
 
-            _logger.LogInformation("{collectionName} progress: {ProcessedElements}", collection.Name, (itemWithIndex.Index + 1) * BatchSize);
+            _logger.LogInformation(
+                "{collectionName} progress: {processedElements} {elapsed}", collection.Name, (itemWithIndex.Index + 1) * BatchSize, sw.Elapsed);
         }
     }
 }

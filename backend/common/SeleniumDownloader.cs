@@ -17,7 +17,6 @@ public class SeleniumDownloader : IDisposable
         // service.HideCommandPromptWindow = true;
 
         _browser = new ChromeDriver(service, chromeOptions);
-
     }
 
     public async Task<string> DownloadAsTextAsync(string url, CancellationToken cancellationToken)

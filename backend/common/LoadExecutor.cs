@@ -3,12 +3,12 @@
 public class LoadExecutor
 {
     readonly FileWriter _fileWriter;
-    readonly SeleniumDownloader _downloader;
+    readonly Pool<SeleniumDownloader> _downloaderPool;
 
-    public LoadExecutor(FileWriter fileWriter, SeleniumDownloader downloader)
+    public LoadExecutor(FileWriter fileWriter, Pool<SeleniumDownloader> downloaderPool)
     {
         _fileWriter = fileWriter;
-        _downloader = downloader;
+        _downloaderPool = downloaderPool;
     }
 
     public async Task LoadContentAsync(string url, string htmlLocation, CancellationToken cancellationToken)
@@ -16,7 +16,8 @@ public class LoadExecutor
         if (File.Exists(htmlLocation))
             return;
 
-        string htmlContent = await _downloader.DownloadAsTextAsync(url, cancellationToken);
+        using var downloader = _downloaderPool.GetAvailableOrWait();
+        string htmlContent = await ((SeleniumDownloader) downloader).DownloadAsTextAsync(url, cancellationToken);
         await _fileWriter.AsTextAsync(htmlLocation, htmlContent, cancellationToken);
     }
 }

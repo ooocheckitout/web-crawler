@@ -22,6 +22,9 @@ public static class DependencyInjectionExtensions
         builder.AddTransient<LoadExecutor>();
         builder.AddTransient<ParseExecutor>();
         builder.AddTransient<TransformExecutor>();
+        builder.AddTransient(_ => new Pool<SeleniumDownloader>(
+            Enumerable.Range(0, 5).Select(_ => new SeleniumDownloader())
+        ));
         builder.AddTransient<ParallelCollectionRunner>();
 
         return builder;
