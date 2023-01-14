@@ -20,48 +20,48 @@ public class CollectionLocator
 
     public string GetRoot()
     {
-        return _collectionsRoot;
+        return Path.GetFullPath(_collectionsRoot);
     }
 
     public string GetSchemaLocation(string collection, Medallion medallion)
     {
-        return $"{_collectionsRoot}/{collection}/{MedallionToString(medallion)}.json";
+        return Path.GetFullPath($"{collection}/{MedallionToString(medallion)}.json", _collectionsRoot);
     }
 
     public string GetUrlsLocation(string collection)
     {
-        return $"{_collectionsRoot}/{collection}/urls.json";
+        return Path.GetFullPath($"{collection}/urls.json", _collectionsRoot);
     }
 
     public string GetHtmlLocation(string collection, string url)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        return $"{_collectionsRoot}/{collection}/content/{hash}.html";
+        return Path.GetFullPath($"{collection}/content/{hash}.html", _collectionsRoot);
     }
 
     public string GetDataLocation(string collection, Medallion medallion)
     {
-        return $"{_collectionsRoot}/{collection}/{MedallionToString(medallion)}";
+        return Path.GetFullPath($"{collection}/{MedallionToString(medallion)}", _collectionsRoot);
     }
 
     public string GetDataFileLocation(string collection, string url, Medallion medallion)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        return $"{_collectionsRoot}/{collection}/{MedallionToString(medallion)}/{hash}.json";
+        return Path.GetFullPath($"{collection}/{MedallionToString(medallion)}/{hash}.json", _collectionsRoot);
     }
 
     public string GetChecksumLocation(string collection, string url, Medallion medallion)
     {
         string hash = _hasher.GetSha256HashAsHex(url);
-        return $"{_collectionsRoot}/{collection}/checksum/{MedallionToString(medallion)}/{hash}.checksum";
+        return Path.GetFullPath($"{collection}/checksum/{MedallionToString(medallion)}/{hash}.checksum", _collectionsRoot);
     }
 
     public string GetComponentsFileLocation(string collection)
     {
-        return $"{_collectionsRoot}/{collection}/checksum/components.txt";
+        return Path.GetFullPath($"{collection}/checksum/components.txt", _collectionsRoot);
     }
 
-    string MedallionToString(Medallion medallion)
+    static string MedallionToString(Medallion medallion)
     {
         return medallion.ToString().ToLower();
     }

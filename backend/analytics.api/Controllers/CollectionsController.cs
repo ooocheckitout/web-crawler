@@ -47,7 +47,9 @@ public class CollectionsController : ControllerBase
 
         let response = await fetch("https://localhost:7087/collections/makeup-shampoo-urls/Silver?limit=1000000")
         let data = await response.json()
-        let detailUrls = data.flatMap(x => x.values).map(x => x.Url).filter(onlyUnique)
+        let detailUrls = data.flatMap(x => x.values).map(x => x.Url)
+        let unique = detailUrls.filter(onlyUnique)
+        let duplicates = detailUrls.filter((item, index) => detailUrls.indexOf(item) !== index)
 
         */
     }

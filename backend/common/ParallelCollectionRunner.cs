@@ -14,7 +14,7 @@ public class ParallelCollectionRunner
     readonly FileWriter _fileWriter;
     readonly Hasher _hasher;
     readonly ILogger<ParallelCollectionRunner> _logger;
-    const int BatchSize = 10;
+    const int BatchSize = 50;
 
     public ParallelCollectionRunner(
         LoadExecutor loadExecutor,
@@ -36,10 +36,11 @@ public class ParallelCollectionRunner
 
     public async Task RunAsync(Collection collection, CancellationToken cancellationToken)
     {
+        var sw = Stopwatch.StartNew();
         var sb = new StringBuilder();
         foreach (var itemWithIndex in collection.Urls.Batch(BatchSize).WithIndex())
         {
-            var sw = Stopwatch.StartNew();
+			var batchSw = Stopwatch.StartNew();
             await Parallel.ForEachAsync(itemWithIndex.Item, cancellationToken, async (url, token) =>
             {
                 using var _ = _logger.BeginScope(url);
@@ -65,7 +66,8 @@ public class ParallelCollectionRunner
             await _fileWriter.AsTextAsync(componentsLocation, sb.ToString(), cancellationToken);
 
             _logger.LogInformation(
-                "{collectionName} progress: {processedElements} {elapsed}", collection.Name, (itemWithIndex.Index + 1) * BatchSize, sw.Elapsed);
+				"Processed {count} items in {elapsed} and {elapsedPerBatch} per batch for {collection}",
+				(itemWithIndex.Index + 1) * BatchSize, sw.Elapsed, batchSw.Elapsed, collection.Name);
         }
     }
 }
