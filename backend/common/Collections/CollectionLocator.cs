@@ -1,11 +1,4 @@
-﻿namespace common;
-
-public enum Medallion
-{
-    None = 0,
-    Bronze = 1,
-    Silver = 2,
-}
+﻿namespace common.Collections;
 
 public class CollectionLocator
 {

@@ -1,22 +1,21 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 
-namespace common;
+namespace common.Threads;
 
-public class MultiThreadWorker : IDisposable
+public class ThreadWorker : IDisposable
 {
     readonly ILogger _logger;
     readonly CancellationTokenSource _cts;
-    readonly IEnumerable<Thread> _threads;
+    readonly Thread _thread;
     readonly ConcurrentQueue<(TaskCompletionSource, Action)> _queue = new();
 
-    public MultiThreadWorker(int numberOfThreads, ILogger logger)
+    public ThreadWorker(ILogger logger)
     {
         _logger = logger;
         _cts = new CancellationTokenSource();
-        _threads = Enumerable.Range(0, numberOfThreads).Select(_ => new Thread(InternalLoop));
-        _threads.ForEach(x => x.Start());
+        _thread = new Thread(InternalLoop);
+        _thread.Start();
     }
 
     public Task ExecuteAsync(Action action)
@@ -26,28 +25,13 @@ public class MultiThreadWorker : IDisposable
         return tcs.Task;
     }
 
-    public Task ExecuteManyAsync(params Action[] actions)
-    {
-        var tasks = new List<Task>();
-        foreach (var action in actions)
-        {
-            var tcs = new TaskCompletionSource();
-            _queue.Enqueue((tcs, action));
-            tasks.Add(tcs.Task);
-        }
-
-        return Task.WhenAll(tasks);
-    }
-
     void InternalLoop()
     {
         _logger.LogDebug("Worker started");
-
-        Thread.Sleep(100);
-
         while (!_cts.IsCancellationRequested)
         {
-            if (!_queue.TryDequeue(out var actionItem)) continue;
+            Thread.Sleep(25);
+            if (_queue.IsEmpty || !_queue.TryDequeue(out var actionItem)) continue;
 
             _logger.LogDebug("Executing action");
             actionItem.Item2();
@@ -61,9 +45,6 @@ public class MultiThreadWorker : IDisposable
     {
         _cts.Cancel();
         _logger.LogDebug("Worker cancelled");
-        _threads.ForEach(x =>
-        {
-            if (x.ThreadState == ThreadState.Running) x.Join();
-        });
+        _thread.Join();
     }
 }

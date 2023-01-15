@@ -4,7 +4,7 @@ using common.Silver;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 
-namespace common;
+namespace common.Collections;
 
 public class CollectionRunner
 {
@@ -13,7 +13,6 @@ public class CollectionRunner
     readonly FileReader _fileReader;
     readonly Parser _parser;
     readonly FileWriter _fileWriter;
-    readonly Hasher _hasher;
     readonly Transformer _transformer;
     readonly ChecksumCalculator _checksumCalculator;
     readonly ILogger<CollectionRunner> _logger;
@@ -24,7 +23,6 @@ public class CollectionRunner
         FileReader fileReader,
         Parser parser,
         FileWriter fileWriter,
-        Hasher hasher,
         Transformer transformer,
         ChecksumCalculator checksumCalculator,
         ILogger<CollectionRunner> logger)
@@ -34,7 +32,6 @@ public class CollectionRunner
         _fileReader = fileReader;
         _parser = parser;
         _fileWriter = fileWriter;
-        _hasher = hasher;
         _transformer = transformer;
         _checksumCalculator = checksumCalculator;
         _logger = logger;

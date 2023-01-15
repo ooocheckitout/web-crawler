@@ -1,20 +1,18 @@
 ﻿using common.Silver;
 
-namespace common;
+namespace common.Executors;
 
 public class TransformExecutor
 {
     readonly ChecksumCalculator _checksumCalculator;
-    readonly CollectionLocator _locator;
     readonly Transformer _transformer;
     readonly FileReader _fileReader;
     readonly FileWriter _fileWriter;
 
     public TransformExecutor(
-        ChecksumCalculator checksumCalculator, CollectionLocator locator, Transformer transformer, FileReader fileReader, FileWriter fileWriter)
+        ChecksumCalculator checksumCalculator, Transformer transformer, FileReader fileReader, FileWriter fileWriter)
     {
         _checksumCalculator = checksumCalculator;
-        _locator = locator;
         _transformer = transformer;
         _fileReader = fileReader;
         _fileWriter = fileWriter;
