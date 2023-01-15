@@ -2,18 +2,20 @@
 
 public class PoolItem<T> : IDisposable
 {
-    T? Value { get; }
+    T Value { get; }
+    public int Index { get; }
     Action<PoolItem<T>> DisposeAction { get; }
 
-    public PoolItem(T value, Action<PoolItem<T>> disposeAction)
+    public PoolItem(T value, int index, Action<PoolItem<T>> disposeAction)
     {
         Value = value;
+        Index = index;
         DisposeAction = disposeAction;
     }
 
     public override string ToString()
     {
-        return Value?.ToString() ?? string.Empty;
+        return Value.ToString();
     }
 
     public static implicit operator T(PoolItem<T> item) => item.Value;
