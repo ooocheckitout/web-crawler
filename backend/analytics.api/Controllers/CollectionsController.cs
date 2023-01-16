@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace analytics.api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("collections")]
 public class CollectionsController : ControllerBase
 {
     readonly CollectionLocator _locator;

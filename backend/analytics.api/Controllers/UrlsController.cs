@@ -1,4 +1,5 @@
 ﻿using common;
+using common.Collections;
 using Microsoft.AspNetCore.Mvc;
 
 namespace analytics.api.Controllers;

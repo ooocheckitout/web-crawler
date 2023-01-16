@@ -13,7 +13,7 @@ public class Parser
         var properties = new List<Property>();
         foreach (var field in schema)
         {
-            var cleanedXPath = $"{field.XPath} | {field.XPath.Replace("tbody", "")}";
+            var cleanedXPath = $"{field.Xpath} | {field.Xpath.Replace("tbody", "")}";
             var results = document.DocumentNode.SelectNodes(cleanedXPath);
 
             if (results is null)

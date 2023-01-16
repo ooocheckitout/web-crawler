@@ -10,6 +10,7 @@ builder.Services
     {
         var enumConverter = new JsonStringEnumConverter();
         opts.JsonSerializerOptions.Converters.Add(enumConverter);
+        opts.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
     });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

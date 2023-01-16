@@ -22,7 +22,8 @@ public class FileWriter
         {
             WriteIndented = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+            PropertyNamingPolicy = new LowercaseJsonCamelCaseNamingPolicy(),
         });
         return AsTextAsync(fileLocation, content, cancellationToken);
     }
