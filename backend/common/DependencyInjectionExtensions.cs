@@ -1,6 +1,10 @@
 ﻿using common.Bronze;
+using common.Collections;
+using common.Executors;
 using common.Silver;
+using common.Threads;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace common;
 
@@ -22,9 +26,21 @@ public static class DependencyInjectionExtensions
         builder.AddTransient<LoadExecutor>();
         builder.AddTransient<ParseExecutor>();
         builder.AddTransient<TransformExecutor>();
-        builder.AddTransient(_ => new Pool<SeleniumDownloader>(
-            Enumerable.Range(0, 5).Select(_ => new SeleniumDownloader())
-        ));
+        builder.AddTransient<ThreadWorker>();
+        builder.AddTransient<MultiThreadWorker>();
+        builder.AddTransient<AppOptions>(_ => new AppOptions
+        {
+            BatchSize = 50,
+            NumberOfSeleniumDownloaders = 5,
+            NumberOfWorkerThreads = 5
+        });
+        builder.AddTransient<LeaseBroker<SeleniumDownloader>>(provider =>
+            new LeaseBroker<SeleniumDownloader>(
+                provider.GetRequiredService<SeleniumDownloader>,
+                provider.GetRequiredService<AppOptions>().NumberOfSeleniumDownloaders,
+                provider.GetRequiredService<ILogger<LeaseBroker<SeleniumDownloader>>>()
+            )
+        );
         builder.AddTransient<ParallelCollectionRunner>();
 
         return builder;

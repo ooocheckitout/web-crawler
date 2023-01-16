@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using common;
+using common.Collections;
 using common.Silver;
+using common.Threads;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -59,7 +61,7 @@ public class CollectionHandlerIntegrationTests
     }
 
     [Fact]
-    public async Task Selenium_DriverPerPage()
+    public void Selenium_DriverPerPage()
     {
         var chromeOptions = new ChromeOptions();
         chromeOptions.AddArguments("headless");
@@ -271,66 +273,13 @@ public class CollectionHandlerIntegrationTests
         using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
 
         using var multiThreadWorker = new MultiThreadWorker(numberOfHandlers, logger);
-        var actions = Enumerable.Range(0, numberOfItems).Select(_ => new Action(() => Thread.Sleep(3000))).ToArray();
+        var actions = Enumerable.Range(0, numberOfItems).Select(_ => new Func<Task>(() => Task.Delay(3000))).ToArray();
         await multiThreadWorker.ExecuteManyAsync(actions);
     }
 
     [Fact]
     public async Task X()
     {
-        // 3 items 5 drivers 45 sec
-        // 00:00:19.2460926
-        // 00:00:20.1625085
-        // 00:00:20.2111937
-
-        // 6 items 5 drivers 1 min
-        // 00:00:34.6526458
-        // 00:00:34.7323176
-        // 00:00:34.8276810
-        // 00:00:03.2209547
-        // 00:00:41.7234537
-        // 00:00:10.1377826
-
-        // 9 items 5 drivers 58 sec
-        // 00:00:24.7881836
-        // 00:00:25.0653232
-        // 00:00:25.4892406
-        // 00:00:25.6480990
-        // 00:00:03.6729242
-        // 00:00:03.1596662
-        // 00:00:11.7588896
-        // 00:00:13.0247375
-        // 00:00:10.2267391
-
-        // 12 items 5 drivers 1 min 20 sec
-        // 00:00:39.6596872
-        // 00:00:39.8322249
-        // 00:00:42.3287459
-        // 00:00:42.4072463
-        // 00:00:03.1862283
-        // 00:00:03.1410544
-        // 00:00:03.7924767
-        // 00:00:04.3668256
-        // 00:00:04.0291749
-        // 00:00:03.3626974
-        // 00:00:03.4542302
-        // 00:00:15.3015256
-
-        // 12 items 10 drivers 2 min 20 sec
-        // 00:00:30.0038378
-        // 00:00:32.7081606
-        // 00:00:04.6861130
-        // 00:00:03.6270446
-        // 00:00:03.6349488
-        // 00:00:03.2640606
-        // 00:00:40.6982663
-        // 00:00:41.0459323
-        // 00:00:03.1451681
-        // 00:00:03.1109537
-        // 00:00:03.5854824
-        // 00:00:12.8146407
-
-
         // 3 items 3 drivers 22 sec
         // 6 items 3 drivers 32 sec
         // 9 items 3 drivers 38 sec
@@ -368,13 +317,14 @@ public class CollectionHandlerIntegrationTests
         using var drivers = new LeaseBroker<ChromeDriver>(() => new ChromeDriver(chromeOptions), 3, logger);
 
         using var multiThreadWorker = new MultiThreadWorker(3, logger);
-        var actions = duplicatedItems.Select(item => new Action(() =>
+        var actions = duplicatedItems.Select(item => new Func<Task>(async () =>
         {
             var lease = drivers.TakeLease();
             var browser = lease.Value;
 
             var sw = Stopwatch.StartNew();
             browser.Navigate().GoToUrl(item.Url);
+            await Task.Delay(3000);
             Thread.Sleep(TimeSpan.FromSeconds(3));
             browser
                 .FindElement(By.XPath(xpath))

@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using common.Collections;
+using common.Executors;
+using common.Threads;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 
@@ -13,8 +16,8 @@ public class ParallelCollectionRunner
     readonly CollectionLocator _locator;
     readonly FileWriter _fileWriter;
     readonly Hasher _hasher;
+    readonly AppOptions _options;
     readonly ILogger<ParallelCollectionRunner> _logger;
-    const int BatchSize = 50;
 
     public ParallelCollectionRunner(
         LoadExecutor loadExecutor,
@@ -23,6 +26,7 @@ public class ParallelCollectionRunner
         CollectionLocator locator,
         FileWriter fileWriter,
         Hasher hasher,
+        AppOptions options,
         ILogger<ParallelCollectionRunner> logger)
     {
         _loadExecutor = loadExecutor;
@@ -31,31 +35,22 @@ public class ParallelCollectionRunner
         _locator = locator;
         _fileWriter = fileWriter;
         _hasher = hasher;
+        _options = options;
         _logger = logger;
     }
 
     public async Task RunAsync(Collection collection, CancellationToken cancellationToken)
     {
+        using var multiThreadWorker = new MultiThreadWorker(_options.NumberOfWorkerThreads, _logger);
+
         var sw = Stopwatch.StartNew();
         var sb = new StringBuilder();
-        foreach (var itemWithIndex in collection.Urls.Batch(BatchSize).WithIndex())
+        foreach (var itemWithIndex in collection.Urls.Batch(_options.BatchSize).WithIndex())
         {
-			var batchSw = Stopwatch.StartNew();
-            await Parallel.ForEachAsync(itemWithIndex.Item, cancellationToken, async (url, token) =>
-            {
-                using var _ = _logger.BeginScope(url);
+            var batchSw = Stopwatch.StartNew();
 
-                string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
-                await _loadExecutor.LoadContentAsync(url, htmlLocation, token);
-
-                string bronzeLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Bronze);
-                string bronzeChecksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Bronze);
-                await _parseExecutor.ParseAsync(htmlLocation, bronzeLocation, bronzeChecksumLocation, collection.ParserSchema, token);
-
-                string silverLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Silver);
-                string silverChecksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Silver);
-                await _transformExecutor.TransformAsync(bronzeLocation, silverLocation, silverChecksumLocation, collection.TransformerSchema, token);
-            });
+            var actions = itemWithIndex.Item.Select(x => new Func<Task>(() => ProcessAsync(collection, x, cancellationToken))).ToArray();
+            await multiThreadWorker.ExecuteManyAsync(actions);
 
             foreach (string url in itemWithIndex.Item)
             {
@@ -66,8 +61,24 @@ public class ParallelCollectionRunner
             await _fileWriter.AsTextAsync(componentsLocation, sb.ToString(), cancellationToken);
 
             _logger.LogInformation(
-				"Processed {count} items in {elapsed} and {elapsedPerBatch} per batch for {collection}",
-				(itemWithIndex.Index + 1) * BatchSize, sw.Elapsed, batchSw.Elapsed, collection.Name);
+                "Processed {count} items in {elapsed} and {elapsedPerBatch} per batch for {collection}",
+                (itemWithIndex.Index + 1) * _options.BatchSize, sw.Elapsed, batchSw.Elapsed, collection.Name);
         }
+    }
+
+    async Task ProcessAsync(Collection collection, string url, CancellationToken cancellationToken)
+    {
+        using var _ = _logger.BeginScope(url);
+
+        string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
+        await _loadExecutor.LoadContentAsync(url, htmlLocation, cancellationToken);
+
+        string bronzeLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Bronze);
+        string bronzeChecksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Bronze);
+        await _parseExecutor.ParseAsync(htmlLocation, bronzeLocation, bronzeChecksumLocation, collection.ParserSchema, cancellationToken);
+
+        string silverLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Silver);
+        string silverChecksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Silver);
+        await _transformExecutor.TransformAsync(bronzeLocation, silverLocation, silverChecksumLocation, collection.TransformerSchema, cancellationToken);
     }
 }

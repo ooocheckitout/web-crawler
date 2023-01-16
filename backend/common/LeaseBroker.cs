@@ -8,11 +8,11 @@ public class LeaseBroker<T> : IDisposable
     readonly ConcurrentStack<Lease> _available = new();
     readonly ILogger _logger;
 
-    public LeaseBroker(Func<T> factory, int numberOfElements, ILogger logger)
+    public LeaseBroker(Func<T> factory, int numberOfItems, ILogger logger)
     {
         var internals = Enumerable
-            .Range(0, numberOfElements)
-            .Select(_ => new Lease {Value = factory()})
+            .Range(0, numberOfItems)
+            .Select(_ => new Lease {Value = factory(), ReturnLeaseAction = ReturnLease})
             .ToArray();
 
         _available.PushRange(internals);
@@ -54,8 +54,16 @@ public class LeaseBroker<T> : IDisposable
         }
     }
 
-    public class Lease
+    public class Lease : IDisposable
     {
         public T Value { get; init; }
+        public Action<Lease> ReturnLeaseAction { get; init; }
+
+        public static implicit operator T(Lease item) => item.Value;
+
+        public void Dispose()
+        {
+            ReturnLeaseAction(this);
+        }
     }
 }

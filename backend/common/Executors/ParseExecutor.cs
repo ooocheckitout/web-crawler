@@ -1,19 +1,17 @@
 ﻿using common.Bronze;
 
-namespace common;
+namespace common.Executors;
 
 public class ParseExecutor
 {
     readonly ChecksumCalculator _checksumCalculator;
-    readonly CollectionLocator _locator;
     readonly Parser _parser;
     readonly FileReader _fileReader;
     readonly FileWriter _fileWriter;
 
-    public ParseExecutor(ChecksumCalculator checksumCalculator, CollectionLocator locator, Parser parser, FileReader fileReader, FileWriter fileWriter)
+    public ParseExecutor(ChecksumCalculator checksumCalculator, Parser parser, FileReader fileReader, FileWriter fileWriter)
     {
         _checksumCalculator = checksumCalculator;
-        _locator = locator;
         _parser = parser;
         _fileReader = fileReader;
         _fileWriter = fileWriter;

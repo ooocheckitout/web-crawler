@@ -1,7 +1,7 @@
 ﻿using common.Bronze;
 using common.Silver;
 
-namespace common;
+namespace common.Collections;
 
 public class Collection
 {

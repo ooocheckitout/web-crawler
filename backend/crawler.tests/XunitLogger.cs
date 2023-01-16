@@ -14,7 +14,7 @@ public class XunitLogger : ILogger
         _categoryName = categoryName;
     }
 
-    public IDisposable BeginScope<TState>(TState state) => NoopDisposable.Instance;
+    public IDisposable BeginScope<TState>(TState state) where TState : notnull => NoopDisposable.Instance;
 
     public bool IsEnabled(LogLevel logLevel) => true;
 
