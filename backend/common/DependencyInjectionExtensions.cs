@@ -26,15 +26,14 @@ public static class DependencyInjectionExtensions
         builder.AddTransient<LoadExecutor>();
         builder.AddTransient<ParseExecutor>();
         builder.AddTransient<TransformExecutor>();
-        builder.AddTransient<ThreadWorker>();
-        builder.AddTransient<MultiThreadWorker>();
-        builder.AddTransient<AppOptions>(_ => new AppOptions
+        builder.AddTransient<ThreadWorkerFactory>();
+        builder.AddTransient(_ => new AppOptions
         {
             BatchSize = 50,
             NumberOfSeleniumDownloaders = 5,
             NumberOfWorkerThreads = 5
         });
-        builder.AddTransient<LeaseBroker<SeleniumDownloader>>(provider =>
+        builder.AddTransient(provider =>
             new LeaseBroker<SeleniumDownloader>(
                 provider.GetRequiredService<SeleniumDownloader>,
                 provider.GetRequiredService<AppOptions>().NumberOfSeleniumDownloaders,

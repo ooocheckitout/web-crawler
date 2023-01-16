@@ -2,7 +2,6 @@
 using System.Text;
 using common.Collections;
 using common.Executors;
-using common.Threads;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 
@@ -17,6 +16,7 @@ public class ParallelCollectionRunner
     readonly FileWriter _fileWriter;
     readonly Hasher _hasher;
     readonly AppOptions _options;
+    readonly ThreadWorkerFactory _threadWorkerFactory;
     readonly ILogger<ParallelCollectionRunner> _logger;
 
     public ParallelCollectionRunner(
@@ -27,6 +27,7 @@ public class ParallelCollectionRunner
         FileWriter fileWriter,
         Hasher hasher,
         AppOptions options,
+        ThreadWorkerFactory threadWorkerFactory,
         ILogger<ParallelCollectionRunner> logger)
     {
         _loadExecutor = loadExecutor;
@@ -36,12 +37,13 @@ public class ParallelCollectionRunner
         _fileWriter = fileWriter;
         _hasher = hasher;
         _options = options;
+        _threadWorkerFactory = threadWorkerFactory;
         _logger = logger;
     }
 
     public async Task RunAsync(Collection collection, CancellationToken cancellationToken)
     {
-        using var multiThreadWorker = new MultiThreadWorker(_options.NumberOfWorkerThreads, _logger);
+        using var worker = _threadWorkerFactory.GetMultiThreadWorker();
 
         var sw = Stopwatch.StartNew();
         var sb = new StringBuilder();
@@ -50,7 +52,7 @@ public class ParallelCollectionRunner
             var batchSw = Stopwatch.StartNew();
 
             var actions = itemWithIndex.Item.Select(x => new Func<Task>(() => ProcessAsync(collection, x, cancellationToken))).ToArray();
-            await multiThreadWorker.ExecuteManyAsync(actions);
+            await worker.ExecuteManyAsync(actions);
 
             foreach (string url in itemWithIndex.Item)
             {

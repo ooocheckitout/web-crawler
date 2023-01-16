@@ -6,12 +6,12 @@ namespace common.Threads;
 
 public class MultiThreadWorker : IDisposable
 {
-    readonly ILogger _logger;
+    readonly ILogger<MultiThreadWorker> _logger;
     readonly CancellationTokenSource _cts;
     readonly IEnumerable<Thread> _threads;
     readonly ConcurrentQueue<(TaskCompletionSource, Func<Task>)> _queue = new();
 
-    public MultiThreadWorker(int numberOfThreads, ILogger logger)
+    public MultiThreadWorker(int numberOfThreads, ILogger<MultiThreadWorker> logger)
     {
         _logger = logger;
         _cts = new CancellationTokenSource();

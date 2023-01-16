@@ -6,9 +6,9 @@ namespace common;
 public class LeaseBroker<T> : IDisposable
 {
     readonly ConcurrentStack<Lease> _available = new();
-    readonly ILogger _logger;
+    readonly ILogger<LeaseBroker<T>> _logger;
 
-    public LeaseBroker(Func<T> factory, int numberOfItems, ILogger logger)
+    public LeaseBroker(Func<T> factory, int numberOfItems, ILogger<LeaseBroker<T>> logger)
     {
         var internals = Enumerable
             .Range(0, numberOfItems)

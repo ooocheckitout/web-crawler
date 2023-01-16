@@ -179,7 +179,7 @@ public class CollectionHandlerIntegrationTests
         var builder = new ServiceCollection()
             .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
         var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<CollectionHandlerIntegrationTests>>();
+        var logger = services.GetRequiredService<ILogger<LeaseBroker<int>>>();
 
         var item = 0;
         using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
@@ -200,7 +200,7 @@ public class CollectionHandlerIntegrationTests
         var builder = new ServiceCollection()
             .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
         var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<CollectionHandlerIntegrationTests>>();
+        var logger = services.GetRequiredService<ILogger<LeaseBroker<int>>>();
 
         var item = 0;
         using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
@@ -220,7 +220,7 @@ public class CollectionHandlerIntegrationTests
         var builder = new ServiceCollection()
             .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
         var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<CollectionHandlerIntegrationTests>>();
+        var logger = services.GetRequiredService<ILogger<LeaseBroker<int>>>();
 
         var item = 0;
         using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
@@ -237,42 +237,18 @@ public class CollectionHandlerIntegrationTests
 
     [Theory]
     [InlineData(10, 10)]
-    public async Task Parallel_ThreadWorker(int numberOfItems, int numberOfHandlers)
-    {
-        var builder = new ServiceCollection()
-            .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
-        var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<CollectionHandlerIntegrationTests>>();
-
-        var item = 0;
-        using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
-
-        using var workers = new LeaseBroker<ThreadWorker>(() => new ThreadWorker(logger), numberOfHandlers, logger);
-        var tasks = Enumerable.Range(0, numberOfItems).Select(x =>
-        {
-            var lease = workers.TakeLease();
-            return lease.Value.ExecuteAsync(() =>
-            {
-                Thread.Sleep(3000);
-                workers.ReturnLease(lease);
-            });
-        });
-        await Task.WhenAll(tasks);
-    }
-
-    [Theory]
-    [InlineData(10, 10)]
     public async Task Parallel_MultiThreadWorker(int numberOfItems, int numberOfHandlers)
     {
         var builder = new ServiceCollection()
             .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
         var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<CollectionHandlerIntegrationTests>>();
+        var logger = services.GetRequiredService<ILogger<LeaseBroker<int>>>();
+        var workerLogger = services.GetRequiredService<ILogger<MultiThreadWorker>>();
 
         var item = 0;
         using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
 
-        using var multiThreadWorker = new MultiThreadWorker(numberOfHandlers, logger);
+        using var multiThreadWorker = new MultiThreadWorker(numberOfHandlers, workerLogger);
         var actions = Enumerable.Range(0, numberOfItems).Select(_ => new Func<Task>(() => Task.Delay(3000))).ToArray();
         await multiThreadWorker.ExecuteManyAsync(actions);
     }
@@ -312,11 +288,12 @@ public class CollectionHandlerIntegrationTests
         var builder = new ServiceCollection()
             .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
         var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<CollectionHandlerIntegrationTests>>();
+        var logger = services.GetRequiredService<ILogger<LeaseBroker<ChromeDriver>>>();
+        var workerLogger = services.GetRequiredService<ILogger<MultiThreadWorker>>();
 
         using var drivers = new LeaseBroker<ChromeDriver>(() => new ChromeDriver(chromeOptions), 3, logger);
 
-        using var multiThreadWorker = new MultiThreadWorker(3, logger);
+        using var multiThreadWorker = new MultiThreadWorker(3, workerLogger);
         var actions = duplicatedItems.Select(item => new Func<Task>(async () =>
         {
             var lease = drivers.TakeLease();
