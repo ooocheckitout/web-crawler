@@ -2,5 +2,6 @@ content/
 bronze/
 silver/
 checksum/
+.lock
 
 !local-data-editor/data

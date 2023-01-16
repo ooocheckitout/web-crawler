@@ -18,10 +18,16 @@ namespace crawler.tests;
 public class CollectionHandlerIntegrationTests
 {
     readonly ITestOutputHelper _testOutputHelper;
+    readonly ServiceProvider _services;
 
     public CollectionHandlerIntegrationTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
+
+        var builder = new ServiceCollection()
+            .AddLogging(x => x.SetMinimumLevel(LogLevel.Information).AddProvider(new XunitLoggerProvider(_testOutputHelper)))
+            .AddCrawler();
+        _services = builder.BuildServiceProvider();
     }
 
     [Theory]
@@ -29,13 +35,8 @@ public class CollectionHandlerIntegrationTests
     [InlineData("makeup-shampoo-variants")]
     public async Task CollectionHandler_ShouldHandleCollections(string collectionName)
     {
-        var builder = new ServiceCollection()
-            .AddLogging(x => x.AddProvider(new XunitLoggerProvider(_testOutputHelper)))
-            .AddCrawler();
-        var services = builder.BuildServiceProvider();
-
-        var factory = services.GetRequiredService<CollectionFactory>();
-        var handler = services.GetRequiredService<CollectionRunner>();
+        var factory = _services.GetRequiredService<CollectionFactory>();
+        var handler = _services.GetRequiredService<CollectionRunner>();
 
         var collection = await factory.GetSingleAsync(collectionName, CancellationToken.None);
         await handler.RunLoader(collection, CancellationToken.None);
@@ -48,13 +49,9 @@ public class CollectionHandlerIntegrationTests
     [InlineData("makeup-shampoo-variants")]
     public async Task ParallelCollectionRunner_ShouldHandleCollections(string collectionName)
     {
-        var builder = new ServiceCollection()
-            .AddLogging(x => x.AddProvider(new XunitLoggerProvider(_testOutputHelper)))
-            .AddCrawler();
-        var services = builder.BuildServiceProvider();
 
-        var factory = services.GetRequiredService<CollectionFactory>();
-        var handler = services.GetRequiredService<ParallelCollectionRunner>();
+        var factory = _services.GetRequiredService<CollectionFactory>();
+        var handler = _services.GetRequiredService<ParallelCollectionRunner>();
 
         var collection = await factory.GetSingleAsync(collectionName, CancellationToken.None);
         await handler.RunAsync(collection, CancellationToken.None);
@@ -149,14 +146,14 @@ public class CollectionHandlerIntegrationTests
     {
         var properties = new List<Property>
         {
-            new() {Name = "Test1", Values = new[] {1,}.Cast<object>().ToList()},
-            new() {Name = "Test1", Values = new[] {2,}.Cast<object>().ToList()},
-            new() {Name = "Test2", Values = new[] {3}.Cast<object>().ToList()},
+            new() { Name = "Test1", Values = new[] { 1, }.Cast<object>().ToList() },
+            new() { Name = "Test1", Values = new[] { 2, }.Cast<object>().ToList() },
+            new() { Name = "Test2", Values = new[] { 3 }.Cast<object>().ToList() },
         };
 
         var grouped = properties
             .GroupBy(x => x.Name)
-            .Select(x => new Property {Name = x.Key, Values = x.Select(y => y.Values).Cast<object>().ToList()});
+            .Select(x => new Property { Name = x.Key, Values = x.Select(y => y.Values).Cast<object>().ToList() });
 
         _testOutputHelper.WriteLine(grouped.Dump());
     }
@@ -164,22 +161,14 @@ public class CollectionHandlerIntegrationTests
     [Fact]
     public async Task DependencyInjection()
     {
-        var builder = new ServiceCollection()
-            .AddLogging()
-            .AddCrawler();
-        await using var services = builder.BuildServiceProvider();
-
-        services.GetRequiredService<ParallelCollectionRunner>();
+        _services.GetRequiredService<ParallelCollectionRunner>();
     }
 
     [Theory]
     [InlineData(10, 10)]
     public async Task Parallel_Tasks(int numberOfItems, int numberOfHandlers)
     {
-        var builder = new ServiceCollection()
-            .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
-        var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<LeaseBroker<int>>>();
+        var logger = _services.GetRequiredService<ILogger<LeaseBroker<int>>>();
 
         var item = 0;
         using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
@@ -197,10 +186,7 @@ public class CollectionHandlerIntegrationTests
     [InlineData(10, 10)]
     public void Parallel_ForEach(int numberOfItems, int numberOfHandlers)
     {
-        var builder = new ServiceCollection()
-            .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
-        var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<LeaseBroker<int>>>();
+        var logger = _services.GetRequiredService<ILogger<LeaseBroker<int>>>();
 
         var item = 0;
         using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
@@ -217,10 +203,7 @@ public class CollectionHandlerIntegrationTests
     [InlineData(10, 10)]
     public void Parallel_Threads(int numberOfItems, int numberOfHandlers)
     {
-        var builder = new ServiceCollection()
-            .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
-        var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<LeaseBroker<int>>>();
+        var logger = _services.GetRequiredService<ILogger<LeaseBroker<int>>>();
 
         var item = 0;
         using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
@@ -239,11 +222,8 @@ public class CollectionHandlerIntegrationTests
     [InlineData(10, 10)]
     public async Task Parallel_MultiThreadWorker(int numberOfItems, int numberOfHandlers)
     {
-        var builder = new ServiceCollection()
-            .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
-        var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<LeaseBroker<int>>>();
-        var workerLogger = services.GetRequiredService<ILogger<MultiThreadWorker>>();
+        var logger = _services.GetRequiredService<ILogger<LeaseBroker<int>>>();
+        var workerLogger = _services.GetRequiredService<ILogger<MultiThreadWorker>>();
 
         var item = 0;
         using var broker = new LeaseBroker<int>(() => item++, numberOfHandlers, logger);
@@ -285,11 +265,8 @@ public class CollectionHandlerIntegrationTests
         var chromeOptions = new ChromeOptions();
         // chromeOptions.AddArguments("headless");
 
-        var builder = new ServiceCollection()
-            .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new XunitLoggerProvider(_testOutputHelper)));
-        var services = builder.BuildServiceProvider();
-        var logger = services.GetRequiredService<ILogger<LeaseBroker<ChromeDriver>>>();
-        var workerLogger = services.GetRequiredService<ILogger<MultiThreadWorker>>();
+        var logger = _services.GetRequiredService<ILogger<LeaseBroker<ChromeDriver>>>();
+        var workerLogger = _services.GetRequiredService<ILogger<MultiThreadWorker>>();
 
         using var drivers = new LeaseBroker<ChromeDriver>(() => new ChromeDriver(chromeOptions), 3, logger);
 
@@ -311,5 +288,35 @@ public class CollectionHandlerIntegrationTests
             drivers.ReturnLease(lease);
         })).ToArray();
         await multiThreadWorker.ExecuteManyAsync(actions);
+    }
+
+    [Fact]
+    public async Task Hasher()
+    {
+        var factory = _services.GetRequiredService<CollectionFactory>();
+        var hasher = _services.GetRequiredService<Hasher>();
+
+        var collection = await factory.GetSingleAsync("makeup-shampoo-urls", CancellationToken.None);
+        var hashes = collection.Urls.Select(x => hasher.GetSha256HashAsHex(x)).ToList();
+
+        _testOutputHelper.WriteLine(collection.Urls.Count().ToString());
+        _testOutputHelper.WriteLine(collection.Urls.Distinct().Count().ToString());
+        _testOutputHelper.WriteLine(hashes.Count.ToString());
+        _testOutputHelper.WriteLine(hashes.Distinct().Count().ToString());
+    }
+
+    [Fact]
+    public async Task LogAnalytics()
+    {
+        var factory = _services.GetRequiredService<CollectionFactory>();
+        var hasher = _services.GetRequiredService<Hasher>();
+
+        var collection = await factory.GetSingleAsync("makeup-shampoo-urls", CancellationToken.None);
+        var hashes = collection.Urls.Select(x => hasher.GetSha256HashAsHex(x)).ToList();
+
+        _testOutputHelper.WriteLine(collection.Urls.Count().ToString());
+        _testOutputHelper.WriteLine(collection.Urls.Distinct().Count().ToString());
+        _testOutputHelper.WriteLine(hashes.Count.ToString());
+        _testOutputHelper.WriteLine(hashes.Distinct().Count().ToString());
     }
 }

@@ -55,14 +55,14 @@ public class ParallelCollectionRunner
 
         var sw = Stopwatch.StartNew();
         var sb = new StringBuilder();
-        foreach (var itemWithIndex in collection.Urls.Batch(_options.BatchSize).WithIndex())
+        foreach (var batch in collection.Urls.Batch(_options.BatchSize).Select(x => x.ToList()))
         {
             var batchSw = Stopwatch.StartNew();
 
-            var actions = itemWithIndex.Item.Select(x => new Func<Task>(() => ProcessAsync(collection, x, cancellationToken))).ToArray();
+            var actions = batch.Select(x => new Func<Task>(() => ProcessAsync(collection, x, cancellationToken))).ToArray();
             await _threadWorker.ExecuteManyAsync(actions);
 
-            foreach (string url in itemWithIndex.Item)
+            foreach (string url in batch)
             {
                 sb.Append($"{_hasher.GetSha256HashAsHex(url)} {url} {Environment.NewLine}");
             }
@@ -72,7 +72,7 @@ public class ParallelCollectionRunner
 
             _logger.LogInformation(
                 "Processed {count} items in {elapsed} and {elapsedPerBatch} per batch for {collection}",
-                (itemWithIndex.Index + 1) * _options.BatchSize, sw.Elapsed, batchSw.Elapsed, collection.Name);
+                batch.Count, sw.Elapsed, batchSw.Elapsed, collection.Name);
         }
 
         File.Delete(lockFileLocation);

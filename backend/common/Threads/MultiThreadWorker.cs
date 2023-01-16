@@ -9,7 +9,7 @@ public class MultiThreadWorker : IDisposable
     readonly ILogger<MultiThreadWorker> _logger;
     readonly CancellationTokenSource _cts;
     readonly IEnumerable<Thread> _threads;
-    readonly ConcurrentQueue<(TaskCompletionSource, Func<Task>)> _queue = new();
+    readonly ConcurrentQueue<(TaskCompletionSource TaskCompletionSource,  Func<Task> ActionAsync)> _queue = new();
 
     public MultiThreadWorker(int numberOfThreads, ILogger<MultiThreadWorker> logger)
     {
@@ -43,8 +43,8 @@ public class MultiThreadWorker : IDisposable
             if (!_queue.TryDequeue(out var actionItem)) continue;
 
             _logger.LogDebug("Executing action");
-            actionItem.Item2();
-            actionItem.Item1.SetResult();
+            Task.Run(async () => { await actionItem.ActionAsync(); }).Wait();
+            actionItem.TaskCompletionSource.SetResult();
         }
 
         _logger.LogDebug("Worker finished");

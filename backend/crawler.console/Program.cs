@@ -10,7 +10,7 @@ var builder = new ServiceCollection()
             options.IncludeScopes = true;
             options.SingleLine = true;
             options.UseUtcTimestamp = true;
-            options.TimestampFormat = "HH:mm:ss ";
+            options.TimestampFormat = "HH:mm:ss.fff ";
         })
         .AddFile("app.log", append: true)
     )
