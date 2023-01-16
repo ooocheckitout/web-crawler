@@ -26,7 +26,12 @@ public static class DependencyInjectionExtensions
         builder.AddTransient<LoadExecutor>();
         builder.AddTransient<ParseExecutor>();
         builder.AddTransient<TransformExecutor>();
-        builder.AddTransient<ThreadWorkerFactory>();
+        builder.AddTransient(provider =>
+            new MultiThreadWorker(
+                provider.GetRequiredService<AppOptions>().NumberOfWorkerThreads,
+                provider.GetRequiredService<ILogger<MultiThreadWorker>>()
+            )
+        );
         builder.AddTransient(_ => new AppOptions
         {
             BatchSize = 50,

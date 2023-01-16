@@ -45,7 +45,7 @@ public class CollectionRunner
             var tasks = new List<Task>();
             foreach (string url in urls)
             {
-                string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
+                string htmlLocation = _locator.GetHtmlFileLocation(collection.Name, url);
                 sb.Append($"{url} {htmlLocation} {Environment.NewLine}");
 
                 if (File.Exists(htmlLocation))
@@ -74,7 +74,7 @@ public class CollectionRunner
     {
         foreach (string url in collection.Urls.Distinct())
         {
-            string htmlLocation = _locator.GetHtmlLocation(collection.Name, url);
+            string htmlLocation = _locator.GetHtmlFileLocation(collection.Name, url);
 
             if (!File.Exists(htmlLocation))
             {
@@ -85,7 +85,7 @@ public class CollectionRunner
             string htmlContent = await _fileReader.ReadTextAsync(htmlLocation, cancellationToken);
 
             string checksum = _checksumCalculator.GetParserChecksum(collection.ParserSchema, htmlContent);
-            string checksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Bronze);
+            string checksumLocation = _locator.GetChecksumFileLocation(collection.Name, url, Medallion.Bronze);
             if (checksum == await GetChecksumAsync(checksumLocation, cancellationToken))
             {
                 _logger.LogInformation("Checksum for {htmlLocation} match. Skipping...", htmlLocation);
@@ -112,7 +112,7 @@ public class CollectionRunner
             var bronze = await _fileReader.ReadJsonAsync<Data>(bronzeFileLocation, cancellationToken);
 
             string checksum = _checksumCalculator.GetTransformerChecksum(collection.TransformerSchema, bronze);
-            string checksumLocation = _locator.GetChecksumLocation(collection.Name, url, Medallion.Silver);
+            string checksumLocation = _locator.GetChecksumFileLocation(collection.Name, url, Medallion.Silver);
             if (checksum == await GetChecksumAsync(checksumLocation, cancellationToken))
                 continue;
 

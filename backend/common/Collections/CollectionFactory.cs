@@ -33,19 +33,19 @@ public class CollectionFactory
 
     Task<IEnumerable<string>> GetUrlsAsync(string collectionName, CancellationToken cancellationToken)
     {
-        string location = _locator.GetUrlsLocation(collectionName);
+        string location = _locator.GetUrlsFileLocation(collectionName);
         return _fileReader.ReadJsonAsync<IEnumerable<string>>(location, cancellationToken);
     }
 
     Task<ParserSchema> GetParserSchemasAsync(string collectionName, CancellationToken cancellationToken)
     {
-        string location = _locator.GetSchemaLocation(collectionName, Medallion.Bronze);
+        string location = _locator.GetSchemaFileLocation(collectionName, Medallion.Bronze);
         return _fileReader.ReadJsonAsync<ParserSchema>(location, cancellationToken);
     }
 
     Task<TransformerSchema> GetTransformerSchemasAsync(string collectionName, CancellationToken cancellationToken)
     {
-        string location = _locator.GetSchemaLocation(collectionName, Medallion.Silver);
+        string location = _locator.GetSchemaFileLocation(collectionName, Medallion.Silver);
         return _fileReader.ReadJsonAsync<TransformerSchema>(location, cancellationToken);
     }
 }

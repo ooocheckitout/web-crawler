@@ -23,7 +23,7 @@ public class UrlsController : ControllerBase
     [Route("")]
     public Task<IEnumerable<string>> GetUrls(string collection, CancellationToken cancellationToken)
     {
-        string urlsLocation = _locator.GetUrlsLocation(collection);
+        string urlsLocation = _locator.GetUrlsFileLocation(collection);
         return _fileReader.ReadJsonAsync<IEnumerable<string>>(urlsLocation, cancellationToken);
     }
 
@@ -31,7 +31,7 @@ public class UrlsController : ControllerBase
     [Route("")]
     public Task CreateUrls(string collection, IEnumerable<string> urls, CancellationToken cancellationToken)
     {
-        string urlsLocation = _locator.GetUrlsLocation(collection);
+        string urlsLocation = _locator.GetUrlsFileLocation(collection);
         return _fileWriter.AsJsonAsync(urlsLocation, urls, cancellationToken);
     }
 }

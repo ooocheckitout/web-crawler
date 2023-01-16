@@ -25,7 +25,7 @@ public class SchemasController : ControllerBase
     [Route("bronze")]
     public Task<ParserSchema> GetParserSchema(string collection, CancellationToken cancellationToken)
     {
-        string schemaLocation = _locator.GetSchemaLocation(collection, Medallion.Bronze);
+        string schemaLocation = _locator.GetSchemaFileLocation(collection, Medallion.Bronze);
         return _fileReader.ReadJsonAsync<ParserSchema>(schemaLocation, cancellationToken);
     }
 
@@ -33,7 +33,7 @@ public class SchemasController : ControllerBase
     [Route("bronze")]
     public Task CreateParserSchema(string collection, ParserSchema schema, CancellationToken cancellationToken)
     {
-        string schemaLocation = _locator.GetSchemaLocation(collection, Medallion.Bronze);
+        string schemaLocation = _locator.GetSchemaFileLocation(collection, Medallion.Bronze);
         return _fileWriter.AsJsonAsync(schemaLocation, schema, cancellationToken);
     }
 
@@ -41,7 +41,7 @@ public class SchemasController : ControllerBase
     [Route("silver")]
     public Task<TransformerSchema> GetTransformSchema(string collection, CancellationToken cancellationToken)
     {
-        string schemaLocation = _locator.GetSchemaLocation(collection, Medallion.Silver);
+        string schemaLocation = _locator.GetSchemaFileLocation(collection, Medallion.Silver);
         return _fileReader.ReadJsonAsync<TransformerSchema>(schemaLocation, cancellationToken);
     }
 
@@ -49,7 +49,7 @@ public class SchemasController : ControllerBase
     [Route("silver")]
     public Task CreateTransformSchema(string collection, ParserSchema schema, CancellationToken cancellationToken)
     {
-        string schemaLocation = _locator.GetSchemaLocation(collection, Medallion.Silver);
+        string schemaLocation = _locator.GetSchemaFileLocation(collection, Medallion.Silver);
         return _fileWriter.AsJsonAsync(schemaLocation, schema, cancellationToken);
     }
 }
