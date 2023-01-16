@@ -5,11 +5,25 @@ using common.Silver;
 using common.Threads;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace common;
 
 public static class DependencyInjectionExtensions
 {
+    public static IServiceCollection AddCrawlerLogging(this ServiceCollection builder)
+    {
+
+        var log = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.File("app.txt")
+            .WriteTo.Seq("http://localhost:5341")
+            .CreateLogger();
+
+        return builder.AddLogging(x => x.AddSerilog(log));
+    }
+
     public static IServiceCollection AddCrawler(this IServiceCollection builder)
     {
         const string collectionsRoot = @"D:\code\web-crawler\collections";
@@ -35,8 +49,8 @@ public static class DependencyInjectionExtensions
         builder.AddTransient(_ => new AppOptions
         {
             BatchSize = 50,
-            NumberOfSeleniumDownloaders = 6,
-            NumberOfWorkerThreads = 6,
+            NumberOfSeleniumDownloaders = 5,
+            NumberOfWorkerThreads = 5,
             SeleniumPageLoadDelay = TimeSpan.FromSeconds(3),
         });
         builder.AddTransient(provider =>

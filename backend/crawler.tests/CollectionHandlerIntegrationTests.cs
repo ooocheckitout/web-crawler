@@ -308,15 +308,20 @@ public class CollectionHandlerIntegrationTests
     [Fact]
     public async Task LogAnalytics()
     {
-        var factory = _services.GetRequiredService<CollectionFactory>();
-        var hasher = _services.GetRequiredService<Hasher>();
+        var fileReader = _services.GetRequiredService<FileReader>();
 
-        var collection = await factory.GetSingleAsync("makeup-shampoo-urls", CancellationToken.None);
-        var hashes = collection.Urls.Select(x => hasher.GetSha256HashAsHex(x)).ToList();
+        const string logLocation = @"D:\code\web-crawler\backend\crawler.console\bin\Debug\net6.0\log-20230116.txt";
+        string logContents = await fileReader.ReadTextAsync(logLocation, CancellationToken.None);
+        var logs = logContents
+            .Split(Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Select(line =>
+            {
+                string[] parts = line.Split("\t");
+                return new { Timestamp = parts[0], LogLevel = parts[1], Logger = parts[2], Message = parts[4] };
+            })
+            .ToList();
 
-        _testOutputHelper.WriteLine(collection.Urls.Count().ToString());
-        _testOutputHelper.WriteLine(collection.Urls.Distinct().Count().ToString());
-        _testOutputHelper.WriteLine(hashes.Count.ToString());
-        _testOutputHelper.WriteLine(hashes.Distinct().Count().ToString());
+
+        _testOutputHelper.WriteLine(logs.Count.ToString());
     }
 }

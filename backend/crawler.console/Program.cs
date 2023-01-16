@@ -4,16 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 var builder = new ServiceCollection()
-    .AddLogging(x => x
-        .AddSimpleConsole(options =>
-        {
-            options.IncludeScopes = true;
-            options.SingleLine = true;
-            options.UseUtcTimestamp = true;
-            options.TimestampFormat = "HH:mm:ss.fff ";
-        })
-        .AddFile("app.log", append: true)
-    )
+    .AddCrawlerLogging()
     .AddCrawler();
 await using var services = builder.BuildServiceProvider();
 
