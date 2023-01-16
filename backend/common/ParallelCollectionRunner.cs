@@ -10,7 +10,7 @@ namespace common;
 
 public class ParallelCollectionRunner
 {
-    readonly LoadExecutor _loadExecutor;
+    readonly DownloadExecutor _downloadExecutor;
     readonly ParseExecutor _parseExecutor;
     readonly TransformExecutor _transformExecutor;
     readonly CollectionLocator _locator;
@@ -21,7 +21,7 @@ public class ParallelCollectionRunner
     readonly ILogger<ParallelCollectionRunner> _logger;
 
     public ParallelCollectionRunner(
-        LoadExecutor loadExecutor,
+        DownloadExecutor downloadExecutor,
         ParseExecutor parseExecutor,
         TransformExecutor transformExecutor,
         CollectionLocator locator,
@@ -31,7 +31,7 @@ public class ParallelCollectionRunner
         MultiThreadWorker threadWorker,
         ILogger<ParallelCollectionRunner> logger)
     {
-        _loadExecutor = loadExecutor;
+        _downloadExecutor = downloadExecutor;
         _parseExecutor = parseExecutor;
         _transformExecutor = transformExecutor;
         _locator = locator;
@@ -83,7 +83,7 @@ public class ParallelCollectionRunner
         using var _ = _logger.BeginScope(url);
 
         string htmlLocation = _locator.GetHtmlFileLocation(collection.Name, url);
-        await _loadExecutor.LoadContentAsync(url, htmlLocation, cancellationToken);
+        await _downloadExecutor.LoadContentAsync(url, htmlLocation, cancellationToken);
 
         string bronzeLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Bronze);
         string bronzeChecksumLocation = _locator.GetChecksumFileLocation(collection.Name, url, Medallion.Bronze);

@@ -23,7 +23,7 @@ public static class DependencyInjectionExtensions
         builder.AddTransient(provider => new CollectionLocator(collectionsRoot, provider.GetRequiredService<Hasher>()));
         builder.AddTransient<CollectionFactory>();
         builder.AddTransient<CollectionRunner>();
-        builder.AddTransient<LoadExecutor>();
+        builder.AddTransient<DownloadExecutor>();
         builder.AddTransient<ParseExecutor>();
         builder.AddTransient<TransformExecutor>();
         builder.AddTransient(provider =>
@@ -35,8 +35,9 @@ public static class DependencyInjectionExtensions
         builder.AddTransient(_ => new AppOptions
         {
             BatchSize = 50,
-            NumberOfSeleniumDownloaders = 5,
-            NumberOfWorkerThreads = 5
+            NumberOfSeleniumDownloaders = 6,
+            NumberOfWorkerThreads = 6,
+            SeleniumPageLoadDelay = TimeSpan.FromSeconds(3),
         });
         builder.AddTransient(provider =>
             new LeaseBroker<SeleniumDownloader>(
@@ -46,6 +47,7 @@ public static class DependencyInjectionExtensions
             )
         );
         builder.AddTransient<ParallelCollectionRunner>();
+        builder.AddTransient<InterprocessCommunicator>();
 
         return builder;
     }

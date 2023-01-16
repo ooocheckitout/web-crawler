@@ -1,4 +1,5 @@
 ﻿using common.Silver;
+using Microsoft.Extensions.Logging;
 
 namespace common.Executors;
 
@@ -8,14 +9,16 @@ public class TransformExecutor
     readonly Transformer _transformer;
     readonly FileReader _fileReader;
     readonly FileWriter _fileWriter;
+    readonly ILogger<TransformExecutor> _logger;
 
     public TransformExecutor(
-        ChecksumCalculator checksumCalculator, Transformer transformer, FileReader fileReader, FileWriter fileWriter)
+        ChecksumCalculator checksumCalculator, Transformer transformer, FileReader fileReader, FileWriter fileWriter, ILogger<TransformExecutor> logger)
     {
         _checksumCalculator = checksumCalculator;
         _transformer = transformer;
         _fileReader = fileReader;
         _fileWriter = fileWriter;
+        _logger = logger;
     }
 
 
@@ -28,6 +31,7 @@ public class TransformExecutor
         if (checksum == await ReadChecksum(checksumLocation, cancellationToken))
             return;
 
+        _logger.LogInformation("Transforming from {bronzeLocation} to {dataLocation}", bronzeLocation, dataLocation);
         var silver = _transformer.Transform(bronze, schema);
         await _fileWriter.AsJsonAsync(dataLocation, silver, cancellationToken);
         await _fileWriter.AsTextAsync(checksumLocation, checksum, cancellationToken);

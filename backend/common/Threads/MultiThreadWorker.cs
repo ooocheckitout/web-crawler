@@ -17,6 +17,7 @@ public class MultiThreadWorker : IDisposable
         _cts = new CancellationTokenSource();
         _threads = Enumerable.Range(0, numberOfThreads).Select(_ => new Thread(InternalLoop));
         _threads.ForEach(x => x.Start());
+        _logger.LogInformation("Initialized {numberOfThreads} threads", numberOfThreads);
     }
 
     public Task ExecuteAsync(Func<Task> action)
