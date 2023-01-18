@@ -20,7 +20,7 @@ public class MultiThreadWorker : IDisposable
         _logger.LogInformation("Initialized {numberOfThreads} threads", numberOfThreads);
     }
 
-    public Task ExecuteAsync(Func<Task> action)
+    Task ExecuteAsync(Func<Task> action)
     {
         var tcs = new TaskCompletionSource();
         _queue.Enqueue((tcs, action));

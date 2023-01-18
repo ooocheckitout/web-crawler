@@ -44,6 +44,8 @@ public class ParallelCollectionRunner
 
     public async Task RunAsync(Collection collection, CancellationToken cancellationToken)
     {
+        using var scope = _logger.BeginScope(collection.Name);
+
         string lockFileLocation = _locator.GetLockFileLocation(collection.Name);
         if (File.Exists(lockFileLocation))
         {
@@ -51,36 +53,43 @@ public class ParallelCollectionRunner
             return;
         }
 
-        await _fileWriter.AsTextAsync(lockFileLocation, "", cancellationToken);
-
-        var sw = Stopwatch.StartNew();
-        var sb = new StringBuilder();
-        foreach (var batch in collection.Urls.Batch(_options.BatchSize).Select(x => x.ToList()))
+        try
         {
-            var batchSw = Stopwatch.StartNew();
+            await _fileWriter.AsTextAsync(lockFileLocation, "", cancellationToken);
 
-            var actions = batch.Select(x => new Func<Task>(() => ProcessAsync(collection, x, cancellationToken))).ToArray();
-            await _threadWorker.ExecuteManyAsync(actions);
-
-            foreach (string url in batch)
+            var totalStopWatch = Stopwatch.StartNew();
+            var componentsStringBuilder = new StringBuilder();
+            foreach (var batch in collection.Urls.Batch(_options.BatchSize).Select(x => x.ToList()))
             {
-                sb.Append($"{_hasher.GetSha256HashAsHex(url)} {url} {Environment.NewLine}");
+                var batchStopWatch = Stopwatch.StartNew();
+
+                var actions = batch.Select(x => new Func<Task>(() => ProcessSingleUrlAsync(collection, x, cancellationToken))).ToArray();
+                await _threadWorker.ExecuteManyAsync(actions);
+
+                foreach (string url in batch)
+                    componentsStringBuilder.Append($"{_hasher.GetSha256HashAsHex(url)} {url} {Environment.NewLine}");
+
+                string componentsLocation = _locator.GetComponentsFileLocation(collection.Name);
+                await _fileWriter.AsTextAsync(componentsLocation, componentsStringBuilder.ToString(), cancellationToken);
+
+                _logger.LogInformation(
+                    "Processed {count} items from {collection} collection in {totalElapsed} with last batch in {batchElapsed}",
+                    batch.Count, collection.Name, totalStopWatch.Elapsed, batchStopWatch.Elapsed);
             }
-
-            string componentsLocation = _locator.GetComponentsFileLocation(collection.Name);
-            await _fileWriter.AsTextAsync(componentsLocation, sb.ToString(), cancellationToken);
-
-            _logger.LogInformation(
-                "Processed {count} items in {elapsed} and {elapsedPerBatch} per batch for {collection}",
-                batch.Count, sw.Elapsed, batchSw.Elapsed, collection.Name);
         }
-
-        File.Delete(lockFileLocation);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occured during processing of {collection} collection!", collection.Name);
+        }
+        finally
+        {
+            File.Delete(lockFileLocation);
+        }
     }
 
-    async Task ProcessAsync(Collection collection, string url, CancellationToken cancellationToken)
+    async Task ProcessSingleUrlAsync(Collection collection, string url, CancellationToken cancellationToken)
     {
-        using var _ = _logger.BeginScope(url);
+        using var x = _logger.BeginScope(new Dictionary<string, object> { { "collectionUrl", url } });
 
         string htmlLocation = _locator.GetHtmlFileLocation(collection.Name, url);
         await _downloadExecutor.LoadContentAsync(url, htmlLocation, cancellationToken);

@@ -159,7 +159,7 @@ public class CollectionHandlerIntegrationTests
     }
 
     [Fact]
-    public async Task DependencyInjection()
+    public void DependencyInjection()
     {
         _services.GetRequiredService<ParallelCollectionRunner>();
     }

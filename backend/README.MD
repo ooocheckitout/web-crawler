@@ -1,5 +1,9 @@
 # Analytics
 
+###
+- Seq: http://localhost:5341/#/events
+- Api: https://localhost:7087/swagger
+
 ### Prepare
 
 ```powershell

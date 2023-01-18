@@ -2,8 +2,10 @@ using System.Text.Json.Serialization;
 using common;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddLogging(x => x.AddConsole().AddFile("app.log", append: true));
-builder.Services.AddCrawler();
+builder.Services
+    .AddCrawlerLogging()
+    .AddCrawler();
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>

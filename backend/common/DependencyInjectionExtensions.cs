@@ -11,17 +11,18 @@ namespace common;
 
 public static class DependencyInjectionExtensions
 {
-    public static IServiceCollection AddCrawlerLogging(this ServiceCollection builder)
+    public static IServiceCollection AddCrawlerLogging(this IServiceCollection builder)
     {
-
+        string logFileLocation = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "app.log");
         var log = new LoggerConfiguration()
             .Enrich.FromLogContext()
+            .Enrich.WithProperty("executionId", Guid.NewGuid())
             .WriteTo.Console()
-            .WriteTo.File("app.txt")
+            .WriteTo.File(logFileLocation)
             .WriteTo.Seq("http://localhost:5341")
             .CreateLogger();
 
-        return builder.AddLogging(x => x.AddSerilog(log));
+        return builder.AddLogging(x => x.ClearProviders().AddSerilog(log));
     }
 
     public static IServiceCollection AddCrawler(this IServiceCollection builder)
