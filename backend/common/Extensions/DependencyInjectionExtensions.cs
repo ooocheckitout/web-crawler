@@ -6,6 +6,7 @@ using common.Threads;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 
 namespace common;
 
@@ -15,9 +16,10 @@ public static class DependencyInjectionExtensions
     {
         string logFileLocation = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "app.log");
         var log = new LoggerConfiguration()
+            .MinimumLevel.Debug()
             .Enrich.FromLogContext()
             .Enrich.WithProperty("executionId", Guid.NewGuid())
-            .WriteTo.Console()
+            .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
             .WriteTo.File(logFileLocation)
             .WriteTo.Seq("http://localhost:5341")
             .CreateLogger();

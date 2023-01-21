@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace common;
 
-public class LeaseBroker<T> : IDisposable
+public sealed class LeaseBroker<T> : IDisposable
 {
     readonly ConcurrentStack<Lease> _available = new();
     readonly ILogger<LeaseBroker<T>> _logger;
@@ -23,7 +23,7 @@ public class LeaseBroker<T> : IDisposable
     {
         if (_available.TryPop(out var available))
         {
-            _logger.LogDebug("Taking available lease");
+            _logger.LogTrace("Taking available lease");
             return available;
         }
 
@@ -32,7 +32,7 @@ public class LeaseBroker<T> : IDisposable
         {
             if (_available.TryPop(out available))
             {
-                _logger.LogDebug("Taking returned lease");
+                _logger.LogTrace("Taking returned lease");
                 return available;
             }
         }
@@ -42,7 +42,7 @@ public class LeaseBroker<T> : IDisposable
 
     public void ReturnLease(Lease lease)
     {
-        _logger.LogDebug("Returning lease");
+        _logger.LogTrace("Returning lease");
         _available.Push(lease);
     }
 
@@ -54,16 +54,13 @@ public class LeaseBroker<T> : IDisposable
         }
     }
 
-    public class Lease : IDisposable
+    public sealed class Lease : IDisposable
     {
         public T Value { get; init; }
         public Action<Lease> ReturnLeaseAction { get; init; }
 
         public static implicit operator T(Lease item) => item.Value;
 
-        public void Dispose()
-        {
-            ReturnLeaseAction(this);
-        }
+        public void Dispose() => ReturnLeaseAction(this);
     }
 }

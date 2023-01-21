@@ -34,7 +34,7 @@ public sealed class MultiThreadWorker : IDisposable
 
     void InternalLoop()
     {
-        _logger.LogDebug("Worker started");
+        _logger.LogTrace("Worker started");
 
         Thread.Sleep(100);
 
@@ -42,19 +42,20 @@ public sealed class MultiThreadWorker : IDisposable
         {
             if (!_queue.TryDequeue(out var actionItem))
             {
-                _logger.LogDebug("_queue.TryDequeue  = false {actionItem} {threadName}", actionItem, Thread.CurrentThread.Name);
+                _logger.LogTrace("No items in the queue. {threadName} skipping...", Thread.CurrentThread.Name);
+                Thread.Sleep(100);
                 continue;
             }
 
             Task.Run(async () => await ExecuteItemAsync(actionItem)).Wait();
         }
 
-        _logger.LogDebug("Worker finished");
+        _logger.LogTrace("Worker finished");
     }
 
     async Task ExecuteItemAsync((TaskCompletionSource TaskCompletionSource, Func<Task> ActionAsync) actionItem)
     {
-        _logger.LogDebug("Start action execution");
+        _logger.LogTrace("Start action execution");
 
         try
         {
@@ -67,13 +68,13 @@ public sealed class MultiThreadWorker : IDisposable
             actionItem.TaskCompletionSource.SetException(ex);
         }
 
-        _logger.LogDebug("Finish action execution");
+        _logger.LogTrace("Finish action execution");
     }
 
     public void Dispose()
     {
         _cts.Cancel();
-        _logger.LogDebug("Worker cancelled");
+        _logger.LogTrace("Worker cancelled");
         _threads.ForEach(x =>
         {
             if (x.ThreadState == ThreadState.Running) x.Join();

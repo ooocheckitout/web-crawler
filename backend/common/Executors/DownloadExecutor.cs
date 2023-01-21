@@ -17,11 +17,11 @@ public class DownloadExecutor
 
     public async Task LoadContentAsync(string url, string htmlLocation, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Start downloading from {url} to {htmlLocation}", url, htmlLocation);
+        _logger.LogDebug("Start downloading from {url} to {htmlLocation}", url, htmlLocation);
 
         if (File.Exists(htmlLocation))
         {
-            _logger.LogInformation("File already exist. Skip downloading from {url} to {htmlLocation}", url, htmlLocation);
+            _logger.LogDebug("File already exist. Skip downloading from {url} to {htmlLocation}", url, htmlLocation);
             return;
         }
 
@@ -29,6 +29,6 @@ public class DownloadExecutor
         string htmlContent = await downloader.Value.DownloadAsTextAsync(url, cancellationToken);
         await _fileWriter.AsTextAsync(htmlLocation, htmlContent, cancellationToken);
 
-        _logger.LogInformation("Finish downloading from {url} to {htmlLocation}", url, htmlLocation);
+        _logger.LogDebug("Finish downloading from {url} to {htmlLocation}", url, htmlLocation);
     }
 }

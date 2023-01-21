@@ -45,7 +45,7 @@ public static class Extensions
         return sb.ToString();
     }
 
-    public static IEnumerable<(T Item, int Index)> WithIndex<T>(this IEnumerable<T> enumerable)
+    public static IEnumerable<(T Value, int Index)> WithIndex<T>(this IEnumerable<T> enumerable)
     {
         var index = 0;
         return enumerable.Select(x => (x, index++));

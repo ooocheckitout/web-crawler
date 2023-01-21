@@ -22,14 +22,14 @@ public class ParseExecutor
 
     public async Task ParseAsync(string htmlLocation, string dataLocation, string checksumLocation, ParserSchema schema, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Start parsing from {htmlLocation} to {dataLocation}", htmlLocation, dataLocation);
+        _logger.LogDebug("Start parsing from {htmlLocation} to {dataLocation}", htmlLocation, dataLocation);
 
         string htmlContent = await _fileReader.ReadTextAsync(htmlLocation, cancellationToken);
 
         string checksum = _checksumCalculator.GetParserChecksum(schema, htmlContent);
         if (checksum == await ReadChecksum(checksumLocation, cancellationToken))
         {
-            _logger.LogInformation("Checksums match. Skip parsing from {htmlLocation} to {dataLocation}", htmlLocation, dataLocation);
+            _logger.LogDebug("Checksums match. Skip parsing from {htmlLocation} to {dataLocation}", htmlLocation, dataLocation);
             return;
         }
 
@@ -37,7 +37,7 @@ public class ParseExecutor
         await _fileWriter.AsJsonAsync(dataLocation, bronze, cancellationToken);
         await _fileWriter.AsTextAsync(checksumLocation, checksum, cancellationToken);
 
-        _logger.LogInformation("Finish parsing from {htmlLocation} to {dataLocation}", htmlLocation, dataLocation);
+        _logger.LogDebug("Finish parsing from {htmlLocation} to {dataLocation}", htmlLocation, dataLocation);
     }
 
     async Task<string> ReadChecksum(string checksumLocation, CancellationToken cancellationToken)

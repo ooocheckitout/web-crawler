@@ -59,9 +59,10 @@ public class ParallelCollectionRunner
 
             var totalStopWatch = Stopwatch.StartNew();
             var componentsStringBuilder = new StringBuilder();
-            foreach (var batch in collection.Urls.Batch(_options.BatchSize).Select(x => x.ToList()))
+            foreach (var batchWithIndex in collection.Urls.Batch(_options.BatchSize).WithIndex())
             {
                 var batchStopWatch = Stopwatch.StartNew();
+                var batch = batchWithIndex.Value.ToList();
 
                 var actions = batch.Select(x => new Func<Task>(() => ProcessSingleUrlAsync(collection, x, cancellationToken))).ToArray();
                 await _threadWorker.ExecuteManyAsync(actions);
@@ -72,9 +73,8 @@ public class ParallelCollectionRunner
                 string componentsLocation = _locator.GetComponentsFileLocation(collection.Name);
                 await _fileWriter.AsTextAsync(componentsLocation, componentsStringBuilder.ToString(), cancellationToken);
 
-                _logger.LogInformation(
-                    "Processed {count} items from {collection} collection in {totalElapsed} with last batch in {batchElapsed}",
-                    batch.Count, collection.Name, totalStopWatch.Elapsed, batchStopWatch.Elapsed);
+                _logger.LogInformation("Processed {batchCount} urls in {batchElapsed}", batch.Count, batchStopWatch.Elapsed);
+                _logger.LogInformation("Processed total {count} urls in {elapsed}", (batchWithIndex.Index + 1) * batch.Count, totalStopWatch.Elapsed);
             }
         }
         catch (Exception ex)
