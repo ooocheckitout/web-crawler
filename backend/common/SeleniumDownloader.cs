@@ -14,6 +14,7 @@ public class SeleniumDownloader : IDisposable
         var chromeOptions = new ChromeOptions();
         chromeOptions.AddArguments("headless");
         chromeOptions.AddArgument("no-sandbox");
+        chromeOptions.AddUserProfilePreference("profile.default_content_setting_values.images", 2);
 
         var service = ChromeDriverService.CreateDefaultService();
         // service.HideCommandPromptWindow = true;
@@ -27,6 +28,7 @@ public class SeleniumDownloader : IDisposable
         _browser.Navigate().GoToUrl(url);
         if (url.Contains('#'))
             await Task.Delay(_options.SeleniumPageLoadDelay, cancellationToken);
+
         return _browser.PageSource;
     }
 

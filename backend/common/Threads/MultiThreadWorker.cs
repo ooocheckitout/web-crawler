@@ -4,18 +4,18 @@ using MoreLinq;
 
 namespace common.Threads;
 
-public class MultiThreadWorker : IDisposable
+public sealed class MultiThreadWorker : IDisposable
 {
     readonly ILogger<MultiThreadWorker> _logger;
     readonly CancellationTokenSource _cts;
     readonly IEnumerable<Thread> _threads;
-    readonly ConcurrentQueue<(TaskCompletionSource TaskCompletionSource,  Func<Task> ActionAsync)> _queue = new();
+    readonly ConcurrentQueue<(TaskCompletionSource TaskCompletionSource, Func<Task> ActionAsync)> _queue = new();
 
     public MultiThreadWorker(int numberOfThreads, ILogger<MultiThreadWorker> logger)
     {
         _logger = logger;
         _cts = new CancellationTokenSource();
-        _threads = Enumerable.Range(0, numberOfThreads).Select(_ => new Thread(InternalLoop));
+        _threads = Enumerable.Range(0, numberOfThreads).Select(index => new Thread(InternalLoop) { Name = $"{nameof(MultiThreadWorker)} {index}" });
         _threads.ForEach(x => x.Start());
         _logger.LogInformation("Initialized {numberOfThreads} threads", numberOfThreads);
     }
@@ -40,14 +40,34 @@ public class MultiThreadWorker : IDisposable
 
         while (!_cts.IsCancellationRequested)
         {
-            if (!_queue.TryDequeue(out var actionItem)) continue;
+            if (!_queue.TryDequeue(out var actionItem))
+            {
+                _logger.LogDebug("_queue.TryDequeue  = false {actionItem} {threadName}", actionItem, Thread.CurrentThread.Name);
+                continue;
+            }
 
-            _logger.LogDebug("Executing action");
-            Task.Run(async () => { await actionItem.ActionAsync(); }).Wait();
-            actionItem.TaskCompletionSource.SetResult();
+            Task.Run(async () => await ExecuteItemAsync(actionItem)).Wait();
         }
 
         _logger.LogDebug("Worker finished");
+    }
+
+    async Task ExecuteItemAsync((TaskCompletionSource TaskCompletionSource, Func<Task> ActionAsync) actionItem)
+    {
+        _logger.LogDebug("Start action execution");
+
+        try
+        {
+            await actionItem.ActionAsync();
+            actionItem.TaskCompletionSource.SetResult();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occured during action execution");
+            actionItem.TaskCompletionSource.SetException(ex);
+        }
+
+        _logger.LogDebug("Finish action execution");
     }
 
     public void Dispose()

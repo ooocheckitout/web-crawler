@@ -44,7 +44,7 @@ public class ParallelCollectionRunner
 
     public async Task RunAsync(Collection collection, CancellationToken cancellationToken)
     {
-        using var scope = _logger.BeginScope(collection.Name);
+        using var scope = _logger.BeginScope("scope.collection", collection.Name);
 
         string lockFileLocation = _locator.GetLockFileLocation(collection.Name);
         if (File.Exists(lockFileLocation))
@@ -89,17 +89,24 @@ public class ParallelCollectionRunner
 
     async Task ProcessSingleUrlAsync(Collection collection, string url, CancellationToken cancellationToken)
     {
-        using var x = _logger.BeginScope(new Dictionary<string, object> { { "collectionUrl", url } });
+        using var x = _logger.BeginScope("scope.url", url);
 
-        string htmlLocation = _locator.GetHtmlFileLocation(collection.Name, url);
-        await _downloadExecutor.LoadContentAsync(url, htmlLocation, cancellationToken);
+        try
+        {
+            string htmlLocation = _locator.GetHtmlFileLocation(collection.Name, url);
+            await _downloadExecutor.LoadContentAsync(url, htmlLocation, cancellationToken);
 
-        string bronzeLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Bronze);
-        string bronzeChecksumLocation = _locator.GetChecksumFileLocation(collection.Name, url, Medallion.Bronze);
-        await _parseExecutor.ParseAsync(htmlLocation, bronzeLocation, bronzeChecksumLocation, collection.ParserSchema, cancellationToken);
+            string bronzeLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Bronze);
+            string bronzeChecksumLocation = _locator.GetChecksumFileLocation(collection.Name, url, Medallion.Bronze);
+            await _parseExecutor.ParseAsync(htmlLocation, bronzeLocation, bronzeChecksumLocation, collection.ParserSchema, cancellationToken);
 
-        string silverLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Silver);
-        string silverChecksumLocation = _locator.GetChecksumFileLocation(collection.Name, url, Medallion.Silver);
-        await _transformExecutor.TransformAsync(bronzeLocation, silverLocation, silverChecksumLocation, collection.TransformerSchema, cancellationToken);
+            string silverLocation = _locator.GetDataFileLocation(collection.Name, url, Medallion.Silver);
+            string silverChecksumLocation = _locator.GetChecksumFileLocation(collection.Name, url, Medallion.Silver);
+            await _transformExecutor.TransformAsync(bronzeLocation, silverLocation, silverChecksumLocation, collection.TransformerSchema, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process {url} for collection {collection}", url, collection.Name);
+        }
     }
 }
