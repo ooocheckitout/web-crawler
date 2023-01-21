@@ -25,7 +25,8 @@ public class SeleniumDownloader : IDisposable
     public async Task<string> DownloadAsTextAsync(string url, CancellationToken cancellationToken)
     {
         _browser.Navigate().GoToUrl(url);
-        await Task.Delay(_options.SeleniumPageLoadDelay, cancellationToken);
+        if (url.Contains('#'))
+            await Task.Delay(_options.SeleniumPageLoadDelay, cancellationToken);
         return _browser.PageSource;
     }
 
