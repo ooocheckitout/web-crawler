@@ -11,11 +11,13 @@ public class DataController : ControllerBase
 {
     readonly CollectionLocator _locator;
     readonly FileReader _fileReader;
+    readonly ILogger<DataController> _logger;
 
-    public DataController(CollectionLocator locator, FileReader fileReader)
+    public DataController(CollectionLocator locator, FileReader fileReader, ILogger<DataController> logger)
     {
         _locator = locator;
         _fileReader = fileReader;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -28,15 +30,19 @@ public class DataController : ControllerBase
         foreach (string fileLocation in Directory.EnumerateFiles(dataLocation))
         {
             if (properties.Count >= limit) break;
-            if (!System.IO.File.Exists(fileLocation)) continue;
 
             properties.AddRange(await _fileReader.ReadJsonAsync<IEnumerable<Property>>(fileLocation, cancellationToken));
         }
 
+        _logger.LogInformation("Start grouping {count} items", properties.Count);
+
         var grouped = properties
             .GroupBy(x => x.Name)
             .Select(x => new Property { Name = x.Key, Values = x.SelectMany(y => y.Values).ToList() })
-            .Take(limit);
+            .Take(limit)
+            .ToList();
+
+        _logger.LogInformation("Finish grouping {propertiesCount} items in {groupedCount}", properties.Count, grouped.Count);
 
         return grouped;
 

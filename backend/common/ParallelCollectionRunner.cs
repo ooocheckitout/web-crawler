@@ -44,7 +44,7 @@ public class ParallelCollectionRunner
 
     public async Task RunAsync(Collection collection, CancellationToken cancellationToken)
     {
-        using var scope = _logger.BeginScope("scope.collection", collection.Name);
+        using var scope = _logger.BeginScope("scope_collection", collection.Name);
 
         string lockFileLocation = _locator.GetLockFileLocation(collection.Name);
         if (File.Exists(lockFileLocation))
@@ -89,7 +89,7 @@ public class ParallelCollectionRunner
 
     async Task ProcessSingleUrlAsync(Collection collection, string url, CancellationToken cancellationToken)
     {
-        using var x = _logger.BeginScope("scope.url", url);
+        using var x = _logger.BeginScope("scope_url", url);
 
         try
         {

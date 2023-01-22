@@ -18,11 +18,14 @@ public class FileReader
     public async Task<T> ReadJsonAsync<T>(string fileLocation, CancellationToken cancellationToken)
     {
         string content = await ReadTextAsync(fileLocation, cancellationToken);
-        return JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions
-               {
-                   PropertyNameCaseInsensitive = true,
-                   Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
-               })
+        var jsonSerializerOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+            AllowTrailingCommas = true,
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
+        return JsonSerializer.Deserialize<T>(content, jsonSerializerOptions)
                ?? throw new InvalidOperationException("File content is not compatible with the schema");
     }
 
