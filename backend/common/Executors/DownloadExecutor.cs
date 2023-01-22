@@ -25,7 +25,7 @@ public class DownloadExecutor
             return;
         }
 
-        using var downloader = _downloaders.TakeLease();
+        using var downloader = _downloaders.TakeShortRunningLease();
         string htmlContent = await downloader.Value.DownloadAsTextAsync(url, cancellationToken);
         await _fileWriter.AsTextAsync(htmlLocation, htmlContent, cancellationToken);
 

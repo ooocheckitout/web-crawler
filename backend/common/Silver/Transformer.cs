@@ -1,141 +1,139 @@
-﻿namespace common.Silver;
+﻿using Microsoft.Extensions.Logging;
+
+namespace common.Silver;
 
 public class Transformer
 {
-    public IEnumerable<Property> Transform(IEnumerable<Property> data, TransformerSchema schema)
+    readonly ILogger<Transformer> _logger;
+
+    readonly Dictionary<string, Func<ComputedProperty, IReadOnlyDictionary<string, Property>, Property>> _computeHandlers = new()
     {
-        var properties = data.Select(x => new Property { Name = x.Name, Values = x.Values }).ToList();
+        { "constant", CreateConstantProperty },
+        { "concatenate", CreateConcatenatedProperty },
+    };
+
+    public Transformer(ILogger<Transformer> logger)
+    {
+        _logger = logger;
+    }
+
+    public IEnumerable<Property> Transform(IReadOnlyCollection<Property> data, TransformerSchema schema)
+    {
+        var propertiesMap = data.ToDictionary(x => x.Name);
 
         foreach (var group in schema)
         {
             // computes
             foreach (var compute in group.Computes)
             {
-                if (compute.Type == "constant")
+                if (!_computeHandlers.ContainsKey(compute.Type))
                 {
-                    properties.Add(new Property
-                    {
-                        Name = compute.Alias,
-                        Values = compute.ConstantValues.Cast<object>().ToList()
-                    });
+                    _logger.LogWarning("Compute type {computeType} is not supported!", compute.Type);
+                    continue;
                 }
 
-                if (compute.Type == "concatenate")
-                {
-                    var computeProperties = compute.Properties.Select(x =>
-                    {
-                        var property = properties.Single(y => y.Name == x);
-                        return new TransformProperty { Name = property.Name, Values = property.Values, Alias = compute.Alias };
-                    }).ToList();
-
-                    int maxLength = computeProperties.Max(x => x.Values.Count);
-
-                    var filledProperties = new List<Property>();
-                    foreach (var property in computeProperties)
-                    {
-                        if (property.Values.Count == 1)
-                        {
-                            filledProperties.Add(new Property { Name = property.Name, Values = Enumerable.Repeat(property.Values[0], maxLength).ToList() });
-                            continue;
-                        }
-
-                        filledProperties.Add(property);
-                    }
-
-                    var concatenations = new List<string>();
-                    for (var concatIndex = 0; concatIndex < maxLength; concatIndex++)
-                    {
-                        var values = new List<object>();
-                        foreach (var property in filledProperties)
-                        {
-                            if (property.Values.Count == 0) continue;
-
-                            values.Add(property.Values[concatIndex]);
-                        }
-
-                        concatenations.Add(string.Join(compute.Separator, values));
-                    }
-
-                    properties.Add(new Property
-                    {
-                        Name = compute.Alias,
-                        Values = concatenations.Cast<object>().ToList()
-                    });
-                }
+                var property = _computeHandlers[compute.Type](compute, propertiesMap);
+                propertiesMap.Add(property.Name, property);
             }
-
 
             // groupings
-            var objects = new List<IDictionary<string, object>>();
-            var groupProperties = group.Properties.Select(x =>
-            {
-                var property = properties.Single(y => y.Name == x.Ref);
-                return new TransformProperty { Name = property.Name, Values = property.Values, Alias = x.Alias };
-            }).ToList();
-
-            if (!groupProperties.Any()) continue;
-
-            int numberOfElements = groupProperties.Max(x => x.Values.Count);
-
-            for (var index = 0; index < numberOfElements; index++)
-            {
-                var obj = new Dictionary<string, object>();
-                foreach (var property in groupProperties)
-                {
-                    if (property.Values.Count == 0)
-                        continue;
-
-                    obj[property.Alias!] = property.Values[index];
-                }
-
-                objects.Add(obj);
-            }
+            var groupProperties = group.Properties.Select(x => CreatePropertyByRef(propertiesMap, x)).ToList();
+            var objects = CreateGroupBy(groupProperties).ToList();
 
             // partitions
-            var partitionProperties = group.Partitions.Select(x =>
+            var partitionProperties = group.Partitions.Select(x => CreatePropertyByRef(propertiesMap, x)).ToList();
+            var partitions = partitionProperties.SelectMany(x => PartitionOver(objects, x));
+            foreach (var partition in partitions)
             {
-                var property = properties.Single(y => y.Name == x.Ref);
-                return new TransformProperty { Name = property.Name, Values = property.Values, Alias = x.Alias };
-            });
-            foreach (var property in partitionProperties)
-            {
-                int numberOfObjects = objects.Count;
-                int numberOfPartitions = property.Values.Count;
-                int numberOfElementsInPartition = numberOfObjects / numberOfPartitions;
-
-                for (var index = 0; index < numberOfPartitions; index++)
-                {
-                    int from = index * numberOfElementsInPartition;
-                    int to = from + numberOfElementsInPartition;
-
-                    foreach (var obj in objects.Take(new Range(from, to)))
-                    {
-                        obj[property.Alias!] = property.Values[index];
-                    }
-                }
+                foreach (var partitionObject in partition.Objects)
+                    partitionObject[partition.Name] = partition.Value;
             }
 
-            // mappigns
+            // mappings
             foreach (var mapping in group.Mappings)
             {
-                var property = properties.Single(y => y.Name == mapping.Ref);
-                var enrichmentProperty = new TransformProperty { Name = property.Name, Values = property.Values, Alias = mapping.Alias };
-
+                var property = propertiesMap[mapping.Ref];
                 foreach (var obj in objects)
-                {
-                    if (mapping.AtIndex is null)
-                    {
-                        obj[enrichmentProperty.Alias] = enrichmentProperty.Values;
-                    }
-                    else
-                    {
-                        obj[enrichmentProperty.Alias] = enrichmentProperty.Values[mapping.AtIndex.Value];
-                    }
-                }
+                    obj[mapping.Alias] = mapping.AtIndex.HasValue ? property.Values[mapping.AtIndex.Value] : property.Values;
             }
 
-            // yield
             yield return new Property { Name = group.Name, Values = objects.Cast<object>().ToList() };
         }
+    }
+
+    Property CreatePropertyByRef(IDictionary<string, Property> propertyMap, PropertyReference reference)
+    {
+        if (propertyMap.ContainsKey(reference.Ref))
+            return new Property { Name = reference.Alias, Values = propertyMap[reference.Ref].Values };
+
+        _logger.LogInformation("Property is not found by reference {reference}. Continue with empty property...", reference.Ref);
+        return new Property { Name = reference.Alias };
+    }
+
+    static Property CreateConcatenatedProperty(ComputedProperty compute, IReadOnlyDictionary<string, Property> propertiesMap)
+    {
+        int maxLength = propertiesMap.Values.Max(x => x.Values.Count);
+        var propertyValues = compute.Properties
+            .Select(x => propertiesMap[x])
+            .Select(x => x.Values.Count == 1 ? Enumerable.Repeat(x.Values[0], maxLength).ToList() : x.Values)
+            .ToList();
+
+        var concatenations = new List<object>();
+        for (var concatIndex = 0; concatIndex < maxLength; concatIndex++)
+        {
+            var results = new List<object>();
+            foreach (var values in propertyValues)
+            {
+                if (values.Count != maxLength)
+                    throw new NotSupportedException(values.Count.ToString());
+
+                results.Add(values[concatIndex]);
+            }
+
+            concatenations.Add(string.Join(compute.Separator, results));
+        }
+
+        return new Property
+        {
+            Name = compute.Alias,
+            Values = concatenations.ToList()
+        };
+    }
+
+    static Property CreateConstantProperty(ComputedProperty compute, IReadOnlyDictionary<string, Property> propertiesMap)
+    {
+        return new Property
+        {
+            Name = compute.Alias,
+            Values = compute.ConstantValues.Cast<object>().ToList()
+        };
+    }
+
+    static IEnumerable<PartitionProperty> PartitionOver(List<IDictionary<string, object>> objects, Property property)
+    {
+        int numberOfPartitions = property.Values.Count;
+        int numberOfElementsInPartition = objects.Count / numberOfPartitions;
+
+        var partitions = new List<PartitionProperty>();
+        for (var partitionIndex = 0; partitionIndex < numberOfPartitions; partitionIndex++)
+        {
+            int from = partitionIndex * numberOfElementsInPartition;
+            int to = from + numberOfElementsInPartition;
+
+            partitions.Add(new PartitionProperty { Name = property.Name, Value = property.Values[partitionIndex], Objects = objects.GetRange(from, to) });
+        }
+
+        return partitions;
+    }
+
+    static IEnumerable<IDictionary<string, object>> CreateGroupBy(ICollection<Property> properties)
+    {
+        int maxLength = properties.Max(x => x.Values.Count);
+
+        var objects = new List<IDictionary<string, object>>();
+        for (var objectIndex = 0; objectIndex < maxLength; objectIndex++)
+            objects.Add(properties.ToDictionary(property => property.Name, property => property.Values[objectIndex]));
+
+        return objects;
     }
 }

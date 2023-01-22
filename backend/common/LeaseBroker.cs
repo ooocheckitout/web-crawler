@@ -19,7 +19,7 @@ public sealed class LeaseBroker<T> : IDisposable
         _logger = logger;
     }
 
-    public Lease TakeLease()
+    public Lease TakeShortRunningLease()
     {
         if (_available.TryPop(out var available))
         {

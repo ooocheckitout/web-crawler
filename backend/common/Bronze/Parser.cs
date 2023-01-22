@@ -15,21 +15,12 @@ public class Parser
         {
             var cleanedXPath = $"{field.Xpath} | {field.Xpath.Replace("tbody", "")}";
             var results = document.DocumentNode.SelectNodes(cleanedXPath);
+            var values = results?.Select(x => GetNodeValue(x, field)) ?? new List<string>();
 
-            if (results is null)
+            properties.Add(new Property
             {
-                properties.Add(new Property
-                {
-                    Name = field.Name, Values = new List<object>()
-                });
-            }
-            else
-            {
-                properties.Add(new Property
-                {
-                    Name = field.Name, Values = results.Select(x => GetNodeValue(x, field)).Cast<object>().ToList()
-                });
-            }
+                Name = field.Name, Values = values.Cast<object>().ToList()
+            });
         }
 
         return properties;
