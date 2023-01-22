@@ -74,7 +74,8 @@ public class ParallelCollectionRunner
                 await _fileWriter.AsTextAsync(componentsLocation, componentsStringBuilder.ToString(), cancellationToken);
 
                 _logger.LogInformation("Processed {batchCount} urls in {batchElapsed}", batch.Count, batchStopWatch.Elapsed);
-                _logger.LogInformation("Processed total {count} urls in {elapsed}", (batchWithIndex.Index + 1) * batch.Count, totalStopWatch.Elapsed);
+                _logger.LogInformation("Processed total {count} urls in {elapsed}",
+                    _options.BatchSize * batchWithIndex.Index + batch.Count, totalStopWatch.Elapsed);
             }
         }
         catch (Exception ex)

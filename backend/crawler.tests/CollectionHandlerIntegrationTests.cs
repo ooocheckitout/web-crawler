@@ -118,10 +118,66 @@ public class CollectionHandlerIntegrationTests
 
         using var browser = new ChromeDriver(chromeOptions);
 
+        // 00:00:01.8626307
+        // 00:00:01.3653800
+        // 00:00:01.1138389
+        // 00:00:00.7220983
+        // 00:00:01.0652734
+        // 00:00:00.6816677
+
+        // 00:00:02.6620293
+        // 00:00:02.1325738
+        // 00:00:01.1284220
+        // 00:00:01.0584083
+        // 00:00:01.1975408
+        // 00:00:01.1511698
+
+        // 00:00:01.9644915
+        // 00:00:01.5420511
+        // 00:00:01.1281208
+        // 00:00:00.9976159
+        // 00:00:01.0669306
+        // 00:00:01.2469746
+
         var sw = Stopwatch.StartNew();
-        browser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806/#offset=0");
+        browser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806");
         browser
-            .FindElement(By.XPath("/html/body/div/div[1]/div/div/div[2]/div[1]/div[1]/div/div[9]/ul/li/div[2]/a"))
+            .FindElement(By.XPath("/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[8]/ul/li[2]/div[2]/div[1]/a"))
+            .GetDomAttribute("href").Should().Be("/ua/product/182877/");
+        _testOutputHelper.WriteLine(sw.Elapsed.Dump());
+
+        sw = Stopwatch.StartNew();
+        browser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806");
+        browser
+            .FindElement(By.XPath("/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[8]/ul/li[2]/div[2]/div[1]/a"))
+            .GetDomAttribute("href").Should().Be("/ua/product/182877/");
+        _testOutputHelper.WriteLine(sw.Elapsed.Dump());
+
+        sw = Stopwatch.StartNew();
+        browser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806");
+        browser
+            .FindElement(By.XPath("/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[8]/ul/li[2]/div[2]/div[1]/a"))
+            .GetDomAttribute("href").Should().Be("/ua/product/182877/");
+        _testOutputHelper.WriteLine(sw.Elapsed.Dump());
+
+        sw = Stopwatch.StartNew();
+        browser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806");
+        browser
+            .FindElement(By.XPath("/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[8]/ul/li[2]/div[2]/div[1]/a"))
+            .GetDomAttribute("href").Should().Be("/ua/product/182877/");
+        _testOutputHelper.WriteLine(sw.Elapsed.Dump());
+
+        sw = Stopwatch.StartNew();
+        browser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806");
+        browser
+            .FindElement(By.XPath("/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[8]/ul/li[2]/div[2]/div[1]/a"))
+            .GetDomAttribute("href").Should().Be("/ua/product/182877/");
+        _testOutputHelper.WriteLine(sw.Elapsed.Dump());
+
+        sw = Stopwatch.StartNew();
+        browser.Navigate().GoToUrl("https://makeup.com.ua/ua/categorys/22806");
+        browser
+            .FindElement(By.XPath("/html/body/div[1]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[8]/ul/li[2]/div[2]/div[1]/a"))
             .GetDomAttribute("href").Should().Be("/ua/product/182877/");
         _testOutputHelper.WriteLine(sw.Elapsed.Dump());
     }
@@ -175,7 +231,7 @@ public class CollectionHandlerIntegrationTests
 
         var tasks = Enumerable.Range(0, numberOfItems).Select(_ => Task.Run(() =>
         {
-            var lease = broker.TakeLease();
+            var lease = broker.TakeShortRunningLease();
             Thread.Sleep(3000);
             broker.ReturnLease(lease);
         }));
@@ -193,7 +249,7 @@ public class CollectionHandlerIntegrationTests
 
         Parallel.ForEach(Enumerable.Range(0, numberOfItems), _ =>
         {
-            var lease = broker.TakeLease();
+            var lease = broker.TakeShortRunningLease();
             Thread.Sleep(3000);
             broker.ReturnLease(lease);
         });
@@ -210,7 +266,7 @@ public class CollectionHandlerIntegrationTests
 
         var workers = Enumerable.Range(0, numberOfItems).Select(_ => new Thread(() =>
         {
-            var lease = broker.TakeLease();
+            var lease = broker.TakeShortRunningLease();
             Thread.Sleep(3000);
             broker.ReturnLease(lease);
         })).ToList();
@@ -239,7 +295,6 @@ public class CollectionHandlerIntegrationTests
         // 3 items 3 drivers 22 sec
         // 6 items 3 drivers 32 sec
         // 9 items 3 drivers 38 sec
-
 
         const string xpath = "/html/body/div/div[1]/div/div/div[2]/div[1]/div[1]/div/div[9]/ul/li/div[2]/a";
         var items = new[]
@@ -273,7 +328,7 @@ public class CollectionHandlerIntegrationTests
         using var multiThreadWorker = new MultiThreadWorker(3, workerLogger);
         var actions = duplicatedItems.Select(item => new Func<Task>(async () =>
         {
-            var lease = drivers.TakeLease();
+            var lease = drivers.TakeShortRunningLease();
             var browser = lease.Value;
 
             var sw = Stopwatch.StartNew();

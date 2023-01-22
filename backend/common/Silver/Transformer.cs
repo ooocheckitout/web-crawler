@@ -6,15 +6,16 @@ public class Transformer
 {
     readonly ILogger<Transformer> _logger;
 
-    readonly Dictionary<string, Func<ComputedProperty, IReadOnlyDictionary<string, Property>, Property>> _computeHandlers = new()
-    {
-        { "constant", CreateConstantProperty },
-        { "concatenate", CreateConcatenatedProperty },
-    };
+    readonly Dictionary<string, Func<ComputedProperty, IReadOnlyDictionary<string, Property>, Property>> _computeHandlers;
 
     public Transformer(ILogger<Transformer> logger)
     {
         _logger = logger;
+        _computeHandlers = new Dictionary<string, Func<ComputedProperty, IReadOnlyDictionary<string, Property>, Property>>
+        {
+            { "constant", CreateConstantProperty },
+            { "concatenate", CreateConcatenatedProperty },
+        };
     }
 
     public IEnumerable<Property> Transform(IReadOnlyCollection<Property> data, TransformerSchema schema)
@@ -38,7 +39,7 @@ public class Transformer
 
             // groupings
             var groupProperties = group.Properties.Select(x => CreatePropertyByRef(propertiesMap, x)).ToList();
-            var objects = CreateGroupBy(groupProperties).ToList();
+            var objects = GroupBy(groupProperties).ToList();
 
             // partitions
             var partitionProperties = group.Partitions.Select(x => CreatePropertyByRef(propertiesMap, x)).ToList();
@@ -61,33 +62,37 @@ public class Transformer
         }
     }
 
-    Property CreatePropertyByRef(IDictionary<string, Property> propertyMap, PropertyReference reference)
+    Property CreatePropertyByRef(IReadOnlyDictionary<string, Property> propertyMap, PropertyReference reference)
     {
         if (propertyMap.ContainsKey(reference.Ref))
             return new Property { Name = reference.Alias, Values = propertyMap[reference.Ref].Values };
 
-        _logger.LogInformation("Property is not found by reference {reference}. Continue with empty property...", reference.Ref);
+        _logger.LogWarning("Property was not found by reference {reference}. Continue with empty property...", reference.Ref);
         return new Property { Name = reference.Alias };
     }
 
-    static Property CreateConcatenatedProperty(ComputedProperty compute, IReadOnlyDictionary<string, Property> propertiesMap)
+    Property CreateConcatenatedProperty(ComputedProperty compute, IReadOnlyDictionary<string, Property> propertiesMap)
     {
         int maxLength = propertiesMap.Values.Max(x => x.Values.Count);
-        var propertyValues = compute.Properties
-            .Select(x => propertiesMap[x])
-            .Select(x => x.Values.Count == 1 ? Enumerable.Repeat(x.Values[0], maxLength).ToList() : x.Values)
+        var filledProperties = compute.Properties
+            .Select(x => CreatePropertyByRef(propertiesMap, new PropertyReference { Alias = x, Ref = x }))
+            .Select(x => new Property { Name = x.Name, Values = x.Values.Count == 1 ? Enumerable.Repeat(x.Values[0], maxLength).ToList() : x.Values })
             .ToList();
 
         var concatenations = new List<object>();
         for (var concatIndex = 0; concatIndex < maxLength; concatIndex++)
         {
             var results = new List<object>();
-            foreach (var values in propertyValues)
+            foreach (var property in filledProperties)
             {
-                if (values.Count != maxLength)
-                    throw new NotSupportedException(values.Count.ToString());
+                if (property.Values.Count != maxLength)
+                {
+                    _logger.LogDebug("Property {property} has less {valuesCount} than expected {expectedCount} values for concatenation. Skipping...",
+                        property.Name, property.Values.Count, maxLength);
+                    continue;
+                }
 
-                results.Add(values[concatIndex]);
+                results.Add(property.Values[concatIndex]);
             }
 
             concatenations.Add(string.Join(compute.Separator, results));
@@ -126,13 +131,28 @@ public class Transformer
         return partitions;
     }
 
-    static IEnumerable<IDictionary<string, object>> CreateGroupBy(ICollection<Property> properties)
+    IEnumerable<IDictionary<string, object>> GroupBy(ICollection<Property> properties)
     {
         int maxLength = properties.Max(x => x.Values.Count);
 
         var objects = new List<IDictionary<string, object>>();
         for (var objectIndex = 0; objectIndex < maxLength; objectIndex++)
-            objects.Add(properties.ToDictionary(property => property.Name, property => property.Values[objectIndex]));
+        {
+            var obj = new Dictionary<string, object>();
+            foreach (var property in properties)
+            {
+                if (property.Values.Count < objectIndex)
+                {
+                    _logger.LogDebug("Property {property} has less {valuesCount} than expected {expectedCount} values for concatenation. Skipping...",
+                        property.Name, property.Values.Count, maxLength);
+                    continue;
+                }
+
+                obj.Add(property.Name, property.Values[objectIndex]);
+            }
+
+            objects.Add(obj);
+        }
 
         return objects;
     }
